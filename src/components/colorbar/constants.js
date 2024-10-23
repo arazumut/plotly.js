@@ -2,17 +2,17 @@
 
 module.exports = {
     cn: {
-        colorbar: 'colorbar',
-        cbbg: 'cbbg',
-        cbfill: 'cbfill',
-        cbfills: 'cbfills',
-        cbline: 'cbline',
-        cblines: 'cblines',
-        cbaxis: 'cbaxis',
-        cbtitleunshift: 'cbtitleunshift',
-        cbtitle: 'cbtitle',
-        cboutline: 'cboutline',
-        crisp: 'crisp',
-        jsPlaceholder: 'js-placeholder'
+        renkCubugu: 'renkCubugu',
+        arkaPlan: 'arkaPlan',
+        dolgu: 'dolgu',
+        dolgular: 'dolgular',
+        cizgi: 'cizgi',
+        cizgiler: 'cizgiler',
+        eksen: 'eksen',
+        baslikKaydir: 'baslikKaydir',
+        baslik: 'baslik',
+        kenarCizgisi: 'kenarCizgisi',
+        net: 'net',
+        jsYerTutucu: 'js-yerTutucu'
     }
 };

@@ -1,41 +1,41 @@
 'use strict';
 
 /**
- * Creates a set of padding attributes.
+ * Bir dizi dolgu (padding) özelliği oluşturur.
  *
- * @param {object} opts
- *   @param {string} editType:
- *     the editType for all pieces of this padding definition
+ * @param {object} seçenekler
+ *   @param {string} düzenlemeTürü:
+ *     bu dolgu tanımının tüm parçaları için düzenleme türü
  *
- * @return {object} attributes object containing {t, r, b, l} as specified
+ * @return {object} {t, r, b, l} olarak belirtilen özellikler nesnesi
  */
-module.exports = function(opts) {
-    var editType = opts.editType;
+module.exports = function(seçenekler) {
+    var düzenlemeTürü = seçenekler.düzenlemeTürü;
     return {
         t: {
-            valType: 'number',
-            dflt: 0,
-            editType: editType,
-            description: 'The amount of padding (in px) along the top of the component.'
+            valTipi: 'number',
+            varsayılan: 0,
+            düzenlemeTürü: düzenlemeTürü,
+            açıklama: 'Bileşenin üst kısmındaki dolgu miktarı (px cinsinden).'
         },
         r: {
-            valType: 'number',
-            dflt: 0,
-            editType: editType,
-            description: 'The amount of padding (in px) on the right side of the component.'
+            valTipi: 'number',
+            varsayılan: 0,
+            düzenlemeTürü: düzenlemeTürü,
+            açıklama: 'Bileşenin sağ tarafındaki dolgu miktarı (px cinsinden).'
         },
         b: {
-            valType: 'number',
-            dflt: 0,
-            editType: editType,
-            description: 'The amount of padding (in px) along the bottom of the component.'
+            valTipi: 'number',
+            varsayılan: 0,
+            düzenlemeTürü: düzenlemeTürü,
+            açıklama: 'Bileşenin alt kısmındaki dolgu miktarı (px cinsinden).'
         },
         l: {
-            valType: 'number',
-            dflt: 0,
-            editType: editType,
-            description: 'The amount of padding (in px) on the left side of the component.'
+            valTipi: 'number',
+            varsayılan: 0,
+            düzenlemeTürü: düzenlemeTürü,
+            açıklama: 'Bileşenin sol tarafındaki dolgu miktarı (px cinsinden).'
         },
-        editType: editType
+        düzenlemeTürü: düzenlemeTürü
     };
 };

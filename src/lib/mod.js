@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * sanitized modulus function that always returns in the range [0, d)
- * rather than (-d, 0] if v is negative
+ * Her zaman [0, d) aralığında dönen, negatifse (-d, 0] yerine
+ * sanitize edilmiş modül fonksiyonu
  */
 function mod(v, d) {
     var out = v % d;
@@ -10,8 +10,8 @@ function mod(v, d) {
 }
 
 /**
- * sanitized modulus function that always returns in the range [-d/2, d/2]
- * rather than (-d, 0] if v is negative
+ * Her zaman [-d/2, d/2] aralığında dönen, negatifse (-d, 0] yerine
+ * sanitize edilmiş modül fonksiyonu
  */
 function modHalf(v, d) {
     return Math.abs(v) > (d / 2) ?

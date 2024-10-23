@@ -1,118 +1,112 @@
 'use strict';
 
 module.exports = {
-    mode: {
+    mod: {
         valType: 'enumerated',
-        dflt: 'afterall',
-        values: ['immediate', 'next', 'afterall'],
+        dflt: 'hepsindenSonra',
+        values: ['hemen', 'sonraki', 'hepsindenSonra'],
         description: [
-            'Describes how a new animate call interacts with currently-running',
-            'animations. If `immediate`, current animations are interrupted and',
-            'the new animation is started. If `next`, the current frame is allowed',
-            'to complete, after which the new animation is started. If `afterall`',
-            'all existing frames are animated to completion before the new animation',
-            'is started.'
+            'Yeni bir animasyon çağrısının mevcut animasyonlarla nasıl etkileşime girdiğini açıklar.',
+            'Eğer `hemen` ise, mevcut animasyonlar kesilir ve yeni animasyon başlatılır.',
+            'Eğer `sonraki` ise, mevcut kare tamamlanır ve ardından yeni animasyon başlatılır.',
+            'Eğer `hepsindenSonra` ise, tüm mevcut kareler tamamlanana kadar yeni animasyon başlatılmaz.'
         ].join(' ')
     },
-    direction: {
+    yön: {
         valType: 'enumerated',
-        values: ['forward', 'reverse'],
-        dflt: 'forward',
+        values: ['ileri', 'geri'],
+        dflt: 'ileri',
         description: [
-            'The direction in which to play the frames triggered by the animation call'
+            'Animasyon çağrısı ile tetiklenen karelerin oynatılma yönü'
         ].join(' ')
     },
-    fromcurrent: {
+    mevcutKareden: {
         valType: 'boolean',
         dflt: false,
         description: [
-            'Play frames starting at the current frame instead of the beginning.'
+            'Kareleri baştan başlamak yerine mevcut kareden itibaren oynat.'
         ].join(' ')
     },
-    frame: {
-        duration: {
+    kare: {
+        süre: {
             valType: 'number',
             min: 0,
             dflt: 500,
             description: [
-                'The duration in milliseconds of each frame. If greater than the frame',
-                'duration, it will be limited to the frame duration.'
+                'Her karenin milisaniye cinsinden süresi. Kare süresinden büyükse, kare süresi ile sınırlanır.'
             ].join(' ')
         },
-        redraw: {
+        yenidenÇiz: {
             valType: 'boolean',
             dflt: true,
             description: [
-                'Redraw the plot at completion of the transition. This is desirable',
-                'for transitions that include properties that cannot be transitioned,',
-                'but may significantly slow down updates that do not require a full',
-                'redraw of the plot'
+                'Geçiş tamamlandığında grafiği yeniden çiz. Bu, geçiş yapılamayan özellikleri içeren geçişler için istenir,',
+                'ancak tam bir yeniden çizim gerektirmeyen güncellemeleri önemli ölçüde yavaşlatabilir.'
             ].join(' ')
         },
     },
-    transition: {
-        duration: {
+    geçiş: {
+        süre: {
             valType: 'number',
             min: 0,
             dflt: 500,
             editType: 'none',
             description: [
-                'The duration of the transition, in milliseconds. If equal to zero,',
-                'updates are synchronous.'
+                'Geçiş süresi, milisaniye cinsinden. Sıfır ise, güncellemeler eşzamanlıdır.'
             ].join(' ')
         },
-        easing: {
+        yumuşatma: {
             valType: 'enumerated',
-            dflt: 'cubic-in-out',
+            dflt: 'kübik-iç-dış',
             values: [
-                'linear',
-                'quad',
-                'cubic',
-                'sin',
-                'exp',
-                'circle',
-                'elastic',
-                'back',
-                'bounce',
-                'linear-in',
-                'quad-in',
-                'cubic-in',
-                'sin-in',
-                'exp-in',
-                'circle-in',
-                'elastic-in',
-                'back-in',
-                'bounce-in',
-                'linear-out',
-                'quad-out',
-                'cubic-out',
-                'sin-out',
-                'exp-out',
-                'circle-out',
-                'elastic-out',
-                'back-out',
-                'bounce-out',
-                'linear-in-out',
-                'quad-in-out',
-                'cubic-in-out',
-                'sin-in-out',
-                'exp-in-out',
-                'circle-in-out',
-                'elastic-in-out',
-                'back-in-out',
-                'bounce-in-out'
+                'doğrusal',
+                'kare',
+                'kübik',
+                'sinüs',
+                'üstel',
+                'daire',
+                'elastik',
+                'geri',
+                'zıplama',
+                'doğrusal-iç',
+                'kare-iç',
+                'kübik-iç',
+                'sinüs-iç',
+                'üstel-iç',
+                'daire-iç',
+                'elastik-iç',
+                'geri-iç',
+                'zıplama-iç',
+                'doğrusal-dış',
+                'kare-dış',
+                'kübik-dış',
+                'sinüs-dış',
+                'üstel-dış',
+                'daire-dış',
+                'elastik-dış',
+                'geri-dış',
+                'zıplama-dış',
+                'doğrusal-iç-dış',
+                'kare-iç-dış',
+                'kübik-iç-dış',
+                'sinüs-iç-dış',
+                'üstel-iç-dış',
+                'daire-iç-dış',
+                'elastik-iç-dış',
+                'geri-iç-dış',
+                'zıplama-iç-dış'
             ],
             editType: 'none',
-            description: 'The easing function used for the transition'
+            description: 'Geçiş için kullanılan yumuşatma fonksiyonu'
         },
-        ordering: {
+        sıralama: {
             valType: 'enumerated',
-            values: ['layout first', 'traces first'],
-            dflt: 'layout first',
+            values: ['düzen önce', 'izler önce'],
+            dflt: 'düzen önce',
             editType: 'none',
             description: [
-                'Determines whether the figure\'s layout or traces smoothly transitions',
-                'during updates that make both traces and layout change.'
+                'Hem izlerin hem de düzenin değiştiği güncellemeler sırasında figürün düzeninin mi yoksa izlerinin mi',
+                'daha yumuşak geçiş yapacağını belirler.'
             ].join(' ')
         }
     }

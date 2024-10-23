@@ -8,69 +8,59 @@ var Lib = require('../../lib');
 
 var makeComputeError = require('./compute_error');
 
-module.exports = function calc(gd) {
-    var calcdata = gd.calcdata;
+module.exports = function hesapla(gd) {
+    var hesaplamaVerisi = gd.calcdata;
 
-    for(var i = 0; i < calcdata.length; i++) {
-        var calcTrace = calcdata[i];
-        var trace = calcTrace[0].trace;
+    for(var i = 0; i < hesaplamaVerisi.length; i++) {
+        var hesaplamaIz = hesaplamaVerisi[i];
+        var iz = hesaplamaIz[0].trace;
 
-        if(trace.visible === true && Registry.traceIs(trace, 'errorBarsOK')) {
-            var xa = Axes.getFromId(gd, trace.xaxis);
-            var ya = Axes.getFromId(gd, trace.yaxis);
-            calcOneAxis(calcTrace, trace, xa, 'x');
-            calcOneAxis(calcTrace, trace, ya, 'y');
+        if(iz.visible === true && Registry.traceIs(iz, 'errorBarsOK')) {
+            var xa = Axes.getFromId(gd, iz.xaxis);
+            var ya = Axes.getFromId(gd, iz.yaxis);
+            birEksenHesapla(hesaplamaIz, iz, xa, 'x');
+            birEksenHesapla(hesaplamaIz, iz, ya, 'y');
         }
     }
 };
 
-function calcOneAxis(calcTrace, trace, axis, coord) {
-    var opts = trace['error_' + coord] || {};
-    var isVisible = (opts.visible && ['linear', 'log'].indexOf(axis.type) !== -1);
-    var vals = [];
+function birEksenHesapla(hesaplamaIz, iz, eksen, koordinat) {
+    var secenekler = iz['error_' + koordinat] || {};
+    var gorunur = (secenekler.visible && ['linear', 'log'].indexOf(eksen.type) !== -1);
+    var degerler = [];
 
-    if(!isVisible) return;
+    if(!gorunur) return;
 
-    var computeError = makeComputeError(opts);
+    var hataHesapla = makeComputeError(secenekler);
 
-    for(var i = 0; i < calcTrace.length; i++) {
-        var calcPt = calcTrace[i];
+    for(var i = 0; i < hesaplamaIz.length; i++) {
+        var hesaplamaNokta = hesaplamaIz[i];
 
-        var iIn = calcPt.i;
+        var iIn = hesaplamaNokta.i;
 
-        // for types that don't include `i` in each calcdata point
         if(iIn === undefined) iIn = i;
 
-        // for stacked area inserted points
-        // TODO: errorbars have been tested cursorily with stacked area,
-        // but not thoroughly. It's not even really clear what you want to do:
-        // Should it just be calculated based on that trace's size data?
-        // Should you add errors from below in quadrature?
-        // And what about normalization, where in principle the errors shrink
-        // again when you get up to the top end?
-        // One option would be to forbid errorbars with stacking until we
-        // decide how to handle these questions.
         else if(iIn === null) continue;
 
-        var calcCoord = calcPt[coord];
+        var hesaplamaKoordinat = hesaplamaNokta[koordinat];
 
-        if(!isNumeric(axis.c2l(calcCoord))) continue;
+        if(!isNumeric(eksen.c2l(hesaplamaKoordinat))) continue;
 
-        var errors = computeError(calcCoord, iIn);
-        if(isNumeric(errors[0]) && isNumeric(errors[1])) {
-            var shoe = calcPt[coord + 's'] = calcCoord - errors[0];
-            var hat = calcPt[coord + 'h'] = calcCoord + errors[1];
-            vals.push(shoe, hat);
+        var hatalar = hataHesapla(hesaplamaKoordinat, iIn);
+        if(isNumeric(hatalar[0]) && isNumeric(hatalar[1])) {
+            var altSinir = hesaplamaNokta[koordinat + 's'] = hesaplamaKoordinat - hatalar[0];
+            var ustSinir = hesaplamaNokta[koordinat + 'h'] = hesaplamaKoordinat + hatalar[1];
+            degerler.push(altSinir, ustSinir);
         }
     }
 
-    var axId = axis._id;
-    var baseExtremes = trace._extremes[axId];
-    var extremes = Axes.findExtremes(
-        axis,
-        vals,
-        Lib.extendFlat({tozero: baseExtremes.opts.tozero}, {padded: true})
+    var eksenId = eksen._id;
+    var temelEkstremler = iz._extremes[eksenId];
+    var ekstremler = Axes.findExtremes(
+        eksen,
+        degerler,
+        Lib.extendFlat({tozero: temelEkstremler.opts.tozero}, {padded: true})
     );
-    baseExtremes.min = baseExtremes.min.concat(extremes.min);
-    baseExtremes.max = baseExtremes.max.concat(extremes.max);
+    temelEkstremler.min = temelEkstremler.min.concat(ekstremler.min);
+    temelEkstremler.max = temelEkstremler.max.concat(ekstremler.max);
 }

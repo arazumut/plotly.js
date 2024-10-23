@@ -4,8 +4,7 @@ var sortObjectKeys = require('../../lib/sort_object_keys');
 var arcgisSatHybrid = require('./styles/arcgis-sat-hybrid'); // https://raw.githubusercontent.com/go2garret/maps/v1.0.0/LICENSE
 var arcgisSat = require('./styles/arcgis-sat');
 
-
-var OSM = '© <a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+var OSM = '© <a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> katkıda bulunanlar';
 
 var cartoPositron = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 var cartoDarkmatter = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
@@ -14,77 +13,72 @@ var cartoPositronNoLabels = 'https://basemaps.cartocdn.com/gl/positron-nolabels-
 var cartoDarkmatterNoLabels = 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json';
 var cartoVoyagerNoLabels = 'https://basemaps.cartocdn.com/gl/voyager-nolabels-gl-style/style.json';
 
-
-var stylesMap = {
-    basic: cartoVoyager,
-    streets: cartoVoyager,
-    outdoors: cartoVoyager,
-    light: cartoPositron,
-    dark: cartoDarkmatter,
-    satellite: arcgisSat,
-    'satellite-streets': arcgisSatHybrid,
-    'open-street-map': {
+var stilHaritasi = {
+    temel: cartoVoyager,
+    sokaklar: cartoVoyager,
+    dışmekan: cartoVoyager,
+    açık: cartoPositron,
+    koyu: cartoDarkmatter,
+    uydu: arcgisSat,
+    'uydu-sokaklar': arcgisSatHybrid,
+    'açık-sokak-haritası': {
         id: 'osm',
-        version: 8,
-        sources: {
+        versiyon: 8,
+        kaynaklar: {
             'plotly-osm-tiles': {
-                type: 'raster',
-                attribution: OSM,
-                tiles: [
+                tür: 'raster',
+                atıf: OSM,
+                döşemeler: [
                     'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
                 ],
-                tileSize: 256
+                döşemeBoyutu: 256
             }
         },
-        layers: [{
+        katmanlar: [{
             id: 'plotly-osm-tiles',
-            type: 'raster',
-            source: 'plotly-osm-tiles',
+            tür: 'raster',
+            kaynak: 'plotly-osm-tiles',
             minzoom: 0,
             maxzoom: 22
         }],
-        glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'
+        glifler: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'
     },
-    'white-bg': {
+    'beyaz-arka-plan': {
         id: 'white-bg',
-        version: 8,
-        sources: {},
-        layers: [{
+        versiyon: 8,
+        kaynaklar: {},
+        katmanlar: [{
             id: 'white-bg',
-            type: 'background',
-            paint: {'background-color': '#FFFFFF'},
+            tür: 'background',
+            boya: {'background-color': '#FFFFFF'},
             minzoom: 0,
             maxzoom: 22
         }],
-        glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'
+        glifler: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'
     },
     'carto-positron': cartoPositron,
     'carto-darkmatter': cartoDarkmatter,
     'carto-voyager': cartoVoyager,
-    'carto-positron-nolabels': cartoPositronNoLabels,
-    'carto-darkmatter-nolabels': cartoDarkmatterNoLabels,
-    'carto-voyager-nolabels': cartoVoyagerNoLabels,
+    'carto-positron-etiketsiz': cartoPositronNoLabels,
+    'carto-darkmatter-etiketsiz': cartoDarkmatterNoLabels,
+    'carto-voyager-etiketsiz': cartoVoyagerNoLabels,
 };
 
-var styleValuesMap = sortObjectKeys(stylesMap);
+var stilDegerleriHaritasi = sortObjectKeys(stilHaritasi);
 
 module.exports = {
-    styleValueDflt: 'basic',
-    stylesMap: stylesMap,
-    styleValuesMap: styleValuesMap,
+    varsayılanStilDegeri: 'temel',
+    stilHaritasi: stilHaritasi,
+    stilDegerleriHaritasi: stilDegerleriHaritasi,
 
-    traceLayerPrefix: 'plotly-trace-layer-',
-    layoutLayerPrefix: 'plotly-layout-layer-',
+    izKatmanÖneki: 'plotly-iz-katmanı-',
+    düzenKatmanÖneki: 'plotly-düzen-katmanı-',
 
-
-    missingStyleErrorMsg: [
-        'No valid maplibre style found, please set `map.style` to one of:',
-        styleValuesMap.join(', '),
-        'or use a tile service.'
+    eksikStilHataMesaji: [
+        'Geçerli bir maplibre stili bulunamadı, lütfen `map.style` değerini şu seçeneklerden birine ayarlayın:',
+        stilDegerleriHaritasi.join(', '),
+        'veya bir döşeme hizmeti kullanın.'
     ].join('\n'),
 
-
-    mapOnErrorMsg: 'Map error.',
-
-
+    haritaHataMesaji: 'Harita hatası.',
 };

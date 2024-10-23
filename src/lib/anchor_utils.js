@@ -1,53 +1,51 @@
 'use strict';
 
-
 /**
- * Determine the position anchor property of x/y xanchor/yanchor components.
+ * x/y xanchor/yanchor bileşenlerinin konumlama sabitleyici (anchor) özelliğini belirleyin.
  *
- * - values < 1/3 align the low side at that fraction,
- * - values [1/3, 2/3] align the center at that fraction,
- * - values > 2/3 align the right at that fraction.
+ * - değerler < 1/3 düşük tarafı o kesirde hizalar,
+ * - değerler [1/3, 2/3] merkezi o kesirde hizalar,
+ * - değerler > 2/3 sağ tarafı o kesirde hizalar.
  */
 
-
-exports.isLeftAnchor = function isLeftAnchor(opts) {
+exports.solSabitleyiciMi = function solSabitleyiciMi(opts) {
     return (
-      opts.xanchor === 'left' ||
-      (opts.xanchor === 'auto' && opts.x <= 1 / 3)
+        opts.xanchor === 'sol' ||
+        (opts.xanchor === 'otomatik' && opts.x <= 1 / 3)
     );
 };
 
-exports.isCenterAnchor = function isCenterAnchor(opts) {
+exports.merkezSabitleyiciMi = function merkezSabitleyiciMi(opts) {
     return (
-        opts.xanchor === 'center' ||
-        (opts.xanchor === 'auto' && opts.x > 1 / 3 && opts.x < 2 / 3)
+        opts.xanchor === 'merkez' ||
+        (opts.xanchor === 'otomatik' && opts.x > 1 / 3 && opts.x < 2 / 3)
     );
 };
 
-exports.isRightAnchor = function isRightAnchor(opts) {
+exports.sagSabitleyiciMi = function sagSabitleyiciMi(opts) {
     return (
-      opts.xanchor === 'right' ||
-      (opts.xanchor === 'auto' && opts.x >= 2 / 3)
+        opts.xanchor === 'sağ' ||
+        (opts.xanchor === 'otomatik' && opts.x >= 2 / 3)
     );
 };
 
-exports.isTopAnchor = function isTopAnchor(opts) {
+exports.ustSabitleyiciMi = function ustSabitleyiciMi(opts) {
     return (
-        opts.yanchor === 'top' ||
-        (opts.yanchor === 'auto' && opts.y >= 2 / 3)
+        opts.yanchor === 'üst' ||
+        (opts.yanchor === 'otomatik' && opts.y >= 2 / 3)
     );
 };
 
-exports.isMiddleAnchor = function isMiddleAnchor(opts) {
+exports.ortaSabitleyiciMi = function ortaSabitleyiciMi(opts) {
     return (
-        opts.yanchor === 'middle' ||
-        (opts.yanchor === 'auto' && opts.y > 1 / 3 && opts.y < 2 / 3)
+        opts.yanchor === 'orta' ||
+        (opts.yanchor === 'otomatik' && opts.y > 1 / 3 && opts.y < 2 / 3)
     );
 };
 
-exports.isBottomAnchor = function isBottomAnchor(opts) {
+exports.altSabitleyiciMi = function altSabitleyiciMi(opts) {
     return (
-      opts.yanchor === 'bottom' ||
-      (opts.yanchor === 'auto' && opts.y <= 1 / 3)
+        opts.yanchor === 'alt' ||
+        (opts.yanchor === 'otomatik' && opts.y <= 1 / 3)
     );
 };

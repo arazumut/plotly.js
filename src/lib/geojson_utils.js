@@ -3,14 +3,14 @@
 var BADNUM = require('../constants/numerical').BADNUM;
 
 /**
- * Convert calcTrace to GeoJSON 'MultiLineString' coordinate arrays
+ * calcTrace'i GeoJSON 'MultiLineString' koordinat dizilerine dönüştür
  *
  * @param {object} calcTrace
- *  gd.calcdata item.
- *  Note that calcTrace[i].lonlat is assumed to be defined
+ *  gd.calcdata öğesi.
+ *  calcTrace[i].lonlat'in tanımlı olduğu varsayılır
  *
  * @return {array}
- *  return line coords array (or array of arrays)
+ *  çizgi koordinatları dizisini (veya diziler dizisini) döndürür
  *
  */
 exports.calcTraceToLineCoords = function(calcTrace) {
@@ -39,14 +39,13 @@ exports.calcTraceToLineCoords = function(calcTrace) {
     return coords;
 };
 
-
 /**
- * Make line ('LineString' or 'MultiLineString') GeoJSON
+ * Çizgi ('LineString' veya 'MultiLineString') GeoJSON oluştur
  *
  * @param {array} coords
- *  results form calcTraceToLineCoords
+ *  calcTraceToLineCoords sonuçları
  * @return {object} out
- *  GeoJSON object
+ *  GeoJSON nesnesi
  *
  */
 exports.makeLine = function(coords) {
@@ -64,12 +63,12 @@ exports.makeLine = function(coords) {
 };
 
 /**
- * Make polygon ('Polygon' or 'MultiPolygon') GeoJSON
+ * Poligon ('Polygon' veya 'MultiPolygon') GeoJSON oluştur
  *
  * @param {array} coords
- *  results form calcTraceToLineCoords
+ *  calcTraceToLineCoords sonuçları
  * @return {object} out
- *  GeoJSON object
+ *  GeoJSON nesnesi
  */
 exports.makePolygon = function(coords) {
     if(coords.length === 1) {
@@ -92,10 +91,10 @@ exports.makePolygon = function(coords) {
 };
 
 /**
- * Make blank GeoJSON
+ * Boş GeoJSON oluştur
  *
  * @return {object}
- *  Blank GeoJSON object
+ *  Boş GeoJSON nesnesi
  *
  */
 exports.makeBlank = function() {

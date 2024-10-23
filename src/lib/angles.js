@@ -5,57 +5,57 @@ var mod = modModule.mod;
 var modHalf = modModule.modHalf;
 
 var PI = Math.PI;
-var twoPI = 2 * PI;
+var ikiPI = 2 * PI;
 
-function deg2rad(deg) { return deg / 180 * PI; }
+function dereceyiRadyanaCevir(derece) { return derece / 180 * PI; }
 
-function rad2deg(rad) { return rad / PI * 180; }
+function radyaniDereceyeCevir(radyan) { return radyan / PI * 180; }
 
 /**
- * is sector a full circle?
- * ... this comes up a lot in SVG path-drawing routines
+ * sektör tam bir daire mi?
+ * ... bu SVG yol çizim rutinlerinde sıkça karşılaşılan bir durum
  *
- * N.B. we consider all sectors that span more that 2pi 'full' circles
+ * Not: 2pi'den fazla olan tüm sektörleri 'tam' daire olarak kabul ediyoruz
  *
- * @param {2-item array} aBnds : angular bounds in *radians*
+ * @param {2 öğeli dizi} aBnds : açısal sınırlar *radyan* cinsinden
  * @return {boolean}
  */
-function isFullCircle(aBnds) {
-    return Math.abs(aBnds[1] - aBnds[0]) > twoPI - 1e-14;
+function tamDaireMi(aBnds) {
+    return Math.abs(aBnds[1] - aBnds[0]) > ikiPI - 1e-14;
 }
 
 /**
- * angular delta between angle 'a' and 'b'
- * solution taken from: https://stackoverflow.com/a/2007279
+ * 'a' ve 'b' açısı arasındaki açısal delta
+ * çözüm şu kaynaktan alınmıştır: https://stackoverflow.com/a/2007279
  *
- * @param {number} a : first angle in *radians*
- * @param {number} b : second angle in *radians*
- * @return {number} angular delta in *radians*
+ * @param {number} a : ilk açı *radyan* cinsinden
+ * @param {number} b : ikinci açı *radyan* cinsinden
+ * @return {number} açısal delta *radyan* cinsinden
  */
-function angleDelta(a, b) {
-    return modHalf(b - a, twoPI);
+function aciDelta(a, b) {
+    return modHalf(b - a, ikiPI);
 }
 
 /**
- * angular distance between angle 'a' and 'b'
+ * 'a' ve 'b' açısı arasındaki açısal mesafe
  *
- * @param {number} a : first angle in *radians*
- * @param {number} b : second angle in *radians*
- * @return {number} angular distance in *radians*
+ * @param {number} a : ilk açı *radyan* cinsinden
+ * @param {number} b : ikinci açı *radyan* cinsinden
+ * @return {number} açısal mesafe *radyan* cinsinden
  */
-function angleDist(a, b) {
-    return Math.abs(angleDelta(a, b));
+function aciMesafesi(a, b) {
+    return Math.abs(aciDelta(a, b));
 }
 
 /**
- * is angle inside sector?
+ * açı sektör içinde mi?
  *
- * @param {number} a : angle to test in *radians*
- * @param {2-item array} aBnds : sector's angular bounds in *radians*
+ * @param {number} a : test edilecek açı *radyan* cinsinden
+ * @param {2 öğeli dizi} aBnds : sektörün açısal sınırları *radyan* cinsinden
  * @param {boolean}
  */
-function isAngleInsideSector(a, aBnds) {
-    if(isFullCircle(aBnds)) return true;
+function aciSektorIcindeMi(a, aBnds) {
+    if(tamDaireMi(aBnds)) return true;
 
     var s0, s1;
 
@@ -67,27 +67,27 @@ function isAngleInsideSector(a, aBnds) {
         s1 = aBnds[0];
     }
 
-    s0 = mod(s0, twoPI);
-    s1 = mod(s1, twoPI);
-    if(s0 > s1) s1 += twoPI;
+    s0 = mod(s0, ikiPI);
+    s1 = mod(s1, ikiPI);
+    if(s0 > s1) s1 += ikiPI;
 
-    var a0 = mod(a, twoPI);
-    var a1 = a0 + twoPI;
+    var a0 = mod(a, ikiPI);
+    var a1 = a0 + ikiPI;
 
     return (a0 >= s0 && a0 <= s1) || (a1 >= s0 && a1 <= s1);
 }
 
 /**
- * is pt (r,a) inside sector?
+ * nokta (r,a) sektör içinde mi?
  *
- * @param {number} r : pt's radial coordinate
- * @param {number} a : pt's angular coordinate in *radians*
- * @param {2-item array} rBnds : sector's radial bounds
- * @param {2-item array} aBnds : sector's angular bounds in *radians*
+ * @param {number} r : noktanın radyal koordinatı
+ * @param {number} a : noktanın açısal koordinatı *radyan* cinsinden
+ * @param {2 öğeli dizi} rBnds : sektörün radyal sınırları
+ * @param {2 öğeli dizi} aBnds : sektörün açısal sınırları *radyan* cinsinden
  * @return {boolean}
  */
-function isPtInsideSector(r, a, rBnds, aBnds) {
-    if(!isAngleInsideSector(a, aBnds)) return false;
+function noktaSektorIcindeMi(r, a, rBnds, aBnds) {
+    if(!aciSektorIcindeMi(a, aBnds)) return false;
 
     var r0, r1;
 
@@ -102,72 +102,72 @@ function isPtInsideSector(r, a, rBnds, aBnds) {
     return r >= r0 && r <= r1;
 }
 
-// common to pathArc, pathSector and pathAnnulus
-function _path(r0, r1, a0, a1, cx, cy, isClosed) {
+// pathArc, pathSector ve pathAnnulus için ortak
+function _yol(r0, r1, a0, a1, cx, cy, kapaliMi) {
     cx = cx || 0;
     cy = cy || 0;
 
-    var isCircle = isFullCircle([a0, a1]);
-    var aStart, aMid, aEnd;
-    var rStart, rEnd;
+    var tamDaire = tamDaireMi([a0, a1]);
+    var aBaslangic, aOrta, aSon;
+    var rBaslangic, rSon;
 
-    if(isCircle) {
-        aStart = 0;
-        aMid = PI;
-        aEnd = twoPI;
+    if(tamDaire) {
+        aBaslangic = 0;
+        aOrta = PI;
+        aSon = ikiPI;
     } else {
         if(a0 < a1) {
-            aStart = a0;
-            aEnd = a1;
+            aBaslangic = a0;
+            aSon = a1;
         } else {
-            aStart = a1;
-            aEnd = a0;
+            aBaslangic = a1;
+            aSon = a0;
         }
     }
 
     if(r0 < r1) {
-        rStart = r0;
-        rEnd = r1;
+        rBaslangic = r0;
+        rSon = r1;
     } else {
-        rStart = r1;
-        rEnd = r0;
+        rBaslangic = r1;
+        rSon = r0;
     }
 
-    // N.B. svg coordinates here, where y increases downward
-    function pt(r, a) {
+    // Not: burada svg koordinatları, y aşağı doğru artar
+    function nokta(r, a) {
         return [r * Math.cos(a) + cx, cy - r * Math.sin(a)];
     }
 
-    var largeArc = Math.abs(aEnd - aStart) <= PI ? 0 : 1;
-    function arc(r, a, cw) {
-        return 'A' + [r, r] + ' ' + [0, largeArc, cw] + ' ' + pt(r, a);
+    var buyukYay = Math.abs(aSon - aBaslangic) <= PI ? 0 : 1;
+    function yay(r, a, saatYonu) {
+        return 'A' + [r, r] + ' ' + [0, buyukYay, saatYonu] + ' ' + nokta(r, a);
     }
 
     var p;
 
-    if(isCircle) {
-        if(rStart === null) {
-            p = 'M' + pt(rEnd, aStart) +
-                arc(rEnd, aMid, 0) +
-                arc(rEnd, aEnd, 0) + 'Z';
+    if(tamDaire) {
+        if(rBaslangic === null) {
+            p = 'M' + nokta(rSon, aBaslangic) +
+                yay(rSon, aOrta, 0) +
+                yay(rSon, aSon, 0) + 'Z';
         } else {
-            p = 'M' + pt(rStart, aStart) +
-                arc(rStart, aMid, 0) +
-                arc(rStart, aEnd, 0) + 'Z' +
-                'M' + pt(rEnd, aStart) +
-                arc(rEnd, aMid, 1) +
-                arc(rEnd, aEnd, 1) + 'Z';
+            p = 'M' + nokta(rBaslangic, aBaslangic) +
+                yay(rBaslangic, aOrta, 0) +
+                yay(rBaslangic, aSon, 0) + 'Z' +
+                'M' + nokta(rSon, aBaslangic) +
+                yay(rSon, aOrta, 1) +
+                yay(rSon, aSon, 1) + 'Z';
         }
     } else {
-        if(rStart === null) {
-            p = 'M' + pt(rEnd, aStart) + arc(rEnd, aEnd, 0);
-            if(isClosed) p += 'L0,0Z';
+        if(rBaslangic === null) {
+            p = 'M' + nokta(rSon, aBaslangic) + yay(rSon, aSon, 0);
+            if(kapaliMi) p += 'L0,0Z';
         } else {
-            p = 'M' + pt(rStart, aStart) +
-                'L' + pt(rEnd, aStart) +
-                arc(rEnd, aEnd, 0) +
-                'L' + pt(rStart, aEnd) +
-                arc(rStart, aStart, 1) + 'Z';
+            p = 'M' + nokta(rBaslangic, aBaslangic) +
+                'L' + nokta(rSon, aBaslangic) +
+                yay(rSon, aSon, 0) +
+                'L' + nokta(rBaslangic, aSon) +
+                yay(rBaslangic, aBaslangic, 1) + 'Z';
         }
     }
 
@@ -175,57 +175,57 @@ function _path(r0, r1, a0, a1, cx, cy, isClosed) {
 }
 
 /**
- * path an arc
+ * bir yay yolu
  *
- * @param {number} r : radius
- * @param {number} a0 : first angular coordinate in *radians*
- * @param {number} a1 : second angular coordinate in *radians*
- * @param {number (optional)} cx : x coordinate of center
- * @param {number (optional)} cy : y coordinate of center
- * @return {string} svg path
+ * @param {number} r : yarıçap
+ * @param {number} a0 : ilk açısal koordinat *radyan* cinsinden
+ * @param {number} a1 : ikinci açısal koordinat *radyan* cinsinden
+ * @param {number (isteğe bağlı)} cx : merkezin x koordinatı
+ * @param {number (isteğe bağlı)} cy : merkezin y koordinatı
+ * @return {string} svg yolu
  */
-function pathArc(r, a0, a1, cx, cy) {
-    return _path(null, r, a0, a1, cx, cy, 0);
+function yayYolu(r, a0, a1, cx, cy) {
+    return _yol(null, r, a0, a1, cx, cy, 0);
 }
 
 /**
- * path a sector
+ * bir sektör yolu
  *
- * @param {number} r : radius
- * @param {number} a0 : first angular coordinate in *radians*
- * @param {number} a1 : second angular coordinate in *radians*
- * @param {number (optional)} cx : x coordinate of center
- * @param {number (optional)} cy : y coordinate of center
- * @return {string} svg path
+ * @param {number} r : yarıçap
+ * @param {number} a0 : ilk açısal koordinat *radyan* cinsinden
+ * @param {number} a1 : ikinci açısal koordinat *radyan* cinsinden
+ * @param {number (isteğe bağlı)} cx : merkezin x koordinatı
+ * @param {number (isteğe bağlı)} cy : merkezin y koordinatı
+ * @return {string} svg yolu
  */
-function pathSector(r, a0, a1, cx, cy) {
-    return _path(null, r, a0, a1, cx, cy, 1);
+function sektorYolu(r, a0, a1, cx, cy) {
+    return _yol(null, r, a0, a1, cx, cy, 1);
 }
 
 /**
- * path an annulus
+ * bir halka yolu
  *
- * @param {number} r0 : first radial coordinate
- * @param {number} r1 : second radial coordinate
- * @param {number} a0 : first angular coordinate in *radians*
- * @param {number} a1 : second angular coordinate in *radians*
- * @param {number (optional)} cx : x coordinate of center
- * @param {number (optional)} cy : y coordinate of center
- * @return {string} svg path
+ * @param {number} r0 : ilk radyal koordinat
+ * @param {number} r1 : ikinci radyal koordinat
+ * @param {number} a0 : ilk açısal koordinat *radyan* cinsinden
+ * @param {number} a1 : ikinci açısal koordinat *radyan* cinsinden
+ * @param {number (isteğe bağlı)} cx : merkezin x koordinatı
+ * @param {number (isteğe bağlı)} cy : merkezin y koordinatı
+ * @return {string} svg yolu
  */
-function pathAnnulus(r0, r1, a0, a1, cx, cy) {
-    return _path(r0, r1, a0, a1, cx, cy, 1);
+function halkaYolu(r0, r1, a0, a1, cx, cy) {
+    return _yol(r0, r1, a0, a1, cx, cy, 1);
 }
 
 module.exports = {
-    deg2rad: deg2rad,
-    rad2deg: rad2deg,
-    angleDelta: angleDelta,
-    angleDist: angleDist,
-    isFullCircle: isFullCircle,
-    isAngleInsideSector: isAngleInsideSector,
-    isPtInsideSector: isPtInsideSector,
-    pathArc: pathArc,
-    pathSector: pathSector,
-    pathAnnulus: pathAnnulus
+    dereceyiRadyanaCevir: dereceyiRadyanaCevir,
+    radyaniDereceyeCevir: radyaniDereceyeCevir,
+    aciDelta: aciDelta,
+    aciMesafesi: aciMesafesi,
+    tamDaireMi: tamDaireMi,
+    aciSektorIcindeMi: aciSektorIcindeMi,
+    noktaSektorIcindeMi: noktaSektorIcindeMi,
+    yayYolu: yayYolu,
+    sektorYolu: sektorYolu,
+    halkaYolu: halkaYolu
 };

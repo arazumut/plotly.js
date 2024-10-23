@@ -1,19 +1,18 @@
 'use strict';
 
-
 module.exports = {
 
-    // 'y' position pad above counter axis domain
+    // Karşı eksen alanının üstündeki 'y' pozisyonu boşluğu
     yPad: 0.02,
 
-    // minimum button width (regardless of text size)
+    // Minimum buton genişliği (metin boyutundan bağımsız olarak)
     minButtonWidth: 30,
 
-    // buttons rect radii
+    // Butonların köşe yarıçapları
     rx: 3,
     ry: 3,
 
-    // light fraction used to compute the 'activecolor' default
+    // 'activecolor' varsayılanını hesaplamak için kullanılan açık renk oranı
     lightAmount: 25,
     darkAmount: 10
 };

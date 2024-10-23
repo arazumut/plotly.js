@@ -1,17 +1,16 @@
 'use strict';
 
-
 module.exports = {
     xaxis: {
         valType: 'subplotid',
         dflt: 'x',
         editType: 'calc+clearAxisTypes',
         description: [
-            'Sets a reference between this trace\'s x coordinates and',
-            'a 2D cartesian x axis.',
-            'If *x* (the default value), the x coordinates refer to',
-            '`layout.xaxis`.',
-            'If *x2*, the x coordinates refer to `layout.xaxis2`, and so on.'
+            'Bu izleme (trace) nesnesinin x koordinatları ile',
+            '2D kartezyen x ekseni arasında bir referans ayarlar.',
+            'Eğer *x* (varsayılan değer) ise, x koordinatları',
+            '`layout.xaxis` ile ilişkilidir.',
+            'Eğer *x2* ise, x koordinatları `layout.xaxis2` ile ilişkilidir ve bu şekilde devam eder.'
         ].join(' ')
     },
     yaxis: {
@@ -19,11 +18,11 @@ module.exports = {
         dflt: 'y',
         editType: 'calc+clearAxisTypes',
         description: [
-            'Sets a reference between this trace\'s y coordinates and',
-            'a 2D cartesian y axis.',
-            'If *y* (the default value), the y coordinates refer to',
-            '`layout.yaxis`.',
-            'If *y2*, the y coordinates refer to `layout.yaxis2`, and so on.'
+            'Bu izleme (trace) nesnesinin y koordinatları ile',
+            '2D kartezyen y ekseni arasında bir referans ayarlar.',
+            'Eğer *y* (varsayılan değer) ise, y koordinatları',
+            '`layout.yaxis` ile ilişkilidir.',
+            'Eğer *y2* ise, y koordinatları `layout.yaxis2` ile ilişkilidir ve bu şekilde devam eder.'
         ].join(' ')
     }
 };

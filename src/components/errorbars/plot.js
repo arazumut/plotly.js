@@ -6,157 +6,152 @@ var isNumeric = require('fast-isnumeric');
 var Drawing = require('../drawing');
 var subTypes = require('../../traces/scatter/subtypes');
 
-module.exports = function plot(gd, traces, plotinfo, transitionOpts) {
-    var isNew;
+module.exports = function plot(gd, izler, plotinfo, transitionOpts) {
+    var yeniMi;
 
     var xa = plotinfo.xaxis;
     var ya = plotinfo.yaxis;
 
-    var hasAnimation = transitionOpts && transitionOpts.duration > 0;
-    var isStatic = gd._context.staticPlot;
+    var animasyonVarMi = transitionOpts && transitionOpts.duration > 0;
+    var statikMi = gd._context.staticPlot;
 
-    traces.each(function(d) {
-        var trace = d[0].trace;
-        // || {} is in case the trace (specifically scatterternary)
-        // doesn't support error bars at all, but does go through
-        // the scatter.plot mechanics, which calls ErrorBars.plot
-        // internally
-        var xObj = trace.error_x || {};
-        var yObj = trace.error_y || {};
+    izler.each(function(d) {
+        var iz = d[0].trace;
+        var xObj = iz.error_x || {};
+        var yObj = iz.error_y || {};
 
-        var keyFunc;
+        var anahtarFonksiyonu;
 
-        if(trace.ids) {
-            keyFunc = function(d) {return d.id;};
+        if(iz.ids) {
+            anahtarFonksiyonu = function(d) {return d.id;};
         }
 
-        var sparse = (
-            subTypes.hasMarkers(trace) &&
-            trace.marker.maxdisplayed > 0
+        var seyrek = (
+            subTypes.hasMarkers(iz) &&
+            iz.marker.maxdisplayed > 0
         );
 
         if(!yObj.visible && !xObj.visible) d = [];
 
-        var errorbars = d3.select(this).selectAll('g.errorbar')
-            .data(d, keyFunc);
+        var hataCizgileri = d3.select(this).selectAll('g.errorbar')
+            .data(d, anahtarFonksiyonu);
 
-        errorbars.exit().remove();
+        hataCizgileri.exit().remove();
 
         if(!d.length) return;
 
-        if(!xObj.visible) errorbars.selectAll('path.xerror').remove();
-        if(!yObj.visible) errorbars.selectAll('path.yerror').remove();
+        if(!xObj.visible) hataCizgileri.selectAll('path.xerror').remove();
+        if(!yObj.visible) hataCizgileri.selectAll('path.yerror').remove();
 
-        errorbars.style('opacity', 1);
+        hataCizgileri.style('opacity', 1);
 
-        var enter = errorbars.enter().append('g')
+        var giris = hataCizgileri.enter().append('g')
             .classed('errorbar', true);
 
-        if(hasAnimation) {
-            enter.style('opacity', 0).transition()
+        if(animasyonVarMi) {
+            giris.style('opacity', 0).transition()
                 .duration(transitionOpts.duration)
                 .style('opacity', 1);
         }
 
-        Drawing.setClipUrl(errorbars, plotinfo.layerClipId, gd);
+        Drawing.setClipUrl(hataCizgileri, plotinfo.layerClipId, gd);
 
-        errorbars.each(function(d) {
-            var errorbar = d3.select(this);
-            var coords = errorCoords(d, xa, ya);
+        hataCizgileri.each(function(d) {
+            var hataCizgisi = d3.select(this);
+            var koordinatlar = hataKoordinatlari(d, xa, ya);
 
-            if(sparse && !d.vis) return;
+            if(seyrek && !d.vis) return;
 
-            var path;
+            var yol;
 
-            var yerror = errorbar.select('path.yerror');
-            if(yObj.visible && isNumeric(coords.x) &&
-                    isNumeric(coords.yh) &&
-                    isNumeric(coords.ys)) {
+            var yHata = hataCizgisi.select('path.yerror');
+            if(yObj.visible && isNumeric(koordinatlar.x) &&
+                    isNumeric(koordinatlar.yh) &&
+                    isNumeric(koordinatlar.ys)) {
                 var yw = yObj.width;
 
-                path = 'M' + (coords.x - yw) + ',' +
-                    coords.yh + 'h' + (2 * yw) + // hat
-                    'm-' + yw + ',0V' + coords.ys; // bar
+                yol = 'M' + (koordinatlar.x - yw) + ',' +
+                    koordinatlar.yh + 'h' + (2 * yw) + // şapka
+                    'm-' + yw + ',0V' + koordinatlar.ys; // çubuk
 
+                if(!koordinatlar.noYS) yol += 'm-' + yw + ',0h' + (2 * yw); // ayakkabı
 
-                if(!coords.noYS) path += 'm-' + yw + ',0h' + (2 * yw); // shoe
+                yeniMi = !yHata.size();
 
-                isNew = !yerror.size();
-
-                if(isNew) {
-                    yerror = errorbar.append('path')
-                        .style('vector-effect', isStatic ? 'none' : 'non-scaling-stroke')
+                if(yeniMi) {
+                    yHata = hataCizgisi.append('path')
+                        .style('vector-effect', statikMi ? 'none' : 'non-scaling-stroke')
                         .classed('yerror', true);
-                } else if(hasAnimation) {
-                    yerror = yerror
+                } else if(animasyonVarMi) {
+                    yHata = yHata
                         .transition()
                             .duration(transitionOpts.duration)
                             .ease(transitionOpts.easing);
                 }
 
-                yerror.attr('d', path);
-            } else yerror.remove();
+                yHata.attr('d', yol);
+            } else yHata.remove();
 
-            var xerror = errorbar.select('path.xerror');
-            if(xObj.visible && isNumeric(coords.y) &&
-                    isNumeric(coords.xh) &&
-                    isNumeric(coords.xs)) {
+            var xHata = hataCizgisi.select('path.xerror');
+            if(xObj.visible && isNumeric(koordinatlar.y) &&
+                    isNumeric(koordinatlar.xh) &&
+                    isNumeric(koordinatlar.xs)) {
                 var xw = (xObj.copy_ystyle ? yObj : xObj).width;
 
-                path = 'M' + coords.xh + ',' +
-                    (coords.y - xw) + 'v' + (2 * xw) + // hat
-                    'm0,-' + xw + 'H' + coords.xs; // bar
+                yol = 'M' + koordinatlar.xh + ',' +
+                    (koordinatlar.y - xw) + 'v' + (2 * xw) + // şapka
+                    'm0,-' + xw + 'H' + koordinatlar.xs; // çubuk
 
-                if(!coords.noXS) path += 'm0,-' + xw + 'v' + (2 * xw); // shoe
+                if(!koordinatlar.noXS) yol += 'm0,-' + xw + 'v' + (2 * xw); // ayakkabı
 
-                isNew = !xerror.size();
+                yeniMi = !xHata.size();
 
-                if(isNew) {
-                    xerror = errorbar.append('path')
-                        .style('vector-effect', isStatic ? 'none' : 'non-scaling-stroke')
+                if(yeniMi) {
+                    xHata = hataCizgisi.append('path')
+                        .style('vector-effect', statikMi ? 'none' : 'non-scaling-stroke')
                         .classed('xerror', true);
-                } else if(hasAnimation) {
-                    xerror = xerror
+                } else if(animasyonVarMi) {
+                    xHata = xHata
                         .transition()
                             .duration(transitionOpts.duration)
                             .ease(transitionOpts.easing);
                 }
 
-                xerror.attr('d', path);
-            } else xerror.remove();
+                xHata.attr('d', yol);
+            } else xHata.remove();
         });
     });
 };
 
-// compute the coordinates of the error-bar objects
-function errorCoords(d, xa, ya) {
-    var out = {
+// hata çubuklarının koordinatlarını hesapla
+function hataKoordinatlari(d, xa, ya) {
+    var sonuc = {
         x: xa.c2p(d.x),
         y: ya.c2p(d.y)
     };
 
-    // calculate the error bar size and hat and shoe locations
+    // hata çubuğu boyutunu ve şapka ve ayakkabı konumlarını hesapla
     if(d.yh !== undefined) {
-        out.yh = ya.c2p(d.yh);
-        out.ys = ya.c2p(d.ys);
+        sonuc.yh = ya.c2p(d.yh);
+        sonuc.ys = ya.c2p(d.ys);
 
-        // if the shoes go off-scale (ie log scale, error bars past zero)
-        // clip the bar and hide the shoes
-        if(!isNumeric(out.ys)) {
-            out.noYS = true;
-            out.ys = ya.c2p(d.ys, true);
+        // ayakkabılar ölçek dışına çıkarsa (örneğin log ölçeği, sıfırın ötesindeki hata çubukları)
+        // çubuğu kırp ve ayakkabıları gizle
+        if(!isNumeric(sonuc.ys)) {
+            sonuc.noYS = true;
+            sonuc.ys = ya.c2p(d.ys, true);
         }
     }
 
     if(d.xh !== undefined) {
-        out.xh = xa.c2p(d.xh);
-        out.xs = xa.c2p(d.xs);
+        sonuc.xh = xa.c2p(d.xh);
+        sonuc.xs = xa.c2p(d.xs);
 
-        if(!isNumeric(out.xs)) {
-            out.noXS = true;
-            out.xs = xa.c2p(d.xs, true);
+        if(!isNumeric(sonuc.xs)) {
+            sonuc.noXS = true;
+            sonuc.xs = xa.c2p(d.xs, true);
         }
     }
 
-    return out;
+    return sonuc;
 }

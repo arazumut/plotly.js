@@ -8,73 +8,72 @@ var handleArrayContainerDefaults = require('../../plots/array_container_defaults
 var attributes = require('./attributes');
 var constants = require('./constants');
 
-
 module.exports = function handleDefaults(containerIn, containerOut, layout, counterAxes, calendar) {
     var selectorIn = containerIn.rangeselector || {};
     var selectorOut = Template.newContainer(containerOut, 'rangeselector');
 
-    function coerce(attr, dflt) {
-        return Lib.coerce(selectorIn, selectorOut, attributes, attr, dflt);
+    function zorla(attr, varsayılan) {
+        return Lib.coerce(selectorIn, selectorOut, attributes, attr, varsayılan);
     }
 
-    var buttons = handleArrayContainerDefaults(selectorIn, selectorOut, {
+    var butonlar = handleArrayContainerDefaults(selectorIn, selectorOut, {
         name: 'buttons',
-        handleItemDefaults: buttonDefaults,
+        handleItemDefaults: butonVarsayılanları,
         calendar: calendar
     });
 
-    var visible = coerce('visible', buttons.length > 0);
-    if(visible) {
-        var posDflt = getPosDflt(containerOut, layout, counterAxes);
-        coerce('x', posDflt[0]);
-        coerce('y', posDflt[1]);
+    var görünür = zorla('visible', butonlar.length > 0);
+    if(görünür) {
+        var posVarsayılan = varsayılanPozisyon(containerOut, layout, counterAxes);
+        zorla('x', posVarsayılan[0]);
+        zorla('y', posVarsayılan[1]);
         Lib.noneOrAll(containerIn, containerOut, ['x', 'y']);
 
-        coerce('xanchor');
-        coerce('yanchor');
+        zorla('xanchor');
+        zorla('yanchor');
 
-        Lib.coerceFont(coerce, 'font', layout.font);
+        Lib.coerceFont(zorla, 'font', layout.font);
 
-        var bgColor = coerce('bgcolor');
-        coerce('activecolor', Color.contrast(bgColor, constants.lightAmount, constants.darkAmount));
-        coerce('bordercolor');
-        coerce('borderwidth');
+        var arkaPlanRengi = zorla('bgcolor');
+        zorla('activecolor', Color.contrast(arkaPlanRengi, constants.lightAmount, constants.darkAmount));
+        zorla('bordercolor');
+        zorla('borderwidth');
     }
 };
 
-function buttonDefaults(buttonIn, buttonOut, selectorOut, opts) {
+function butonVarsayılanları(butonIn, butonOut, selectorOut, opts) {
     var calendar = opts.calendar;
 
-    function coerce(attr, dflt) {
-        return Lib.coerce(buttonIn, buttonOut, attributes.buttons, attr, dflt);
+    function zorla(attr, varsayılan) {
+        return Lib.coerce(butonIn, butonOut, attributes.buttons, attr, varsayılan);
     }
 
-    var visible = coerce('visible');
+    var görünür = zorla('visible');
 
-    if(visible) {
-        var step = coerce('step');
-        if(step !== 'all') {
-            if(calendar && calendar !== 'gregorian' && (step === 'month' || step === 'year')) {
-                buttonOut.stepmode = 'backward';
+    if(görünür) {
+        var adım = zorla('step');
+        if(adım !== 'all') {
+            if(calendar && calendar !== 'gregorian' && (adım === 'month' || adım === 'year')) {
+                butonOut.stepmode = 'backward';
             } else {
-                coerce('stepmode');
+                zorla('stepmode');
             }
 
-            coerce('count');
+            zorla('count');
         }
 
-        coerce('label');
+        zorla('label');
     }
 }
 
-function getPosDflt(containerOut, layout, counterAxes) {
-    var anchoredList = counterAxes.filter(function(ax) {
+function varsayılanPozisyon(containerOut, layout, counterAxes) {
+    var sabitlenenListe = counterAxes.filter(function(ax) {
         return layout[ax].anchor === containerOut._id;
     });
 
     var posY = 0;
-    for(var i = 0; i < anchoredList.length; i++) {
-        var domain = layout[anchoredList[i]].domain;
+    for(var i = 0; i < sabitlenenListe.length; i++) {
+        var domain = layout[sabitlenenListe[i]].domain;
         if(domain) posY = Math.max(domain[1], posY);
     }
 

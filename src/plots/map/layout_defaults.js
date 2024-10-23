@@ -1,12 +1,12 @@
 'use strict';
 
+// Gerekli kütüphaneleri dahil et
 var Lib = require('../../lib');
-
 var handleSubplotDefaults = require('../subplot_defaults');
 var handleArrayContainerDefaults = require('../array_container_defaults');
 var layoutAttributes = require('./layout_attributes');
 
-
+// Layout varsayılanlarını sağla
 module.exports = function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
     handleSubplotDefaults(layoutIn, layoutOut, fullData, {
         type: 'map',
@@ -16,6 +16,7 @@ module.exports = function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
     });
 };
 
+// Varsayılanları işle
 function handleDefaults(containerIn, containerOut, coerce) {
     coerce('style');
     coerce('center.lon');
@@ -42,10 +43,11 @@ function handleDefaults(containerIn, containerOut, coerce) {
         handleItemDefaults: handleLayerDefaults
     });
 
-    // copy ref to input container to update 'center' and 'zoom' on map move
+    // 'center' ve 'zoom' değerlerini harita hareketinde güncellemek için giriş konteynerine referans kopyala
     containerOut._input = containerIn;
 }
 
+// Katman varsayılanlarını işle
 function handleLayerDefaults(layerIn, layerOut) {
     function coerce(attr, dflt) {
         return Lib.coerce(layerIn, layerOut, layoutAttributes.layers, attr, dflt);
@@ -74,7 +76,7 @@ function handleLayerDefaults(layerIn, layerOut) {
 
         if(mustBeRasterLayer && type !== 'raster') {
             type = layerOut.type = 'raster';
-            Lib.log('Source types *raster* and *image* must drawn *raster* layer type.');
+            Lib.log('Kaynak türleri *raster* ve *image* *raster* katman türü olarak çizilmelidir.');
         }
 
         coerce('below');

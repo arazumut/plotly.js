@@ -1,18 +1,19 @@
 'use strict';
 
-module.exports = function eventData(out, pt, trace) {
-    // standard cartesian event data
+// Bu fonksiyon olay verilerini işler ve çıktı olarak döner
+module.exports = function olayVerisi(out, pt, iz) {
+    // Standart kartezyen olay verileri
     out.x = 'xVal' in pt ? pt.xVal : pt.x;
     out.y = 'yVal' in pt ? pt.yVal : pt.y;
-    if(pt.xa) out.xaxis = pt.xa;
-    if(pt.ya) out.yaxis = pt.ya;
+    if(pt.xa) out.xEkseni = pt.xa;
+    if(pt.ya) out.yEkseni = pt.ya;
 
-    if(trace.orientation === 'h') {
-        out.label = out.y;
-        out.value = out.x;
+    if(iz.orientasyon === 'h') {
+        out.etiket = out.y;
+        out.deger = out.x;
     } else {
-        out.label = out.x;
-        out.value = out.y;
+        out.etiket = out.x;
+        out.deger = out.y;
     }
 
     return out;

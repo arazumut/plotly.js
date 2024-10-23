@@ -1,97 +1,93 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var Axes = require('../../plots/cartesian/axes');
 var handleArrayContainerDefaults = require('../../plots/array_container_defaults');
-
 var handleAnnotationCommonDefaults = require('./common_defaults');
 var attributes = require('./attributes');
 
-
-module.exports = function supplyLayoutDefaults(layoutIn, layoutOut) {
+// Layout varsayılanlarını sağla
+module.exports = function layoutVarsayilanlariniSagla(layoutIn, layoutOut) {
     handleArrayContainerDefaults(layoutIn, layoutOut, {
         name: 'annotations',
-        handleItemDefaults: handleAnnotationDefaults
+        handleItemDefaults: annotationVarsayilanlariniIsle
     });
 };
 
-function handleAnnotationDefaults(annIn, annOut, fullLayout) {
-    function coerce(attr, dflt) {
+// Annotation varsayılanlarını işle
+function annotationVarsayilanlariniIsle(annIn, annOut, fullLayout) {
+    function zorla(attr, dflt) {
         return Lib.coerce(annIn, annOut, attributes, attr, dflt);
     }
 
-    var visible = coerce('visible');
-    var clickToShow = coerce('clicktoshow');
+    var gorunur = zorla('visible');
+    var tiklaGoster = zorla('clicktoshow');
 
-    if(!(visible || clickToShow)) return;
+    if (!(gorunur || tiklaGoster)) return;
 
-    handleAnnotationCommonDefaults(annIn, annOut, fullLayout, coerce);
+    handleAnnotationCommonDefaults(annIn, annOut, fullLayout, zorla);
 
-    var showArrow = annOut.showarrow;
+    var okGoster = annOut.showarrow;
 
-    // positioning
-    var axLetters = ['x', 'y'];
-    var arrowPosDflt = [-10, -30];
-    var gdMock = {_fullLayout: fullLayout};
+    // Konumlandırma
+    var eksenHarfleri = ['x', 'y'];
+    var okKonumVarsayilan = [-10, -30];
+    var gdMock = { _fullLayout: fullLayout };
 
-    for(var i = 0; i < 2; i++) {
-        var axLetter = axLetters[i];
+    for (var i = 0; i < 2; i++) {
+        var eksenHarf = eksenHarfleri[i];
 
         // xref, yref
-        var axRef = Axes.coerceRef(annIn, annOut, gdMock, axLetter, '', 'paper');
+        var eksenRef = Axes.coerceRef(annIn, annOut, gdMock, eksenHarf, '', 'paper');
 
-        if(axRef !== 'paper') {
-            var ax = Axes.getFromId(gdMock, axRef);
-            ax._annIndices.push(annOut._index);
+        if (eksenRef !== 'paper') {
+            var eksen = Axes.getFromId(gdMock, eksenRef);
+            eksen._annIndices.push(annOut._index);
         }
 
         // x, y
-        Axes.coercePosition(annOut, gdMock, coerce, axRef, axLetter, 0.5);
+        Axes.coercePosition(annOut, gdMock, zorla, eksenRef, eksenHarf, 0.5);
 
-        if(showArrow) {
-            var arrowPosAttr = 'a' + axLetter;
+        if (okGoster) {
+            var okKonumAttr = 'a' + eksenHarf;
             // axref, ayref
-            var aaxRef = Axes.coerceRef(annIn, annOut, gdMock, arrowPosAttr, 'pixel',
-                    ['pixel', 'paper']);
+            var aEksenRef = Axes.coerceRef(annIn, annOut, gdMock, okKonumAttr, 'pixel', ['pixel', 'paper']);
 
-            // for now the arrow can only be on the same axis or specified as pixels
-            // TODO: sometime it might be interesting to allow it to be on *any* axis
-            // but that would require updates to drawing & autorange code and maybe more
-            if(aaxRef !== 'pixel' && aaxRef !== axRef) {
-                aaxRef = annOut[arrowPosAttr] = 'pixel';
+            if (aEksenRef !== 'pixel' && aEksenRef !== eksenRef) {
+                aEksenRef = annOut[okKonumAttr] = 'pixel';
             }
 
             // ax, ay
-            var aDflt = (aaxRef === 'pixel') ? arrowPosDflt[i] : 0.4;
-            Axes.coercePosition(annOut, gdMock, coerce, aaxRef, arrowPosAttr, aDflt);
+            var aVarsayilan = (aEksenRef === 'pixel') ? okKonumVarsayilan[i] : 0.4;
+            Axes.coercePosition(annOut, gdMock, zorla, aEksenRef, okKonumAttr, aVarsayilan);
         }
 
         // xanchor, yanchor
-        coerce(axLetter + 'anchor');
+        zorla(eksenHarf + 'anchor');
 
         // xshift, yshift
-        coerce(axLetter + 'shift');
+        zorla(eksenHarf + 'shift');
     }
 
-    // if you have one coordinate you should have both
+    // Eğer bir koordinat varsa, her ikisi de olmalı
     Lib.noneOrAll(annIn, annOut, ['x', 'y']);
 
-    // if you have one part of arrow length you should have both
-    if(showArrow) {
+    // Eğer ok uzunluğunun bir kısmı varsa, her ikisi de olmalı
+    if (okGoster) {
         Lib.noneOrAll(annIn, annOut, ['ax', 'ay']);
     }
 
-    if(clickToShow) {
-        var xClick = coerce('xclick');
-        var yClick = coerce('yclick');
+    if (tiklaGoster) {
+        var xTikla = zorla('xclick');
+        var yTikla = zorla('yclick');
 
-        // put the actual click data to bind to into private attributes
-        // so we don't have to do this little bit of logic on every hover event
-        annOut._xclick = (xClick === undefined) ?
+        // Gerçek tıklama verilerini özel niteliklere koy
+        annOut._xclick = (xTikla === undefined) ?
             annOut.x :
-            Axes.cleanPosition(xClick, gdMock, annOut.xref);
-        annOut._yclick = (yClick === undefined) ?
+            Axes.cleanPosition(xTikla, gdMock, annOut.xref);
+        annOut._yclick = (yTikla === undefined) ?
             annOut.y :
-            Axes.cleanPosition(yClick, gdMock, annOut.yref);
+            Axes.cleanPosition(yTikla, gdMock, annOut.yref);
     }
 }

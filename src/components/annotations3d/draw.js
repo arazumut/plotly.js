@@ -1,42 +1,44 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var drawRaw = require('../annotations/draw').drawRaw;
 var project = require('../../plots/gl3d/project');
-var axLetters = ['x', 'y', 'z'];
+var eksenHarfleri = ['x', 'y', 'z'];
 
-module.exports = function draw(scene) {
-    var fullSceneLayout = scene.fullSceneLayout;
-    var dataScale = scene.dataScale;
-    var anns = fullSceneLayout.annotations;
+// draw fonksiyonunu dışa aktar
+module.exports = function çiz(scene) {
+    var tamSahneYerleşimi = scene.fullSceneLayout;
+    var veriÖlçeği = scene.dataScale;
+    var açıklamalar = tamSahneYerleşimi.annotations;
 
-    for(var i = 0; i < anns.length; i++) {
-        var ann = anns[i];
-        var annotationIsOffscreen = false;
+    for(var i = 0; i < açıklamalar.length; i++) {
+        var açıklama = açıklamalar[i];
+        var açıklamaEkranDışı = false;
 
         for(var j = 0; j < 3; j++) {
-            var axLetter = axLetters[j];
-            var pos = ann[axLetter];
-            var ax = fullSceneLayout[axLetter + 'axis'];
-            var posFraction = ax.r2fraction(pos);
+            var eksenHarf = eksenHarfleri[j];
+            var pozisyon = açıklama[eksenHarf];
+            var eksen = tamSahneYerleşimi[eksenHarf + 'axis'];
+            var pozisyonFraksiyonu = eksen.r2fraction(pozisyon);
 
-            if(posFraction < 0 || posFraction > 1) {
-                annotationIsOffscreen = true;
+            if(pozisyonFraksiyonu < 0 || pozisyonFraksiyonu > 1) {
+                açıklamaEkranDışı = true;
                 break;
             }
         }
 
-        if(annotationIsOffscreen) {
+        if(açıklamaEkranDışı) {
             scene.fullLayout._infolayer
                 .select('.annotation-' + scene.id + '[data-index="' + i + '"]')
                 .remove();
         } else {
-            ann._pdata = project(scene.glplot.cameraParams, [
-                fullSceneLayout.xaxis.r2l(ann.x) * dataScale[0],
-                fullSceneLayout.yaxis.r2l(ann.y) * dataScale[1],
-                fullSceneLayout.zaxis.r2l(ann.z) * dataScale[2]
+            açıklama._pdata = project(scene.glplot.cameraParams, [
+                tamSahneYerleşimi.xaxis.r2l(açıklama.x) * veriÖlçeği[0],
+                tamSahneYerleşimi.yaxis.r2l(açıklama.y) * veriÖlçeği[1],
+                tamSahneYerleşimi.zaxis.r2l(açıklama.z) * veriÖlçeği[2]
             ]);
 
-            drawRaw(scene.graphDiv, ann, i, scene.id, ann._xa, ann._ya);
+            drawRaw(scene.graphDiv, açıklama, i, scene.id, açıklama._xa, açıklama._ya);
         }
     }
 };

@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli kütüphaneleri ve modülleri dahil et
 var Lib = require('../../lib');
 var strTranslate = Lib.strTranslate;
 var strScale = Lib.strScale;
@@ -11,15 +12,15 @@ var svgTextUtils = require('../../lib/svg_text_utils');
 
 var Map = require('./map');
 
-var MAP = 'map';
+var HARITA = 'map';
 
-exports.name = MAP;
+exports.name = HARITA;
 
 exports.attr = 'subplot';
 
-exports.idRoot = MAP;
+exports.idRoot = HARITA;
 
-exports.idRegex = exports.attrRegex = Lib.counterRegex(MAP);
+exports.idRegex = exports.attrRegex = Lib.counterRegex(HARITA);
 
 exports.attributes = {
     subplot: {
@@ -27,10 +28,10 @@ exports.attributes = {
         dflt: 'map',
         editType: 'calc',
         description: [
-            'Sets a reference between this trace\'s data coordinates and',
-            'a map subplot.',
-            'If *map* (the default value), the data refer to `layout.map`.',
-            'If *map2*, the data refer to `layout.map2`, and so on.'
+            'Bu iz verilerinin koordinatları ile',
+            'bir harita alt grafiği arasında bir referans ayarlar.',
+            'Eğer *map* (varsayılan değer) ise, veriler `layout.map` referans alınır.',
+            'Eğer *map2* ise, veriler `layout.map2` referans alınır ve bu şekilde devam eder.'
         ].join(' ')
     }
 };
@@ -42,11 +43,11 @@ exports.supplyLayoutDefaults = require('./layout_defaults');
 exports.plot = function plot(gd) {
     var fullLayout = gd._fullLayout;
     var calcData = gd.calcdata;
-    var mapIds = fullLayout._subplots[MAP];
+    var mapIds = fullLayout._subplots[HARITA];
 
     for(var i = 0; i < mapIds.length; i++) {
         var id = mapIds[i];
-        var subplotCalcData = getSubplotCalcData(calcData, MAP, id);
+        var subplotCalcData = getSubplotCalcData(calcData, HARITA, id);
         var opts = fullLayout[id];
         var map = opts._subplot;
 
@@ -69,7 +70,7 @@ exports.plot = function plot(gd) {
 };
 
 exports.clean = function(newFullData, newFullLayout, oldFullData, oldFullLayout) {
-    var oldMapKeys = oldFullLayout._subplots[MAP] || [];
+    var oldMapKeys = oldFullLayout._subplots[HARITA] || [];
 
     for(var i = 0; i < oldMapKeys.length; i++) {
         var oldMapKey = oldMapKeys[i];
@@ -82,7 +83,7 @@ exports.clean = function(newFullData, newFullLayout, oldFullData, oldFullLayout)
 
 exports.toSVG = function(gd) {
     var fullLayout = gd._fullLayout;
-    var subplotIds = fullLayout._subplots[MAP];
+    var subplotIds = fullLayout._subplots[HARITA];
     var size = fullLayout._size;
 
     for(var i = 0; i < subplotIds.length; i++) {
@@ -105,7 +106,7 @@ exports.toSVG = function(gd) {
 
         var subplotDiv = d3.select(opts._subplot.div);
 
-        // Add attributions
+        // Atıfları ekle
         var attributions = subplotDiv
                               .select('.maplibregl-ctrl-attrib').text()
                               .replace('Improve this map', '');
@@ -126,7 +127,7 @@ exports.toSVG = function(gd) {
 
         var bBox = Drawing.bBox(attributionText.node());
 
-        // Break into multiple lines twice larger than domain
+        // Alanın iki katı genişliğinde çok satırlı metin
         var maxWidth = size.w * (domain.x[1] - domain.x[0]);
         if((bBox.width > maxWidth / 2)) {
             var multilineAttributions = attributions.split('|').join('<br>');
@@ -139,7 +140,7 @@ exports.toSVG = function(gd) {
         }
         attributionText.attr('transform', strTranslate(-3, -bBox.height + 8));
 
-        // Draw white rectangle behind text
+        // Metnin arkasına beyaz dikdörtgen çiz
         attributionGroup
           .insert('rect', '.static-attribution')
           .attr({
@@ -150,7 +151,7 @@ exports.toSVG = function(gd) {
               fill: 'rgba(255, 255, 255, 0.75)'
           });
 
-        // Scale down if larger than domain
+        // Alanın genişliğinden büyükse ölçekle
         var scaleRatio = 1;
         if((bBox.width + 6) > maxWidth) scaleRatio = maxWidth / (bBox.width + 6);
 
@@ -161,7 +162,7 @@ exports.toSVG = function(gd) {
 
 exports.updateFx = function(gd) {
     var fullLayout = gd._fullLayout;
-    var subplotIds = fullLayout._subplots[MAP];
+    var subplotIds = fullLayout._subplots[HARITA];
 
     for(var i = 0; i < subplotIds.length; i++) {
         var subplotObj = fullLayout[subplotIds[i]]._subplot;

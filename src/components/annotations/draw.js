@@ -32,6 +32,29 @@ module.exports = {
     drawRaw: drawRaw
 };
 
+
+/**
+ * updateAnnotation: update an existing annotation with new options
+ *
+ * @param {DOM element} gd
+ * @param {integer} index : index in 'annotations' container of the annotation to update
+ * @param {object} newOptions : new options to update the annotation with
+ */
+function updateAnnotation(gd, index, newOptions) {
+    var fullLayout = gd._fullLayout;
+    var annotations = fullLayout.annotations;
+
+    if (index < 0 || index >= annotations.length) {
+        console.error('Invalid annotation index');
+        return;
+    }
+
+    var annotation = annotations[index];
+    Object.assign(annotation, newOptions);
+
+    drawOne(gd, index);
+}
+
 /*
  * draw: draw all annotations without any new modifications
  */

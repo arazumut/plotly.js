@@ -2,22 +2,22 @@
 
 var Lib = require('../../lib');
 
-// arrayOk attributes, merge them into calcdata array
-module.exports = function arraysToCalcdata(cd, trace) {
+// arrayOk öznitelikleri, bunları calcdata dizisine birleştir
+module.exports = function dizileriHesapVerisineBirleştir(cd, iz) {
     for(var i = 0; i < cd.length; i++) cd[i].i = i;
 
-    Lib.mergeArray(trace.text, cd, 'tx');
-    Lib.mergeArray(trace.hovertext, cd, 'htx');
+    Lib.diziBirleştir(iz.text, cd, 'tx');
+    Lib.diziBirleştir(iz.hovertext, cd, 'htx');
 
-    var marker = trace.marker;
-    if(marker) {
-        Lib.mergeArray(marker.opacity, cd, 'mo', true);
-        Lib.mergeArray(marker.color, cd, 'mc');
+    var işaretleyici = iz.marker;
+    if(işaretleyici) {
+        Lib.diziBirleştir(işaretleyici.opacity, cd, 'mo', true);
+        Lib.diziBirleştir(işaretleyici.color, cd, 'mc');
 
-        var markerLine = marker.line;
-        if(markerLine) {
-            Lib.mergeArray(markerLine.color, cd, 'mlc');
-            Lib.mergeArrayCastPositive(markerLine.width, cd, 'mlw');
+        var işaretleyiciÇizgisi = işaretleyici.line;
+        if(işaretleyiciÇizgisi) {
+            Lib.diziBirleştir(işaretleyiciÇizgisi.color, cd, 'mlc');
+            Lib.diziBirleştirPozitif(işaretleyiciÇizgisi.width, cd, 'mlw');
         }
     }
 };

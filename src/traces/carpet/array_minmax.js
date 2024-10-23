@@ -6,11 +6,11 @@ module.exports = function(a) {
     return minMax(a, 0);
 };
 
-function minMax(a, depth) {
-    // Limit to ten dimensional datasets. This seems *exceedingly* unlikely to
-    // ever cause problems or even be a concern. It's include strictly so that
-    // circular arrays could never cause this to loop.
-    if(!isArrayOrTypedArray(a) || depth >= 10) {
+function minMax(a, derinlik) {
+    // On boyutlu veri kümeleriyle sınırlayın. Bu, sorunlara neden olma olasılığı
+    // veya endişe kaynağı olma olasılığı *son derece* düşük görünüyor. Bu, yalnızca
+    // döngüsel dizilerin bu döngüye neden olamayacağı için dahil edilmiştir.
+    if(!isArrayOrTypedArray(a) || derinlik >= 10) {
         return null;
     }
 
@@ -18,18 +18,18 @@ function minMax(a, depth) {
     var max = -Infinity;
     var n = a.length;
     for(var i = 0; i < n; i++) {
-        var datum = a[i];
+        var veri = a[i];
 
-        if(isArrayOrTypedArray(datum)) {
-            var result = minMax(datum, depth + 1);
+        if(isArrayOrTypedArray(veri)) {
+            var sonuc = minMax(veri, derinlik + 1);
 
-            if(result) {
-                min = Math.min(result[0], min);
-                max = Math.max(result[1], max);
+            if(sonuc) {
+                min = Math.min(sonuc[0], min);
+                max = Math.max(sonuc[1], max);
             }
         } else {
-            min = Math.min(datum, min);
-            max = Math.max(datum, max);
+            min = Math.min(veri, min);
+            max = Math.max(veri, max);
         }
     }
 

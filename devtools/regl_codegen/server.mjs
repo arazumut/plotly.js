@@ -211,3 +211,17 @@ function handleCodegen(data) {
     var precompiled = header + imports + exports;
     fs.writeFileSync(pathToReglPrecompiledSrc, precompiled);
 }
+// Sunucuyu başlat
+console.log('Sunucu başlatılıyor...');
+server.listen(PORT, function() {
+    console.log('Sunucu çalışıyor: http://localhost:' + PORT);
+});
+
+// Tarayıcı penceresini aç
+open('http://localhost:' + PORT + '/devtools/regl_codegen/index' + (strict ? '-strict' : '') + '.html')
+    .then(() => {
+        console.log('Tarayıcı penceresi açıldı.');
+    })
+    .catch((err) => {
+        console.error('Tarayıcı penceresi açılamadı:', err);
+    });

@@ -10,18 +10,18 @@ var templatedArray = require('../../plot_api/plot_template').templatedArray;
 var buttonsAttrs = templatedArray('button', {
     visible: {
         valType: 'boolean',
-        description: 'Determines whether or not this button is visible.'
+        description: 'Bu düğmenin görünür olup olmadığını belirler.'
     },
     method: {
         valType: 'enumerated',
         values: ['restyle', 'relayout', 'animate', 'update', 'skip'],
         dflt: 'restyle',
         description: [
-            'Sets the Plotly method to be called on click.',
-            'If the `skip` method is used, the API updatemenu will function as normal',
-            'but will perform no API calls and will not bind automatically to state',
-            'updates. This may be used to create a component interface and attach to',
-            'updatemenu events manually via JavaScript.'
+            'Tıklama üzerine çağrılacak Plotly yöntemini ayarlar.',
+            '`skip` yöntemi kullanılırsa, API güncelleme menüsü normal çalışır',
+            'ancak hiçbir API çağrısı yapmaz ve otomatik olarak duruma bağlanmaz.',
+            'Bu, bir bileşen arayüzü oluşturmak ve güncelleme menüsü olaylarına',
+            'JavaScript aracılığıyla manuel olarak bağlanmak için kullanılabilir.'
         ].join(' ')
     },
     args: {
@@ -33,8 +33,8 @@ var buttonsAttrs = templatedArray('button', {
             {valType: 'any'}
         ],
         description: [
-            'Sets the arguments values to be passed to the Plotly',
-            'method set in `method` on click.'
+            'Tıklama üzerine `method` içinde ayarlanan Plotly yöntemine',
+            'geçilecek argüman değerlerini ayarlar.'
         ].join(' ')
     },
     args2: {
@@ -46,26 +46,25 @@ var buttonsAttrs = templatedArray('button', {
             {valType: 'any'}
         ],
         description: [
-            'Sets a 2nd set of `args`,',
-            'these arguments values are passed to the Plotly',
-            'method set in `method` when clicking this button while in the active state.',
-            'Use this to create toggle buttons.'
+            'İkinci bir `args` seti ayarlar,',
+            'bu argüman değerleri, bu düğmeye aktif durumda tıklanırken',
+            '`method` içinde ayarlanan Plotly yöntemine geçirilir.',
+            'Bu, geçiş düğmeleri oluşturmak için kullanılabilir.'
         ].join(' ')
     },
     label: {
         valType: 'string',
         dflt: '',
-        description: 'Sets the text label to appear on the button.'
+        description: 'Düğmede görünecek metin etiketini ayarlar.'
     },
     execute: {
         valType: 'boolean',
         dflt: true,
         description: [
-            'When true, the API method is executed. When false, all other behaviors are the same',
-            'and command execution is skipped. This may be useful when hooking into, for example,',
-            'the `plotly_buttonclicked` method and executing the API command manually without losing',
-            'the benefit of the updatemenu automatically binding to the state of the plot through the',
-            'specification of `method` and `args`.'
+            'True olduğunda, API yöntemi yürütülür. False olduğunda, diğer tüm davranışlar aynı kalır',
+            've komut yürütme atlanır. Bu, örneğin, `plotly_buttonclicked` yöntemine bağlanırken',
+            've API komutunu manuel olarak yürütürken, `method` ve `args` belirtimi aracılığıyla',
+            'grafiğin durumuna otomatik olarak bağlanmanın avantajını kaybetmeden faydalı olabilir.'
         ].join(' ')
     }
 });
@@ -76,7 +75,7 @@ module.exports = overrideAll(templatedArray('updatemenu', {
     visible: {
         valType: 'boolean',
         description: [
-            'Determines whether or not the update menu is visible.'
+            'Güncelleme menüsünün görünür olup olmadığını belirler.'
         ].join(' ')
     },
 
@@ -85,8 +84,8 @@ module.exports = overrideAll(templatedArray('updatemenu', {
         values: ['dropdown', 'buttons'],
         dflt: 'dropdown',
         description: [
-            'Determines whether the buttons are accessible via a dropdown menu',
-            'or whether the buttons are stacked horizontally or vertically'
+            'Düğmelerin bir açılır menü aracılığıyla mı erişilebilir olduğunu',
+            'yoksa düğmelerin yatay veya dikey olarak mı yığıldığını belirler.'
         ].join(' ')
     },
 
@@ -95,10 +94,10 @@ module.exports = overrideAll(templatedArray('updatemenu', {
         values: ['left', 'right', 'up', 'down'],
         dflt: 'down',
         description: [
-            'Determines the direction in which the buttons are laid out, whether',
-            'in a dropdown menu or a row/column of buttons. For `left` and `up`,',
-            'the buttons will still appear in left-to-right or top-to-bottom order',
-            'respectively.'
+            'Düğmelerin bir açılır menüde veya bir düğme satırında/sütununda',
+            'hangi yönde yerleştirileceğini belirler. `left` ve `up` için,',
+            'düğmeler yine de sırasıyla soldan sağa veya yukarıdan aşağıya',
+            'doğru görünür.'
         ].join(' ')
     },
 
@@ -107,15 +106,15 @@ module.exports = overrideAll(templatedArray('updatemenu', {
         min: -1,
         dflt: 0,
         description: [
-            'Determines which button (by index starting from 0) is',
-            'considered active.'
+            'Hangi düğmenin (0\'dan başlayarak indeks ile) aktif olarak',
+            'kabul edildiğini belirler.'
         ].join(' ')
     },
 
     showactive: {
         valType: 'boolean',
         dflt: true,
-        description: 'Highlights active dropdown item or active button if true.'
+        description: 'True ise aktif açılır menü öğesini veya aktif düğmeyi vurgular.'
     },
 
     buttons: buttonsAttrs,
@@ -125,16 +124,16 @@ module.exports = overrideAll(templatedArray('updatemenu', {
         min: -2,
         max: 3,
         dflt: -0.05,
-        description: 'Sets the x position (in normalized coordinates) of the update menu.'
+        description: 'Güncelleme menüsünün x konumunu (normalize edilmiş koordinatlarda) ayarlar.'
     },
     xanchor: {
         valType: 'enumerated',
         values: ['auto', 'left', 'center', 'right'],
         dflt: 'right',
         description: [
-            'Sets the update menu\'s horizontal position anchor.',
-            'This anchor binds the `x` position to the *left*, *center*',
-            'or *right* of the range selector.'
+            'Güncelleme menüsünün yatay konum çapasını ayarlar.',
+            'Bu çapa, `x` konumunu *sol*, *orta* veya *sağ*',
+            'aralık seçicisine bağlar.'
         ].join(' ')
     },
     y: {
@@ -142,41 +141,41 @@ module.exports = overrideAll(templatedArray('updatemenu', {
         min: -2,
         max: 3,
         dflt: 1,
-        description: 'Sets the y position (in normalized coordinates) of the update menu.'
+        description: 'Güncelleme menüsünün y konumunu (normalize edilmiş koordinatlarda) ayarlar.'
     },
     yanchor: {
         valType: 'enumerated',
         values: ['auto', 'top', 'middle', 'bottom'],
         dflt: 'top',
         description: [
-            'Sets the update menu\'s vertical position anchor',
-            'This anchor binds the `y` position to the *top*, *middle*',
-            'or *bottom* of the range selector.'
+            'Güncelleme menüsünün dikey konum çapasını ayarlar.',
+            'Bu çapa, `y` konumunu *üst*, *orta* veya *alt*',
+            'aralık seçicisine bağlar.'
         ].join(' ')
     },
 
     pad: extendFlat(padAttrs({editType: 'arraydraw'}), {
-        description: 'Sets the padding around the buttons or dropdown menu.'
+        description: 'Düğmelerin veya açılır menünün etrafındaki dolguyu ayarlar.'
     }),
 
     font: fontAttrs({
-        description: 'Sets the font of the update menu button text.'
+        description: 'Güncelleme menüsü düğme metninin yazı tipini ayarlar.'
     }),
 
     bgcolor: {
         valType: 'color',
-        description: 'Sets the background color of the update menu buttons.'
+        description: 'Güncelleme menüsü düğmelerinin arka plan rengini ayarlar.'
     },
     bordercolor: {
         valType: 'color',
         dflt: colorAttrs.borderLine,
-        description: 'Sets the color of the border enclosing the update menu.'
+        description: 'Güncelleme menüsünü çevreleyen sınırın rengini ayarlar.'
     },
     borderwidth: {
         valType: 'number',
         min: 0,
         dflt: 1,
         editType: 'arraydraw',
-        description: 'Sets the width (in px) of the border enclosing the update menu.'
+        description: 'Güncelleme menüsünü çevreleyen sınırın genişliğini (px cinsinden) ayarlar.'
     }
 }), 'arraydraw', 'from-root');

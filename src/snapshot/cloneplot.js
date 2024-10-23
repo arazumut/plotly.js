@@ -1,18 +1,19 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Registry = require('../registry');
 var Lib = require('../lib');
 
 var extendFlat = Lib.extendFlat;
 var extendDeep = Lib.extendDeep;
 
-// Put default plotTile layouts here
-function cloneLayoutOverride(tileClass) {
-    var override;
+// Varsayılan plotTile düzenlerini buraya koy
+function klonDüzenAşımı(tileClass) {
+    var asim;
 
     switch(tileClass) {
         case 'themes__thumb':
-            override = {
+            asim = {
                 autosize: true,
                 width: 150,
                 height: 150,
@@ -24,7 +25,7 @@ function cloneLayoutOverride(tileClass) {
             break;
 
         case 'thumbnail':
-            override = {
+            asim = {
                 title: {text: ''},
                 hidesources: true,
                 showlegend: false,
@@ -36,123 +37,121 @@ function cloneLayoutOverride(tileClass) {
             break;
 
         default:
-            override = {};
+            asim = {};
     }
 
-
-    return override;
+    return asim;
 }
 
-function keyIsAxis(keyName) {
-    var types = ['xaxis', 'yaxis', 'zaxis'];
-    return (types.indexOf(keyName.slice(0, 5)) > -1);
+function anahtarEksenMi(anahtarAdi) {
+    var türler = ['xaxis', 'yaxis', 'zaxis'];
+    return (türler.indexOf(anahtarAdi.slice(0, 5)) > -1);
 }
 
-
-module.exports = function clonePlot(graphObj, options) {
+module.exports = function klonGrafik(grafikObjesi, seçenekler) {
     var i;
-    var oldData = graphObj.data;
-    var oldLayout = graphObj.layout;
-    var newData = extendDeep([], oldData);
-    var newLayout = extendDeep({}, oldLayout, cloneLayoutOverride(options.tileClass));
-    var context = graphObj._context || {};
+    var eskiVeri = grafikObjesi.data;
+    var eskiDüzen = grafikObjesi.layout;
+    var yeniVeri = extendDeep([], eskiVeri);
+    var yeniDüzen = extendDeep({}, eskiDüzen, klonDüzenAşımı(seçenekler.tileClass));
+    var bağlam = grafikObjesi._context || {};
 
-    if(options.width) newLayout.width = options.width;
-    if(options.height) newLayout.height = options.height;
+    if(seçenekler.width) yeniDüzen.width = seçenekler.width;
+    if(seçenekler.height) yeniDüzen.height = seçenekler.height;
 
-    if(options.tileClass === 'thumbnail' || options.tileClass === 'themes__thumb') {
-        // kill annotations
-        newLayout.annotations = [];
-        var keys = Object.keys(newLayout);
+    if(seçenekler.tileClass === 'thumbnail' || seçenekler.tileClass === 'themes__thumb') {
+        // açıklamaları kaldır
+        yeniDüzen.annotations = [];
+        var anahtarlar = Object.keys(yeniDüzen);
 
-        for(i = 0; i < keys.length; i++) {
-            if(keyIsAxis(keys[i])) {
-                newLayout[keys[i]].title = {text: ''};
+        for(i = 0; i < anahtarlar.length; i++) {
+            if(anahtarEksenMi(anahtarlar[i])) {
+                yeniDüzen[anahtarlar[i]].title = {text: ''};
             }
         }
 
-        // kill colorbar and pie labels
-        for(i = 0; i < newData.length; i++) {
-            var trace = newData[i];
-            trace.showscale = false;
-            if(trace.marker) trace.marker.showscale = false;
-            if(Registry.traceIs(trace, 'pie-like')) trace.textposition = 'none';
+        // renk çubuğu ve pasta etiketlerini kaldır
+        for(i = 0; i < yeniVeri.length; i++) {
+            var iz = yeniVeri[i];
+            iz.showscale = false;
+            if(iz.marker) iz.marker.showscale = false;
+            if(Registry.traceIs(iz, 'pie-like')) iz.textposition = 'none';
         }
     }
 
-    if(Array.isArray(options.annotations)) {
-        for(i = 0; i < options.annotations.length; i++) {
-            newLayout.annotations.push(options.annotations[i]);
+    if(Array.isArray(seçenekler.annotations)) {
+        for(i = 0; i < seçenekler.annotations.length; i++) {
+            yeniDüzen.annotations.push(seçenekler.annotations[i]);
         }
     }
 
-    // TODO: does this scene modification really belong here?
-    // If we still need it, can it move into the gl3d module?
-    var sceneIds = Object.keys(newLayout).filter(function(key) {
-        return key.match(/^scene\d*$/);
+    // TODO: Bu sahne değişikliği gerçekten burada mı olmalı?
+    // Hala ihtiyacımız varsa, gl3d modülüne taşınabilir mi?
+    var sahneIdleri = Object.keys(yeniDüzen).filter(function(anahtar) {
+        return anahtar.match(/^scene\d*$/);
     });
-    if(sceneIds.length) {
-        var axesImageOverride = {};
-        if(options.tileClass === 'thumbnail') {
-            axesImageOverride = {
+    if(sahneIdleri.length) {
+        var eksenlerGörüntüAşımı = {};
+        if(seçenekler.tileClass === 'thumbnail') {
+            eksenlerGörüntüAşımı = {
                 title: {text: ''},
                 showaxeslabels: false,
                 showticklabels: false,
                 linetickenable: false
             };
         }
-        for(i = 0; i < sceneIds.length; i++) {
-            var scene = newLayout[sceneIds[i]];
+        for(i = 0; i < sahneIdleri.length; i++) {
+            var sahne = yeniDüzen[sahneIdleri[i]];
 
-            if(!scene.xaxis) {
-                scene.xaxis = {};
+            if(!sahne.xaxis) {
+                sahne.xaxis = {};
             }
 
-            if(!scene.yaxis) {
-                scene.yaxis = {};
+            if(!sahne.yaxis) {
+                sahne.yaxis = {};
             }
 
-            if(!scene.zaxis) {
-                scene.zaxis = {};
+            if(!sahne.zaxis) {
+                sahne.zaxis = {};
             }
 
-            extendFlat(scene.xaxis, axesImageOverride);
-            extendFlat(scene.yaxis, axesImageOverride);
-            extendFlat(scene.zaxis, axesImageOverride);
+            extendFlat(sahne.xaxis, eksenlerGörüntüAşımı);
+            extendFlat(sahne.yaxis, eksenlerGörüntüAşımı);
+            extendFlat(sahne.zaxis, eksenlerGörüntüAşımı);
 
-            // TODO what does this do?
-            scene._scene = null;
+            // TODO bu ne yapar?
+            sahne._scene = null;
         }
     }
 
     var gd = document.createElement('div');
-    if(options.tileClass) gd.className = options.tileClass;
+    if(seçenekler.tileClass) gd.className = seçenekler.tileClass;
 
     var plotTile = {
         gd: gd,
-        td: gd, // for external (image server) compatibility
-        layout: newLayout,
-        data: newData,
+        td: gd, // dış (görüntü sunucusu) uyumluluğu için
+        layout: yeniDüzen,
+        data: yeniVeri,
         config: {
-            staticPlot: (options.staticPlot === undefined) ?
+            staticPlot: (seçenekler.staticPlot === undefined) ?
                 true :
-                options.staticPlot,
-            plotGlPixelRatio: (options.plotGlPixelRatio === undefined) ?
+                seçenekler.staticPlot,
+            plotGlPixelRatio: (seçenekler.plotGlPixelRatio === undefined) ?
                 2 :
-                options.plotGlPixelRatio,
-            displaylogo: options.displaylogo || false,
-            showLink: options.showLink || false,
-            showTips: options.showTips || false,
-            mapboxAccessToken: context.mapboxAccessToken
+                seçenekler.plotGlPixelRatio,
+            displaylogo: seçenekler.displaylogo || false,
+            showLink: seçenekler.showLink || false,
+            showTips: seçenekler.showTips || false,
+            mapboxAccessToken: bağlam.mapboxAccessToken
         }
     };
 
-    if(options.setBackground !== 'transparent') {
-        plotTile.config.setBackground = options.setBackground || 'opaque';
+    if(seçenekler.setBackground !== 'transparent') {
+        plotTile.config.setBackground = seçenekler.setBackground || 'opaque';
     }
 
-    // attaching the default Layout the gd, so you can grab it later
-    plotTile.gd.defaultLayout = cloneLayoutOverride(options.tileClass);
+    // varsayılan Düzeni gd'ye ekleyerek, daha sonra alabilirsiniz
+    plotTile.gd.defaultLayout = klonDüzenAşımı(seçenekler.tileClass);
 
     return plotTile;
 };

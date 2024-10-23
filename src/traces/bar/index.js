@@ -1,6 +1,8 @@
 'use strict';
 
+// Modül dışa aktarımı
 module.exports = {
+    // Özellikler
     attributes: require('./attributes'),
     layoutAttributes: require('./layout_attributes'),
     supplyDefaults: require('./defaults').supplyDefaults,
@@ -17,17 +19,23 @@ module.exports = {
     eventData: require('./event_data'),
     selectPoints: require('./select'),
 
+    // Modül tipi
     moduleType: 'trace',
+    // Modül adı
     name: 'bar',
+    // Temel çizim modülü
     basePlotModule: require('../../plots/cartesian'),
+    // Kategoriler
     categories: ['bar-like', 'cartesian', 'svg', 'bar', 'oriented', 'errorBarsOK', 'showLegend', 'zoomScale'],
+    // Animasyon desteği
     animatable: true,
+    // Meta veriler
     meta: {
         description: [
-            'The data visualized by the span of the bars is set in `y`',
-            'if `orientation` is set to *v* (the default)',
-            'and the labels are set in `x`.',
-            'By setting `orientation` to *h*, the roles are interchanged.'
+            'Çubukların uzunluğu ile görselleştirilen veri `y` içinde ayarlanır',
+            '`orientation` *v* (varsayılan) olarak ayarlanmışsa',
+            've etiketler `x` içinde ayarlanır.',
+            '`orientation` *h* olarak ayarlandığında, roller değiştirilir.'
         ].join(' ')
     }
 };

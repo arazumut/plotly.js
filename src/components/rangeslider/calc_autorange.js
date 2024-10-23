@@ -5,20 +5,19 @@ var getAutoRange = require('../../plots/cartesian/autorange').getAutoRange;
 var constants = require('./constants');
 
 module.exports = function calcAutorange(gd) {
-    var axes = listAxes(gd, 'x', true);
+    var eksenler = listAxes(gd, 'x', true);
 
-    // Compute new slider range using axis autorange if necessary.
+    // Gerekirse eksen otomatik aralığını kullanarak yeni kaydırıcı aralığını hesaplayın.
     //
-    // Copy back range to input range slider container to skip
-    // this step in subsequent draw calls.
+    // Bu adımı sonraki çizim çağrılarında atlamak için aralığı giriş aralığı kaydırıcı konteynerine geri kopyalayın.
 
-    for(var i = 0; i < axes.length; i++) {
-        var ax = axes[i];
-        var opts = ax[constants.name];
+    for(var i = 0; i < eksenler.length; i++) {
+        var eksen = eksenler[i];
+        var ayarlar = eksen[constants.name];
 
-        if(opts && opts.visible && opts.autorange) {
-            opts._input.autorange = true;
-            opts._input.range = opts.range = getAutoRange(gd, ax);
+        if(ayarlar && ayarlar.visible && ayarlar.autorange) {
+            ayarlar._input.autorange = true;
+            ayarlar._input.range = ayarlar.range = getAutoRange(gd, eksen);
         }
     }
 };

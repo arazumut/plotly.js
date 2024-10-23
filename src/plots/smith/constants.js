@@ -1,12 +1,12 @@
 'use strict';
 
 module.exports = {
-    attr: 'subplot',
+    attr: 'altgrafik',
     name: 'smith',
 
-    axisNames: [
-        'realaxis',
-        'imaginaryaxis' // imaginary axis should be second here so that the `tickvals` defaults could be inherited from realaxis
+    eksenIsimleri: [
+        'gerçekEksen',
+        'hayaliEksen' // hayali eksen burada ikinci olmalı ki `tickvals` varsayılanları gerçek eksenden miras alınabilsin
     ],
-    axisName2dataArray: {imaginaryaxis: 'imag', realaxis: 'real'},
+    eksenIsmi2veriDizisi: {hayaliEksen: 'hayali', gerçekEksen: 'gerçek'},
 };

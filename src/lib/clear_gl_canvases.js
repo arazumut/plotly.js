@@ -1,17 +1,17 @@
 'use strict';
 
 /**
- * Clear gl frame (if any). This is a common pattern as
- * we usually set `preserveDrawingBuffer: true` during
- * gl context creation (e.g. via `reglUtils.prepare`).
+ * GL çerçevesini temizle (varsa). Bu yaygın bir desendir çünkü
+ * genellikle gl bağlamı oluşturma sırasında `preserveDrawingBuffer: true`
+ * ayarlarız (örneğin `reglUtils.prepare` aracılığıyla).
  *
- * @param {DOM node or object} gd : graph div object
+ * @param {DOM düğümü veya nesne} gd : grafik div nesnesi
  */
-module.exports = function clearGlCanvases(gd) {
-    var fullLayout = gd._fullLayout;
+module.exports = function glKanvaslariniTemizle(gd) {
+    var tamYerlesim = gd._fullLayout;
 
-    if(fullLayout._glcanvas && fullLayout._glcanvas.size()) {
-        fullLayout._glcanvas.each(function(d) {
+    if(tamYerlesim._glcanvas && tamYerlesim._glcanvas.size()) {
+        tamYerlesim._glcanvas.each(function(d) {
             if(d.regl) d.regl.clear({color: true, depth: true});
         });
     }

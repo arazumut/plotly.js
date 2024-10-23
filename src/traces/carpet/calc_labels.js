@@ -1,51 +1,51 @@
 'use strict';
 
-var Axes = require('../../plots/cartesian/axes');
+var Eksenler = require('../../plots/cartesian/axes');
 var extendFlat = require('../../lib/extend').extendFlat;
 
-module.exports = function calcLabels(trace, axis) {
-    var i, tobj, prefix, suffix, gridline;
+module.exports = function etiketleriHesapla(iz, eksen) {
+    var i, tobj, önek, sonek, ızgaraÇizgisi;
 
-    var labels = axis._labels = [];
-    var gridlines = axis._gridlines;
+    var etiketler = eksen._etiketler = [];
+    var ızgaraÇizgileri = eksen._ızgaraÇizgileri;
 
-    for(i = 0; i < gridlines.length; i++) {
-        gridline = gridlines[i];
+    for(i = 0; i < ızgaraÇizgileri.length; i++) {
+        ızgaraÇizgisi = ızgaraÇizgileri[i];
 
-        if(['start', 'both'].indexOf(axis.showticklabels) !== -1) {
-            tobj = Axes.tickText(axis, gridline.value);
+        if(['başlangıç', 'her ikisi'].indexOf(eksen.gösteretiketleri) !== -1) {
+            tobj = Eksenler.çizgiMetni(eksen, ızgaraÇizgisi.değer);
 
             extendFlat(tobj, {
-                prefix: prefix,
-                suffix: suffix,
-                endAnchor: true,
-                xy: gridline.xy(0),
-                dxy: gridline.dxy(0, 0),
-                axis: gridline.axis,
-                length: gridline.crossAxis.length,
-                font: gridline.axis.tickfont,
-                isFirst: i === 0,
-                isLast: i === gridlines.length - 1
+                önek: önek,
+                sonek: sonek,
+                sonÇapa: true,
+                xy: ızgaraÇizgisi.xy(0),
+                dxy: ızgaraÇizgisi.dxy(0, 0),
+                eksen: ızgaraÇizgisi.eksen,
+                uzunluk: ızgaraÇizgisi.çaprazEksen.uzunluk,
+                yazıtipi: ızgaraÇizgisi.eksen.çizgiyazıtipi,
+                ilkMi: i === 0,
+                sonMu: i === ızgaraÇizgileri.length - 1
             });
 
-            labels.push(tobj);
+            etiketler.push(tobj);
         }
 
-        if(['end', 'both'].indexOf(axis.showticklabels) !== -1) {
-            tobj = Axes.tickText(axis, gridline.value);
+        if(['son', 'her ikisi'].indexOf(eksen.gösteretiketleri) !== -1) {
+            tobj = Eksenler.çizgiMetni(eksen, ızgaraÇizgisi.değer);
 
             extendFlat(tobj, {
-                endAnchor: false,
-                xy: gridline.xy(gridline.crossLength - 1),
-                dxy: gridline.dxy(gridline.crossLength - 2, 1),
-                axis: gridline.axis,
-                length: gridline.crossAxis.length,
-                font: gridline.axis.tickfont,
-                isFirst: i === 0,
-                isLast: i === gridlines.length - 1
+                sonÇapa: false,
+                xy: ızgaraÇizgisi.xy(ızgaraÇizgisi.çaprazUzunluk - 1),
+                dxy: ızgaraÇizgisi.dxy(ızgaraÇizgisi.çaprazUzunluk - 2, 1),
+                eksen: ızgaraÇizgisi.eksen,
+                uzunluk: ızgaraÇizgisi.çaprazEksen.uzunluk,
+                yazıtipi: ızgaraÇizgisi.eksen.çizgiyazıtipi,
+                ilkMi: i === 0,
+                sonMu: i === ızgaraÇizgileri.length - 1
             });
 
-            labels.push(tobj);
+            etiketler.push(tobj);
         }
     }
 };

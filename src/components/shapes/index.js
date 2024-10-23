@@ -1,17 +1,17 @@
+var çizimModülü = require('./draw');
+
 'use strict';
 
-var drawModule = require('./draw');
 
 module.exports = {
-    moduleType: 'component',
-    name: 'shapes',
+    isim: 'şekiller',
 
-    layoutAttributes: require('./attributes'),
-    supplyLayoutDefaults: require('./defaults'),
-    supplyDrawNewShapeDefaults: require('./draw_newshape/defaults'),
-    includeBasePlot: require('../../plots/cartesian/include_components')('shapes'),
+    yerleşimÖznitelikleri: require('./attributes'),
+    yerleşimVarsayılanlarınıSağla: require('./defaults'),
+    yeniŞekilVarsayılanlarınıSağla: require('./draw_newshape/defaults'),
+    temelGrafiğiDahilEt: require('../../plots/cartesian/include_components')('shapes'),
+    otomatikAralıkHesapla: require('./calc_autorange'),
 
-    calcAutorange: require('./calc_autorange'),
-    draw: drawModule.draw,
-    drawOne: drawModule.drawOne
+    çiz: çizimModülü.çiz,
+    biriniÇiz: çizimModülü.biriniÇiz
 };

@@ -3,101 +3,101 @@
 var isPlainObject = require('./is_plain_object.js');
 var isArray = Array.isArray;
 
-function primitivesLoopSplice(source, target) {
-    var i, value;
-    for(i = 0; i < source.length; i++) {
-        value = source[i];
-        if(value !== null && typeof(value) === 'object') {
+function ilkelDöngüSplice(kaynak, hedef) {
+    var i, değer;
+    for(i = 0; i < kaynak.length; i++) {
+        değer = kaynak[i];
+        if(değer !== null && typeof(değer) === 'object') {
             return false;
         }
-        if(value !== void(0)) {
-            target[i] = value;
+        if(değer !== void(0)) {
+            hedef[i] = değer;
         }
     }
     return true;
 }
 
-exports.extendFlat = function() {
-    return _extend(arguments, false, false, false);
+exports.düzGenişlet = function() {
+    return _genişlet(arguments, false, false, false);
 };
 
-exports.extendDeep = function() {
-    return _extend(arguments, true, false, false);
+exports.derinGenişlet = function() {
+    return _genişlet(arguments, true, false, false);
 };
 
-exports.extendDeepAll = function() {
-    return _extend(arguments, true, true, false);
+exports.derinGenişletHepsi = function() {
+    return _genişlet(arguments, true, true, false);
 };
 
-exports.extendDeepNoArrays = function() {
-    return _extend(arguments, true, false, true);
+exports.derinGenişletDizisiz = function() {
+    return _genişlet(arguments, true, false, true);
 };
 
 /*
- * Inspired by https://github.com/justmoon/node-extend/blob/master/index.js
- * All credit to the jQuery authors for perfecting this amazing utility.
+ * İlham kaynağı: https://github.com/justmoon/node-extend/blob/master/index.js
+ * Bu harika yardımcı programı mükemmelleştiren jQuery yazarlarına tüm kredi.
  *
- * API difference with jQuery version:
- * - No optional boolean (true -> deep extend) first argument,
- *   use `extendFlat` for first-level only extend and
- *   use `extendDeep` for a deep extend.
+ * jQuery sürümü ile API farkı:
+ * - İlk argüman olarak isteğe bağlı boolean (true -> derin genişletme) yok,
+ *   yalnızca ilk seviye genişletme için `düzGenişlet` kullanın ve
+ *   derin genişletme için `derinGenişlet` kullanın.
  *
- * Other differences with jQuery version:
- * - Uses a modern (and faster) isPlainObject routine.
- * - Expected to work with object {} and array [] arguments only.
- * - Does not check for circular structure.
- *   FYI: jQuery only does a check across one level.
- *   Warning: this might result in infinite loops.
+ * jQuery sürümü ile diğer farklar:
+ * - Modern (ve daha hızlı) bir isPlainObject rutini kullanır.
+ * - Yalnızca {} ve [] argümanlarıyla çalışması beklenir.
+ * - Dairesel yapı kontrolü yapmaz.
+ *   Bilgi: jQuery yalnızca bir seviye boyunca kontrol yapar.
+ *   Uyarı: bu sonsuz döngülere neden olabilir.
  *
  */
-function _extend(inputs, isDeep, keepAllKeys, noArrayCopies) {
-    var target = inputs[0];
-    var length = inputs.length;
+function _genişlet(girdiler, derinMi, tümAnahtarlarıKoru, diziKopyalarıYok) {
+    var hedef = girdiler[0];
+    var uzunluk = girdiler.length;
 
-    var input, key, src, copy, copyIsArray, clone, allPrimitives;
+    var girdi, anahtar, kaynak, kopya, kopyaDiziMi, klon, tümİlkeller;
 
-    // TODO does this do the right thing for typed arrays?
+    // TODO bu, yazılmış diziler için doğru şeyi yapıyor mu?
 
-    if(length === 2 && isArray(target) && isArray(inputs[1]) && target.length === 0) {
-        allPrimitives = primitivesLoopSplice(inputs[1], target);
+    if(uzunluk === 2 && isArray(hedef) && isArray(girdiler[1]) && hedef.length === 0) {
+        tümİlkeller = ilkelDöngüSplice(girdiler[1], hedef);
 
-        if(allPrimitives) {
-            return target;
+        if(tümİlkeller) {
+            return hedef;
         } else {
-            target.splice(0, target.length); // reset target and continue to next block
+            hedef.splice(0, hedef.length); // hedefi sıfırla ve bir sonraki bloğa devam et
         }
     }
 
-    for(var i = 1; i < length; i++) {
-        input = inputs[i];
+    for(var i = 1; i < uzunluk; i++) {
+        girdi = girdiler[i];
 
-        for(key in input) {
-            src = target[key];
-            copy = input[key];
+        for(anahtar in girdi) {
+            kaynak = hedef[anahtar];
+            kopya = girdi[anahtar];
 
-            if(noArrayCopies && isArray(copy)) {
-                // Stop early and just transfer the array if array copies are disallowed:
+            if(diziKopyalarıYok && isArray(kopya)) {
+                // Dizi kopyalarına izin verilmiyorsa erken dur ve sadece diziyi aktar:
 
-                target[key] = copy;
-            } else if(isDeep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
-                // recurse if we're merging plain objects or arrays
+                hedef[anahtar] = kopya;
+            } else if(derinMi && kopya && (isPlainObject(kopya) || (kopyaDiziMi = isArray(kopya)))) {
+                // Düz nesneleri veya dizileri birleştiriyorsak yinele
 
-                if(copyIsArray) {
-                    copyIsArray = false;
-                    clone = src && isArray(src) ? src : [];
+                if(kopyaDiziMi) {
+                    kopyaDiziMi = false;
+                    klon = kaynak && isArray(kaynak) ? kaynak : [];
                 } else {
-                    clone = src && isPlainObject(src) ? src : {};
+                    klon = kaynak && isPlainObject(kaynak) ? kaynak : {};
                 }
 
-                // never move original objects, clone them
-                target[key] = _extend([clone, copy], isDeep, keepAllKeys, noArrayCopies);
-            } else if(typeof copy !== 'undefined' || keepAllKeys) {
-                // don't bring in undefined values, except for extendDeepAll
+                // Orijinal nesneleri asla taşımayın, onları klonlayın
+                hedef[anahtar] = _genişlet([klon, kopya], derinMi, tümAnahtarlarıKoru, diziKopyalarıYok);
+            } else if(typeof kopya !== 'undefined' || tümAnahtarlarıKoru) {
+                // Tanımsız değerleri getirmeyin, `derinGenişletHepsi` hariç
 
-                target[key] = copy;
+                hedef[anahtar] = kopya;
             }
         }
     }
 
-    return target;
+    return hedef;
 }

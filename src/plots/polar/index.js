@@ -1,28 +1,32 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var getSubplotCalcData = require('../get_data').getSubplotCalcData;
 var counterRegex = require('../../lib').counterRegex;
 
 var createPolar = require('./polar');
 var constants = require('./constants');
 
+// Sabitleri tanımla
 var attr = constants.attr;
 var name = constants.name;
 var counter = counterRegex(name);
 
+// Özellikleri tanımla
 var attributes = {};
 attributes[attr] = {
     valType: 'subplotid',
     dflt: name,
     editType: 'calc',
     description: [
-        'Sets a reference between this trace\'s data coordinates and',
-        'a polar subplot.',
-        'If *polar* (the default value), the data refer to `layout.polar`.',
-        'If *polar2*, the data refer to `layout.polar2`, and so on.'
+        'Bu izleme verilerinin koordinatları ile',
+        'bir polar alt grafik arasında bir referans ayarlar.',
+        'Eğer *polar* (varsayılan değer) ise, veriler `layout.polar`a referans verir.',
+        'Eğer *polar2* ise, veriler `layout.polar2`ye referans verir ve bu şekilde devam eder.'
     ].join(' ')
 };
 
+// Grafik çizim fonksiyonu
 function plot(gd) {
     var fullLayout = gd._fullLayout;
     var calcData = gd.calcdata;
@@ -42,6 +46,7 @@ function plot(gd) {
     }
 }
 
+// Temizlik fonksiyonu
 function clean(newFullData, newFullLayout, oldFullData, oldFullLayout) {
     var oldIds = oldFullLayout._subplots[name] || [];
     var hadGl = (oldFullLayout._has && oldFullLayout._has('gl'));
@@ -68,6 +73,7 @@ function clean(newFullData, newFullLayout, oldFullData, oldFullLayout) {
     }
 }
 
+// Modülü dışa aktar
 module.exports = {
     attr: attr,
     name: name,

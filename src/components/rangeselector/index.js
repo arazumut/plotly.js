@@ -1,17 +1,17 @@
 'use strict';
 
 module.exports = {
-    moduleType: 'component',
-    name: 'rangeselector',
+    moduleType: 'bileşen',
+    name: 'aralıkSeçici',
 
-    schema: {
-        subplots: {
-            xaxis: {rangeselector: require('./attributes')}
+    şema: {
+        altGrafikler: {
+            xEkseni: {aralıkSeçici: require('./attributes')}
         }
     },
 
-    layoutAttributes: require('./attributes'),
-    handleDefaults: require('./defaults'),
+    yerleşimÖzellikleri: require('./attributes'),
+    varsayılanlarıEleAl: require('./defaults'),
 
-    draw: require('./draw')
+    çiz: require('./draw')
 };

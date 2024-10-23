@@ -1,93 +1,93 @@
 'use strict';
 
-var Color = require('../../components/color');
-var Template = require('../../plot_api/plot_template');
+var Renk = require('../../components/color');
+var Şablon = require('../../plot_api/plot_template');
 var Lib = require('../../lib');
 
-var handleSubplotDefaults = require('../subplot_defaults');
-var handleTickLabelDefaults = require('../cartesian/tick_label_defaults');
-var handlePrefixSuffixDefaults = require('../cartesian/prefix_suffix_defaults');
-var handleTickMarkDefaults = require('../cartesian/tick_mark_defaults');
-var handleTickValueDefaults = require('../cartesian/tick_value_defaults');
-var handleLineGridDefaults = require('../cartesian/line_grid_defaults');
-var layoutAttributes = require('./layout_attributes');
+var AltGrafikVarsayılanlarınıEleAl = require('../subplot_defaults');
+var EtiketVarsayılanlarınıEleAl = require('../cartesian/tick_label_defaults');
+var ÖnEkSonEkVarsayılanlarınıEleAl = require('../cartesian/prefix_suffix_defaults');
+var İşaretVarsayılanlarınıEleAl = require('../cartesian/tick_mark_defaults');
+var DeğerVarsayılanlarınıEleAl = require('../cartesian/tick_value_defaults');
+var ÇizgiIzgaraVarsayılanlarınıEleAl = require('../cartesian/line_grid_defaults');
+var yerleşimÖznitelikleri = require('./layout_attributes');
 
-var axesNames = ['aaxis', 'baxis', 'caxis'];
+var eksenAdları = ['aekseni', 'bekseni', 'cekseni'];
 
-module.exports = function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
-    handleSubplotDefaults(layoutIn, layoutOut, fullData, {
-        type: 'ternary',
-        attributes: layoutAttributes,
-        handleDefaults: handleTernaryDefaults,
-        font: layoutOut.font,
-        paper_bgcolor: layoutOut.paper_bgcolor
+module.exports = function yerleşimVarsayılanlarınıSağla(yerleşimGirdi, yerleşimÇıktı, tamVeri) {
+    AltGrafikVarsayılanlarınıEleAl(yerleşimGirdi, yerleşimÇıktı, tamVeri, {
+        tür: 'üçlü',
+        öznitelikler: yerleşimÖznitelikleri,
+        varsayılanlarıEleAl: ÜçlüVarsayılanlarıEleAl,
+        yazıtipi: yerleşimÇıktı.yazıtipi,
+        kağıt_arkaplanrengi: yerleşimÇıktı.kağıt_arkaplanrengi
     });
 };
 
-function handleTernaryDefaults(ternaryLayoutIn, ternaryLayoutOut, coerce, options) {
-    var bgColor = coerce('bgcolor');
-    var sum = coerce('sum');
-    options.bgColor = Color.combine(bgColor, options.paper_bgcolor);
-    var axName, containerIn, containerOut;
+function ÜçlüVarsayılanlarıEleAl(üçlüYerleşimGirdi, üçlüYerleşimÇıktı, zorla, seçenekler) {
+    var arkaPlanRengi = zorla('arkaplanrengi');
+    var toplam = zorla('toplam');
+    seçenekler.arkaPlanRengi = Renk.birleştir(arkaPlanRengi, seçenekler.kağıt_arkaplanrengi);
+    var eksenAdı, konteynerGirdi, konteynerÇıktı;
 
-    // TODO: allow most (if not all) axis attributes to be set
-    // in the outer container and used as defaults in the individual axes?
+    // TODO: Çoğu (hatta tüm) eksen özniteliklerinin dış konteynerde ayarlanmasına ve
+    // bireysel eksenlerde varsayılan olarak kullanılmasına izin ver?
 
-    for(var j = 0; j < axesNames.length; j++) {
-        axName = axesNames[j];
-        containerIn = ternaryLayoutIn[axName] || {};
-        containerOut = Template.newContainer(ternaryLayoutOut, axName);
-        containerOut._name = axName;
+    for(var j = 0; j < eksenAdları.length; j++) {
+        eksenAdı = eksenAdları[j];
+        konteynerGirdi = üçlüYerleşimGirdi[eksenAdı] || {};
+        konteynerÇıktı = Şablon.yeniKonteyner(üçlüYerleşimÇıktı, eksenAdı);
+        konteynerÇıktı._adı = eksenAdı;
 
-        handleAxisDefaults(containerIn, containerOut, options, ternaryLayoutOut);
+        EksenVarsayılanlarınıEleAl(konteynerGirdi, konteynerÇıktı, seçenekler, üçlüYerleşimÇıktı);
     }
 
-    // if the min values contradict each other, set them all to default (0)
-    // and delete *all* the inputs so the user doesn't get confused later by
-    // changing one and having them all change.
-    var aaxis = ternaryLayoutOut.aaxis;
-    var baxis = ternaryLayoutOut.baxis;
-    var caxis = ternaryLayoutOut.caxis;
-    if(aaxis.min + baxis.min + caxis.min >= sum) {
-        aaxis.min = 0;
-        baxis.min = 0;
-        caxis.min = 0;
-        if(ternaryLayoutIn.aaxis) delete ternaryLayoutIn.aaxis.min;
-        if(ternaryLayoutIn.baxis) delete ternaryLayoutIn.baxis.min;
-        if(ternaryLayoutIn.caxis) delete ternaryLayoutIn.caxis.min;
+    // Eğer min değerler birbiriyle çelişiyorsa, hepsini varsayılan (0) olarak ayarla
+    // ve *tüm* girdileri sil, böylece kullanıcı daha sonra birini değiştirip
+    // hepsinin değiştiğini görüp kafası karışmaz.
+    var aekseni = üçlüYerleşimÇıktı.aekseni;
+    var bekseni = üçlüYerleşimÇıktı.bekseni;
+    var cekseni = üçlüYerleşimÇıktı.cekseni;
+    if(aekseni.min + bekseni.min + cekseni.min >= toplam) {
+        aekseni.min = 0;
+        bekseni.min = 0;
+        cekseni.min = 0;
+        if(üçlüYerleşimGirdi.aekseni) delete üçlüYerleşimGirdi.aekseni.min;
+        if(üçlüYerleşimGirdi.bekseni) delete üçlüYerleşimGirdi.bekseni.min;
+        if(üçlüYerleşimGirdi.cekseni) delete üçlüYerleşimGirdi.cekseni.min;
     }
 }
 
-function handleAxisDefaults(containerIn, containerOut, options, ternaryLayoutOut) {
-    var axAttrs = layoutAttributes[containerOut._name];
+function EksenVarsayılanlarınıEleAl(konteynerGirdi, konteynerÇıktı, seçenekler, üçlüYerleşimÇıktı) {
+    var eksenÖznitelikleri = yerleşimÖznitelikleri[konteynerÇıktı._adı];
 
-    function coerce(attr, dflt) {
-        return Lib.coerce(containerIn, containerOut, axAttrs, attr, dflt);
+    function zorla(öznitelik, varsayılan) {
+        return Lib.zorla(konteynerGirdi, konteynerÇıktı, eksenÖznitelikleri, öznitelik, varsayılan);
     }
 
-    coerce('uirevision', ternaryLayoutOut.uirevision);
+    zorla('uirevision', üçlüYerleşimÇıktı.uirevision);
 
-    containerOut.type = 'linear'; // no other types allowed for ternary
+    konteynerÇıktı.tür = 'doğrusal'; // üçlü için başka türler izin verilmez
 
-    var dfltColor = coerce('color');
-    // if axis.color was provided, use it for fonts too; otherwise,
-    // inherit from global font color in case that was provided.
-    var dfltFontColor = (dfltColor !== axAttrs.color.dflt) ? dfltColor : options.font.color;
+    var varsayılanRenk = zorla('renk');
+    // Eğer eksen.renk sağlanmışsa, yazıtipleri için de kullan; aksi takdirde,
+    // global yazıtipi renginden miras al, eğer sağlanmışsa.
+    var varsayılanYazıtipiRengi = (varsayılanRenk !== eksenÖznitelikleri.renk.varsayılan) ? varsayılanRenk : seçenekler.yazıtipi.renk;
 
-    var axName = containerOut._name;
-    var letterUpper = axName.charAt(0).toUpperCase();
-    var dfltTitle = 'Component ' + letterUpper;
+    var eksenAdı = konteynerÇıktı._adı;
+    var harfBüyük = eksenAdı.charAt(0).toUpperCase();
+    var varsayılanBaşlık = 'Bileşen ' + harfBüyük;
 
-    var title = coerce('title.text', dfltTitle);
-    containerOut._hovertitle = title === dfltTitle ? title : letterUpper;
+    var başlık = zorla('başlık.metin', varsayılanBaşlık);
+    konteynerÇıktı._hoverbaşlık = başlık === varsayılanBaşlık ? başlık : harfBüyük;
 
-    Lib.coerceFont(coerce, 'title.font', options.font, { overrideDflt: {
-        size: Lib.bigFont(options.font.size),
-        color: dfltFontColor
+    Lib.zorlaYazıtipi(zorla, 'başlık.yazıtipi', seçenekler.yazıtipi, { varsayılanıGeçersizKıl: {
+        boyut: Lib.büyükYazıtipi(seçenekler.yazıtipi.boyut),
+        renk: varsayılanYazıtipiRengi
     }});
 
-    // range is just set by 'min' - max is determined by the other axes mins
-    coerce('min');
+    // aralık sadece 'min' ile ayarlanır - maksimum diğer eksenlerin min değerleriyle belirlenir
+    zorla('min');
 
     handleTickValueDefaults(containerIn, containerOut, coerce, 'linear');
     handlePrefixSuffixDefaults(containerIn, containerOut, coerce, 'linear');

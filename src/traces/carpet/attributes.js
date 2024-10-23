@@ -1,17 +1,19 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var fontAttrs = require('../../plots/font_attributes');
 var axisAttrs = require('./axis_attributes');
 var colorAttrs = require('../../components/color/attributes');
 
+// Halı grafiği için varsayılan yazı tipi ayarları
 var carpetFont = fontAttrs({
     editType: 'calc',
-    description: 'The default font used for axis & tick labels on this carpet'
+    description: 'Bu halı grafiğindeki eksen ve işaret etiketleri için kullanılan varsayılan yazı tipi'
 });
 
 var zorder = require('../scatter/attributes').zorder;
 
-// TODO: inherit from global font
+// TODO: Küresel yazı tipinden miras al
 carpetFont.family.dflt = '"Open Sans", verdana, arial, sans-serif';
 carpetFont.size.dflt = 12;
 carpetFont.color.dflt = colorAttrs.defaultLine;
@@ -21,30 +23,28 @@ module.exports = {
         valType: 'string',
         editType: 'calc',
         description: [
-            'An identifier for this carpet, so that `scattercarpet` and',
-            '`contourcarpet` traces can specify a carpet plot on which',
-            'they lie'
+            'Bu halı grafiği için bir tanımlayıcı, böylece `scattercarpet` ve',
+            '`contourcarpet` izleri, üzerinde bulundukları halı grafiğini belirtebilir'
         ].join(' ')
     },
     x: {
         valType: 'data_array',
         editType: 'calc+clearAxisTypes',
         description: [
-            'A two dimensional array of x coordinates at each carpet point.',
-            'If omitted, the plot is a cheater plot and the xaxis is hidden',
-            'by default.'
+            'Her halı noktadaki x koordinatlarının iki boyutlu bir dizisi.',
+            'Eğer belirtilmezse, grafik bir hile grafiği olur ve x ekseni varsayılan olarak gizlenir.'
         ].join(' ')
     },
     y: {
         valType: 'data_array',
         editType: 'calc+clearAxisTypes',
-        description: 'A two dimensional array of y coordinates at each carpet point.'
+        description: 'Her halı noktadaki y koordinatlarının iki boyutlu bir dizisi.'
     },
     a: {
         valType: 'data_array',
         editType: 'calc',
         description: [
-            'An array containing values of the first parameter value'
+            'İlk parametre değerlerinin bulunduğu bir dizi'
         ].join(' ')
     },
     a0: {
@@ -52,10 +52,10 @@ module.exports = {
         dflt: 0,
         editType: 'calc',
         description: [
-            'Alternate to `a`.',
-            'Builds a linear space of a coordinates.',
-            'Use with `da`',
-            'where `a0` is the starting coordinate and `da` the step.'
+            '`a` alternatifi.',
+            'Bir a koordinatlarının doğrusal bir alanını oluşturur.',
+            '`da` ile birlikte kullanın',
+            'burada `a0` başlangıç koordinatı ve `da` adımdır.'
         ].join(' ')
     },
     da: {
@@ -63,24 +63,24 @@ module.exports = {
         dflt: 1,
         editType: 'calc',
         description: [
-            'Sets the a coordinate step.',
-            'See `a0` for more info.'
+            'a koordinat adımını ayarlar.',
+            'Daha fazla bilgi için `a0` a bakın.'
         ].join(' ')
     },
     b: {
         valType: 'data_array',
         editType: 'calc',
-        description: 'A two dimensional array of y coordinates at each carpet point.'
+        description: 'Her halı noktadaki y koordinatlarının iki boyutlu bir dizisi.'
     },
     b0: {
         valType: 'number',
         dflt: 0,
         editType: 'calc',
         description: [
-            'Alternate to `b`.',
-            'Builds a linear space of a coordinates.',
-            'Use with `db`',
-            'where `b0` is the starting coordinate and `db` the step.'
+            '`b` alternatifi.',
+            'Bir b koordinatlarının doğrusal bir alanını oluşturur.',
+            '`db` ile birlikte kullanın',
+            'burada `b0` başlangıç koordinatı ve `db` adımdır.'
         ].join(' ')
     },
     db: {
@@ -88,8 +88,8 @@ module.exports = {
         dflt: 1,
         editType: 'calc',
         description: [
-            'Sets the b coordinate step.',
-            'See `b0` for more info.'
+            'b koordinat adımını ayarlar.',
+            'Daha fazla bilgi için `b0` a bakın.'
         ].join(' ')
     },
     cheaterslope: {
@@ -97,8 +97,8 @@ module.exports = {
         dflt: 1,
         editType: 'calc',
         description: [
-            'The shift applied to each successive row of data in creating a cheater plot.',
-            'Only used if `x` is been omitted.'
+            'Bir hile grafiği oluştururken verilerin her ardışık satırına uygulanan kayma.',
+            'Sadece `x` belirtilmemişse kullanılır.'
         ].join(' ')
     },
     aaxis: axisAttrs,
@@ -109,10 +109,10 @@ module.exports = {
         dflt: colorAttrs.defaultLine,
         editType: 'plot',
         description: [
-            'Sets default for all colors associated with this axis',
-            'all at once: line, font, tick, and grid colors.',
-            'Grid color is lightened by blending this with the plot background',
-            'Individual pieces can override this.'
+            'Bu eksenle ilişkili tüm renkler için varsayılan ayarları belirler',
+            'hepsi bir arada: çizgi, yazı tipi, işaret ve ızgara renkleri.',
+            'Izgara rengi, bu rengi grafik arka planıyla harmanlayarak hafifletilir.',
+            'Bireysel parçalar bunu geçersiz kılabilir.'
         ].join(' ')
     },
     transforms: undefined,

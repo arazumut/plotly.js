@@ -1,9 +1,11 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var isNumeric = require('fast-isnumeric');
 var tinycolor = require('tinycolor2');
 var isArrayOrTypedArray = require('../../lib').isArrayOrTypedArray;
 
+// String değerini zorla
 exports.coerceString = function(attributeDefinition, value, defaultValue) {
     if(typeof value === 'string') {
         if(value || !attributeDefinition.noBlank) return value;
@@ -16,6 +18,7 @@ exports.coerceString = function(attributeDefinition, value, defaultValue) {
       attributeDefinition.dflt;
 };
 
+// Sayısal değeri zorla
 exports.coerceNumber = function(attributeDefinition, value, defaultValue) {
     if(isNumeric(value)) {
         value = +value;
@@ -33,6 +36,7 @@ exports.coerceNumber = function(attributeDefinition, value, defaultValue) {
       attributeDefinition.dflt;
 };
 
+// Renk değerini zorla
 exports.coerceColor = function(attributeDefinition, value, defaultValue) {
     if(tinycolor(value).isValid()) return value;
 
@@ -41,6 +45,7 @@ exports.coerceColor = function(attributeDefinition, value, defaultValue) {
       attributeDefinition.dflt;
 };
 
+// Belirtilen değeri zorla
 exports.coerceEnumerated = function(attributeDefinition, value, defaultValue) {
     if(attributeDefinition.coerceNumber) value = +value;
 
@@ -51,6 +56,7 @@ exports.coerceEnumerated = function(attributeDefinition, value, defaultValue) {
       attributeDefinition.dflt;
 };
 
+// Dizi veya skaler değeri al
 exports.getValue = function(arrayOrScalar, index) {
     var value;
     if(!isArrayOrTypedArray(arrayOrScalar)) value = arrayOrScalar;
@@ -58,6 +64,7 @@ exports.getValue = function(arrayOrScalar, index) {
     return value;
 };
 
+// Çizgi genişliğini al
 exports.getLineWidth = function(trace, di) {
     var w =
         (0 < di.mlw) ? di.mlw :

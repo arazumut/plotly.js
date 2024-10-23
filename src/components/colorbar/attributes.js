@@ -1,70 +1,68 @@
 'use strict';
 
-var axesAttrs = require('../../plots/cartesian/layout_attributes');
-var fontAttrs = require('../../plots/font_attributes');
+var eksenOzellikleri = require('../../plots/cartesian/layout_attributes');
+var yazıTipiOzellikleri = require('../../plots/font_attributes');
 var extendFlat = require('../../lib/extend').extendFlat;
 var overrideAll = require('../../plot_api/edit_types').overrideAll;
 
-
 module.exports = overrideAll({
-    orientation: {
+    yön: {
         valType: 'enumerated',
         values: ['h', 'v'],
         dflt: 'v',
-        description: 'Sets the orientation of the colorbar.'
+        description: 'Renk çubuğunun yönünü ayarlar.'
     },
-    thicknessmode: {
+    kalinlikModu: {
         valType: 'enumerated',
         values: ['fraction', 'pixels'],
         dflt: 'pixels',
         description: [
-            'Determines whether this color bar\'s thickness',
-            '(i.e. the measure in the constant color direction)',
-            'is set in units of plot *fraction* or in *pixels*.',
-            'Use `thickness` to set the value.'
+            'Bu renk çubuğunun kalınlığının',
+            '(yani sabit renk yönündeki ölçü)',
+            'grafik *kesir* birimlerinde mi yoksa *piksel* birimlerinde mi ayarlandığını belirler.',
+            'Değeri ayarlamak için `kalinlik` kullanın.'
         ].join(' ')
     },
-    thickness: {
+    kalinlik: {
         valType: 'number',
         min: 0,
         dflt: 30,
         description: [
-            'Sets the thickness of the color bar',
-            'This measure excludes the size of the padding, ticks and labels.'
+            'Renk çubuğunun kalınlığını ayarlar.',
+            'Bu ölçü, dolgu, işaretler ve etiketlerin boyutunu içermez.'
         ].join(' ')
     },
-    lenmode: {
+    uzunlukModu: {
         valType: 'enumerated',
         values: ['fraction', 'pixels'],
         dflt: 'fraction',
         description: [
-            'Determines whether this color bar\'s length',
-            '(i.e. the measure in the color variation direction)',
-            'is set in units of plot *fraction* or in *pixels.',
-            'Use `len` to set the value.'
+            'Bu renk çubuğunun uzunluğunun',
+            '(yani renk değişim yönündeki ölçü)',
+            'grafik *kesir* birimlerinde mi yoksa *piksel* birimlerinde mi ayarlandığını belirler.',
+            'Değeri ayarlamak için `uzunluk` kullanın.'
         ].join(' ')
     },
-    len: {
+    uzunluk: {
         valType: 'number',
         min: 0,
         dflt: 1,
         description: [
-            'Sets the length of the color bar',
-            'This measure excludes the padding of both ends.',
-            'That is, the color bar length is this length minus the',
-            'padding on both ends.'
+            'Renk çubuğunun uzunluğunu ayarlar.',
+            'Bu ölçü, her iki ucun dolgusunu içermez.',
+            'Yani, renk çubuğu uzunluğu bu uzunluk eksi her iki uçtaki dolgudur.'
         ].join(' ')
     },
     x: {
         valType: 'number',
         description: [
-            'Sets the x position with respect to `xref` of the color bar (in plot fraction).',
-            'When `xref` is *paper*, defaults to 1.02 when `orientation` is *v* and',
-            '0.5 when `orientation` is *h*.',
-            'When `xref` is *container*, defaults to *1* when `orientation` is *v* and',
-            '0.5 when `orientation` is *h*.',
-            'Must be between *0* and *1* if `xref` is *container*',
-            'and between *-2* and *3* if `xref` is *paper*.'
+            'Renk çubuğunun `xref`e göre x konumunu ayarlar (grafik kesirinde).',
+            '`xref` *kağıt* olduğunda, `yön` *v* olduğunda varsayılan olarak 1.02 ve',
+            '`yön` *h* olduğunda 0.5 olur.',
+            '`xref` *konteyner* olduğunda, `yön` *v* olduğunda varsayılan olarak *1* ve',
+            '`yön` *h* olduğunda 0.5 olur.',
+            '`xref` *konteyner* ise *0* ile *1* arasında olmalı',
+            've `xref` *kağıt* ise *-2* ile *3* arasında olmalıdır.'
         ].join(' ')
     },
     xref: {
@@ -73,38 +71,38 @@ module.exports = overrideAll({
         values: ['container', 'paper'],
         editType: 'layoutstyle',
         description: [
-            'Sets the container `x` refers to.',
-            '*container* spans the entire `width` of the plot.',
-            '*paper* refers to the width of the plotting area only.'
+            '`x`in atıfta bulunduğu konteyneri ayarlar.',
+            '*konteyner* grafiğin tüm *genişliğini* kapsar.',
+            '*kağıt* yalnızca çizim alanının genişliğine atıfta bulunur.'
         ].join(' ')
     },
-    xanchor: {
+    xankoru: {
         valType: 'enumerated',
         values: ['left', 'center', 'right'],
         description: [
-            'Sets this color bar\'s horizontal position anchor.',
-            'This anchor binds the `x` position to the *left*, *center*',
-            'or *right* of the color bar.',
-            'Defaults to *left* when `orientation` is *v* and',
-            '*center* when `orientation` is *h*.'
+            'Bu renk çubuğunun yatay konum çapasını ayarlar.',
+            'Bu çapa, `x` konumunu renk çubuğunun *sol*, *orta*',
+            'veya *sağ* kısmına bağlar.',
+            '`yön` *v* olduğunda varsayılan olarak *sol* ve',
+            '`yön` *h* olduğunda *orta* olur.'
         ].join(' ')
     },
-    xpad: {
+    xdolgu: {
         valType: 'number',
         min: 0,
         dflt: 10,
-        description: 'Sets the amount of padding (in px) along the x direction.'
+        description: 'x yönünde dolgu miktarını (px cinsinden) ayarlar.'
     },
     y: {
         valType: 'number',
         description: [
-            'Sets the y position with respect to `yref` of the color bar (in plot fraction).',
-            'When `yref` is *paper*, defaults to 0.5 when `orientation` is *v* and',
-            '1.02 when `orientation` is *h*.',
-            'When `yref` is *container*, defaults to 0.5 when `orientation` is *v* and',
-            '1 when `orientation` is *h*.',
-            'Must be between *0* and *1* if `yref` is *container*',
-            'and between *-2* and *3* if `yref` is *paper*.'
+            'Renk çubuğunun `yref`e göre y konumunu ayarlar (grafik kesirinde).',
+            '`yref` *kağıt* olduğunda, `yön` *v* olduğunda varsayılan olarak 0.5 ve',
+            '`yön` *h* olduğunda 1.02 olur.',
+            '`yref` *konteyner* olduğunda, `yön` *v* olduğunda varsayılan olarak 0.5 ve',
+            '`yön` *h* olduğunda 1 olur.',
+            '`yref` *konteyner* ise *0* ile *1* arasında olmalı',
+            've `yref` *kağıt* ise *-2* ile *3* arasında olmalıdır.'
         ].join(' ')
     },
     yref: {
@@ -113,119 +111,118 @@ module.exports = overrideAll({
         values: ['container', 'paper'],
         editType: 'layoutstyle',
         description: [
-            'Sets the container `y` refers to.',
-            '*container* spans the entire `height` of the plot.',
-            '*paper* refers to the height of the plotting area only.'
+            '`y`in atıfta bulunduğu konteyneri ayarlar.',
+            '*konteyner* grafiğin tüm *yüksekliğini* kapsar.',
+            '*kağıt* yalnızca çizim alanının yüksekliğine atıfta bulunur.'
         ].join(' '),
     },
-    yanchor: {
+    yankoru: {
         valType: 'enumerated',
         values: ['top', 'middle', 'bottom'],
         description: [
-            'Sets this color bar\'s vertical position anchor',
-            'This anchor binds the `y` position to the *top*, *middle*',
-            'or *bottom* of the color bar.',
-            'Defaults to *middle* when `orientation` is *v* and',
-            '*bottom* when `orientation` is *h*.'
+            'Bu renk çubuğunun dikey konum çapasını ayarlar.',
+            'Bu çapa, `y` konumunu renk çubuğunun *üst*, *orta*',
+            'veya *alt* kısmına bağlar.',
+            '`yön` *v* olduğunda varsayılan olarak *orta* ve',
+            '`yön` *h* olduğunda *alt* olur.'
         ].join(' ')
     },
-    ypad: {
+    ydolgu: {
         valType: 'number',
         min: 0,
         dflt: 10,
-        description: 'Sets the amount of padding (in px) along the y direction.'
+        description: 'y yönünde dolgu miktarını (px cinsinden) ayarlar.'
     },
-    // a possible line around the bar itself
-    outlinecolor: axesAttrs.linecolor,
-    outlinewidth: axesAttrs.linewidth,
-    // Should outlinewidth have {dflt: 0} ?
-    // another possible line outside the padding and tick labels
-    bordercolor: axesAttrs.linecolor,
-    borderwidth: {
+    // Çubuğun kendisinin etrafındaki olası bir çizgi
+    dışÇizgiRengi: eksenOzellikleri.linecolor,
+    dışÇizgiGenişliği: eksenOzellikleri.linewidth,
+    // DışÇizgiGenişliği {dflt: 0} olmalı mı?
+    // Dolgu ve işaret etiketlerinin dışındaki olası başka bir çizgi
+    kenarRengi: eksenOzellikleri.linecolor,
+    kenarGenişliği: {
         valType: 'number',
         min: 0,
         dflt: 0,
         description: [
-            'Sets the width (in px) or the border enclosing this color bar.'
+            'Bu renk çubuğunu çevreleyen kenarın genişliğini (px cinsinden) ayarlar.'
         ].join(' ')
     },
-    bgcolor: {
+    arkaPlanRengi: {
         valType: 'color',
         dflt: 'rgba(0,0,0,0)',
-        description: 'Sets the color of padded area.'
+        description: 'Dolgu alanının rengini ayarlar.'
     },
-    // tick and title properties named and function exactly as in axes
-    tickmode: axesAttrs.minor.tickmode,
-    nticks: axesAttrs.nticks,
-    tick0: axesAttrs.tick0,
-    dtick: axesAttrs.dtick,
-    tickvals: axesAttrs.tickvals,
-    ticktext: axesAttrs.ticktext,
-    ticks: extendFlat({}, axesAttrs.ticks, {dflt: ''}),
-    ticklabeloverflow: extendFlat({}, axesAttrs.ticklabeloverflow, {
+    // İşaret ve başlık özellikleri eksenlerdeki gibi adlandırılır ve işlev görür
+    işaretModu: eksenOzellikleri.minor.tickmode,
+    işaretSayısı: eksenOzellikleri.nticks,
+    işaret0: eksenOzellikleri.tick0,
+    işaretAralığı: eksenOzellikleri.dtick,
+    işaretDeğerleri: eksenOzellikleri.tickvals,
+    işaretMetni: eksenOzellikleri.ticktext,
+    işaretler: extendFlat({}, eksenOzellikleri.ticks, {dflt: ''}),
+    işaretEtiketTaşması: extendFlat({}, eksenOzellikleri.ticklabeloverflow, {
         description: [
-            'Determines how we handle tick labels that would overflow either the graph div or the domain of the axis.',
-            'The default value for inside tick labels is *hide past domain*.',
-            'In other cases the default is *hide past div*.'
+            'Grafik divini veya eksenin alanını aşacak işaret etiketlerini nasıl ele alacağımızı belirler.',
+            'İç işaret etiketleri için varsayılan değer *alanın dışına gizle* dir.',
+            'Diğer durumlarda varsayılan değer *divin dışına gizle* dir.'
         ].join(' ')
     }),
 
-    // ticklabelposition: not used directly, as values depend on orientation
-    // left/right options are for x axes, and top/bottom options are for y axes
-    ticklabelposition: {
+    // işaretEtiketKonumu: doğrudan kullanılmaz, çünkü değerler yöne bağlıdır
+    // sol/sağ seçenekleri x eksenleri için, üst/alt seçenekleri y eksenleri içindir
+    işaretEtiketKonumu: {
         valType: 'enumerated',
         values: [
-            'outside', 'inside',
-            'outside top', 'inside top',
-            'outside left', 'inside left',
-            'outside right', 'inside right',
-            'outside bottom', 'inside bottom'
+            'dışarıda', 'içeride',
+            'dışarıda üst', 'içeride üst',
+            'dışarıda sol', 'içeride sol',
+            'dışarıda sağ', 'içeride sağ',
+            'dışarıda alt', 'içeride alt'
         ],
-        dflt: 'outside',
+        dflt: 'dışarıda',
         description: [
-            'Determines where tick labels are drawn relative to the ticks.',
-            'Left and right options are used when `orientation` is *h*,',
-            'top and bottom when `orientation` is *v*.'
+            'İşaret etiketlerinin işaretlere göre nerede çizileceğini belirler.',
+            'Sol ve sağ seçenekler `yön` *h* olduğunda kullanılır,',
+            'üst ve alt seçenekler `yön` *v* olduğunda kullanılır.'
         ].join(' ')
     },
 
-    ticklen: axesAttrs.ticklen,
-    tickwidth: axesAttrs.tickwidth,
-    tickcolor: axesAttrs.tickcolor,
-    ticklabelstep: axesAttrs.ticklabelstep,
-    showticklabels: axesAttrs.showticklabels,
-    labelalias: axesAttrs.labelalias,
-    tickfont: fontAttrs({
-        description: 'Sets the color bar\'s tick label font'
+    işaretUzunluğu: eksenOzellikleri.ticklen,
+    işaretGenişliği: eksenOzellikleri.tickwidth,
+    işaretRengi: eksenOzellikleri.tickcolor,
+    işaretEtiketAdımı: eksenOzellikleri.ticklabelstep,
+    işaretEtiketleriniGöster: eksenOzellikleri.showticklabels,
+    etiketTakmaAdı: eksenOzellikleri.labelalias,
+    işaretYazıTipi: yazıTipiOzellikleri({
+        description: 'Renk çubuğunun işaret etiketi yazı tipini ayarlar'
     }),
-    tickangle: axesAttrs.tickangle,
-    tickformat: axesAttrs.tickformat,
-    tickformatstops: axesAttrs.tickformatstops,
-    tickprefix: axesAttrs.tickprefix,
-    showtickprefix: axesAttrs.showtickprefix,
-    ticksuffix: axesAttrs.ticksuffix,
-    showticksuffix: axesAttrs.showticksuffix,
-    separatethousands: axesAttrs.separatethousands,
-    exponentformat: axesAttrs.exponentformat,
-    minexponent: axesAttrs.minexponent,
-    showexponent: axesAttrs.showexponent,
-    title: {
-        text: {
+    işaretAçısı: eksenOzellikleri.tickangle,
+    işaretFormatı: eksenOzellikleri.tickformat,
+    işaretFormatDurakları: eksenOzellikleri.tickformatstops,
+    işaretÖneki: eksenOzellikleri.tickprefix,
+    işaretÖnekiniGöster: eksenOzellikleri.showtickprefix,
+    işaretSoneki: eksenOzellikleri.ticksuffix,
+    işaretSonekiniGöster: eksenOzellikleri.showticksuffix,
+    binlerceAyır: eksenOzellikleri.separatethousands,
+    üsFormatı: eksenOzellikleri.exponentformat,
+    minÜs: eksenOzellikleri.minexponent,
+    üsGöster: eksenOzellikleri.showexponent,
+    başlık: {
+        metin: {
             valType: 'string',
-            description: 'Sets the title of the color bar.'
+            description: 'Renk çubuğunun başlığını ayarlar.'
         },
-        font: fontAttrs({
-            description: 'Sets this color bar\'s title font.'
+        yazıTipi: yazıTipiOzellikleri({
+            description: 'Bu renk çubuğunun başlık yazı tipini ayarlar.'
         }),
-        side: {
+        taraf: {
             valType: 'enumerated',
-            values: ['right', 'top', 'bottom'],
+            values: ['sağ', 'üst', 'alt'],
             description: [
-                'Determines the location of color bar\'s title',
-                'with respect to the color bar.',
-                'Defaults to *top* when `orientation` if *v* and ',
-                'defaults to *right* when `orientation` if *h*.',
+                'Renk çubuğunun başlığının konumunu belirler.',
+                '`yön` *v* olduğunda varsayılan olarak *üst* ve',
+                '`yön` *h* olduğunda varsayılan olarak *sağ* olur.'
             ].join(' ')
         }
     },
-}, 'colorbars', 'from-root');
+}, 'renkCubuklari', 'kökten');

@@ -1,38 +1,40 @@
 'use strict';
 
-var Registry = require('../../registry');
-var Lib = require('../../lib');
+// Gerekli modülleri dahil et
+var Kayıt = require('../../registry');
+var Kütüphane = require('../../lib');
 
 module.exports = {
-    moduleType: 'component',
-    name: 'annotations3d',
+    moduleType: 'component', // Modül tipi: bileşen
+    name: 'annotations3d', // Modül adı: annotations3d
 
     schema: {
         subplots: {
-            scene: {annotations: require('./attributes')}
+            scene: {annotations: require('./attributes')} // Alt grafikler: sahne, annotations (açıklamalar)
         }
     },
 
-    layoutAttributes: require('./attributes'),
-    handleDefaults: require('./defaults'),
-    includeBasePlot: includeGL3D,
+    layoutAttributes: require('./attributes'), // Düzen öznitelikleri
+    handleDefaults: require('./defaults'), // Varsayılanları işleme
+    includeBasePlot: includeGL3D, // Temel grafiği dahil et
 
-    convert: require('./convert'),
-    draw: require('./draw')
+    convert: require('./convert'), // Dönüştürme
+    draw: require('./draw') // Çizim
 };
 
+// GL3D'yi dahil etme fonksiyonu
 function includeGL3D(layoutIn, layoutOut) {
-    var GL3D = Registry.subplotsRegistry.gl3d;
+    var GL3D = Kayıt.subplotsRegistry.gl3d;
     if(!GL3D) return;
 
     var attrRegex = GL3D.attrRegex;
 
-    var keys = Object.keys(layoutIn);
-    for(var i = 0; i < keys.length; i++) {
-        var k = keys[i];
+    var anahtarlar = Object.keys(layoutIn);
+    for(var i = 0; i < anahtarlar.length; i++) {
+        var k = anahtarlar[i];
         if(attrRegex.test(k) && (layoutIn[k].annotations || []).length) {
-            Lib.pushUnique(layoutOut._basePlotModules, GL3D);
-            Lib.pushUnique(layoutOut._subplots.gl3d, k);
+            Kütüphane.pushUnique(layoutOut._basePlotModules, GL3D);
+            Kütüphane.pushUnique(layoutOut._subplots.gl3d, k);
         }
     }
 }

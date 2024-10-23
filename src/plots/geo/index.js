@@ -1,90 +1,96 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var getSubplotCalcData = require('../../plots/get_data').getSubplotCalcData;
 var counterRegex = require('../../lib').counterRegex;
-
 var createGeo = require('./geo');
 
+// Değişken tanımlamaları
 var GEO = 'geo';
 var counter = counterRegex(GEO);
 
-var attributes = {};
-attributes[GEO] = {
+// Özellikler tanımlaması
+var ozellikler = {};
+ozellikler[GEO] = {
     valType: 'subplotid',
     dflt: GEO,
     editType: 'calc',
     description: [
-        'Sets a reference between this trace\'s geospatial coordinates and',
-        'a geographic map.',
-        'If *geo* (the default value), the geospatial coordinates refer to',
-        '`layout.geo`.',
-        'If *geo2*, the geospatial coordinates refer to `layout.geo2`,',
-        'and so on.'
+        'Bu iz\'in coğrafi koordinatları ile',
+        'bir coğrafi harita arasında bir referans ayarlar.',
+        'Eğer *geo* (varsayılan değer) ise, coğrafi koordinatlar',
+        '`layout.geo`ya referans verir.',
+        'Eğer *geo2* ise, coğrafi koordinatlar `layout.geo2`ya referans verir,',
+        've bu şekilde devam eder.'
     ].join(' ')
 };
 
-function plotGeo(gd) {
-    var fullLayout = gd._fullLayout;
-    var calcData = gd.calcdata;
-    var geoIds = fullLayout._subplots[GEO];
+// Coğrafi harita çizim fonksiyonu
+function cizGeo(gd) {
+    var tamLayout = gd._fullLayout;
+    var hesapData = gd.calcdata;
+    var geoIdler = tamLayout._subplots[GEO];
 
-    for(var i = 0; i < geoIds.length; i++) {
-        var geoId = geoIds[i];
-        var geoCalcData = getSubplotCalcData(calcData, GEO, geoId);
-        var geoLayout = fullLayout[geoId];
+    for(var i = 0; i < geoIdler.length; i++) {
+        var geoId = geoIdler[i];
+        var geoHesapData = getSubplotCalcData(hesapData, GEO, geoId);
+        var geoLayout = tamLayout[geoId];
         var geo = geoLayout._subplot;
 
         if(!geo) {
             geo = createGeo({
                 id: geoId,
                 graphDiv: gd,
-                container: fullLayout._geolayer.node(),
+                container: tamLayout._geolayer.node(),
                 topojsonURL: gd._context.topojsonURL,
                 staticPlot: gd._context.staticPlot
             });
 
-            fullLayout[geoId]._subplot = geo;
+            tamLayout[geoId]._subplot = geo;
         }
 
-        geo.plot(geoCalcData, fullLayout, gd._promises);
+        geo.plot(geoHesapData, tamLayout, gd._promises);
     }
 }
 
-function clean(newFullData, newFullLayout, oldFullData, oldFullLayout) {
-    var oldGeoKeys = oldFullLayout._subplots[GEO] || [];
+// Temizlik fonksiyonu
+function temizle(yeniTamData, yeniTamLayout, eskiTamData, eskiTamLayout) {
+    var eskiGeoAnahtarlar = eskiTamLayout._subplots[GEO] || [];
 
-    for(var i = 0; i < oldGeoKeys.length; i++) {
-        var oldGeoKey = oldGeoKeys[i];
-        var oldGeo = oldFullLayout[oldGeoKey]._subplot;
+    for(var i = 0; i < eskiGeoAnahtarlar.length; i++) {
+        var eskiGeoAnahtar = eskiGeoAnahtarlar[i];
+        var eskiGeo = eskiTamLayout[eskiGeoAnahtar]._subplot;
 
-        if(!newFullLayout[oldGeoKey] && !!oldGeo) {
-            oldGeo.framework.remove();
-            oldGeo.clipDef.remove();
+        if(!yeniTamLayout[eskiGeoAnahtar] && !!eskiGeo) {
+            eskiGeo.framework.remove();
+            eskiGeo.clipDef.remove();
         }
     }
 }
 
-function updateFx(gd) {
-    var fullLayout = gd._fullLayout;
-    var subplotIds = fullLayout._subplots[GEO];
+// Etkileşim güncelleme fonksiyonu
+function fxGuncelle(gd) {
+    var tamLayout = gd._fullLayout;
+    var subplotIdler = tamLayout._subplots[GEO];
 
-    for(var i = 0; i < subplotIds.length; i++) {
-        var subplotLayout = fullLayout[subplotIds[i]];
+    for(var i = 0; i < subplotIdler.length; i++) {
+        var subplotLayout = tamLayout[subplotIdler[i]];
         var subplotObj = subplotLayout._subplot;
-        subplotObj.updateFx(fullLayout, subplotLayout);
+        subplotObj.updateFx(tamLayout, subplotLayout);
     }
 }
 
+// Modülü dışa aktar
 module.exports = {
     attr: GEO,
     name: GEO,
     idRoot: GEO,
     idRegex: counter,
     attrRegex: counter,
-    attributes: attributes,
+    ozellikler: ozellikler,
     layoutAttributes: require('./layout_attributes'),
     supplyLayoutDefaults: require('./layout_defaults'),
-    plot: plotGeo,
-    updateFx: updateFx,
-    clean: clean
+    plot: cizGeo,
+    updateFx: fxGuncelle,
+    clean: temizle
 };

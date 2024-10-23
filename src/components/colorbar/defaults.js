@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli kütüphaneleri dahil et
 var Lib = require('../../lib');
 var Template = require('../../plot_api/plot_template');
 
@@ -10,11 +11,13 @@ var handlePrefixSuffixDefaults = require('../../plots/cartesian/prefix_suffix_de
 
 var attributes = require('./attributes');
 
-module.exports = function colorbarDefaults(containerIn, containerOut, layout) {
+// colorbarDefaults fonksiyonunu dışa aktar
+module.exports = function colorbarVarsayılanlar(containerIn, containerOut, layout) {
     var colorbarOut = Template.newContainer(containerOut, 'colorbar');
     var colorbarIn = containerIn.colorbar || {};
 
-    function coerce(attr, dflt) {
+    // Varsayılan değerleri zorla
+    function zorla(attr, dflt) {
         return Lib.coerce(colorbarIn, colorbarOut, attributes, attr, dflt);
     }
 
@@ -22,23 +25,23 @@ module.exports = function colorbarDefaults(containerIn, containerOut, layout) {
     var w = layout.width - margin.l - margin.r;
     var h = layout.height - margin.t - margin.b;
 
-    var orientation = coerce('orientation');
+    var orientation = zorla('orientation');
     var isVertical = orientation === 'v';
 
-    var thicknessmode = coerce('thicknessmode');
-    coerce('thickness', (thicknessmode === 'fraction') ?
+    var thicknessmode = zorla('thicknessmode');
+    zorla('thickness', (thicknessmode === 'fraction') ?
         30 / (isVertical ? w : h) :
         30
     );
 
-    var lenmode = coerce('lenmode');
-    coerce('len', (lenmode === 'fraction') ?
+    var lenmode = zorla('lenmode');
+    zorla('len', (lenmode === 'fraction') ?
         1 :
         isVertical ? h : w
     );
 
-    var yref = coerce('yref');
-    var xref = coerce('xref');
+    var yref = zorla('yref');
+    var xref = zorla('xref');
 
     var isPaperY = yref === 'paper';
     var isPaperX = xref === 'paper';
@@ -76,17 +79,17 @@ module.exports = function colorbarDefaults(containerIn, containerOut, layout) {
         }
     }, 'y');
 
-    coerce('xanchor', defaultXAnchor);
-    coerce('xpad');
-    coerce('yanchor', defaultYAnchor);
-    coerce('ypad');
+    zorla('xanchor', defaultXAnchor);
+    zorla('xpad');
+    zorla('yanchor', defaultYAnchor);
+    zorla('ypad');
     Lib.noneOrAll(colorbarIn, colorbarOut, ['x', 'y']);
 
-    coerce('outlinecolor');
-    coerce('outlinewidth');
-    coerce('bordercolor');
-    coerce('borderwidth');
-    coerce('bgcolor');
+    zorla('outlinecolor');
+    zorla('outlinewidth');
+    zorla('bordercolor');
+    zorla('borderwidth');
+    zorla('bgcolor');
 
     var ticklabelposition = Lib.coerce(colorbarIn, colorbarOut, {
         ticklabelposition: {
@@ -104,9 +107,9 @@ module.exports = function colorbarDefaults(containerIn, containerOut, layout) {
         }
     }, 'ticklabelposition');
 
-    coerce('ticklabeloverflow', ticklabelposition.indexOf('inside') !== -1 ? 'hide past domain' : 'hide past div');
+    zorla('ticklabeloverflow', ticklabelposition.indexOf('inside') !== -1 ? 'hide past domain' : 'hide past div');
 
-    handleTickValueDefaults(colorbarIn, colorbarOut, coerce, 'linear');
+    handleTickValueDefaults(colorbarIn, colorbarOut, zorla, 'linear');
 
     var font = layout.font;
     var opts = {
@@ -117,13 +120,13 @@ module.exports = function colorbarDefaults(containerIn, containerOut, layout) {
         font: font
     };
     if(ticklabelposition.indexOf('inside') !== -1) {
-        opts.bgColor = 'black'; // could we instead use the average of colors in the scale?
+        opts.bgColor = 'black'; // Bunun yerine ölçek içindeki renklerin ortalamasını kullanabilir miyiz?
     }
-    handlePrefixSuffixDefaults(colorbarIn, colorbarOut, coerce, 'linear', opts);
-    handleTickLabelDefaults(colorbarIn, colorbarOut, coerce, 'linear', opts);
-    handleTickMarkDefaults(colorbarIn, colorbarOut, coerce, 'linear', opts);
+    handlePrefixSuffixDefaults(colorbarIn, colorbarOut, zorla, 'linear', opts);
+    handleTickLabelDefaults(colorbarIn, colorbarOut, zorla, 'linear', opts);
+    handleTickMarkDefaults(colorbarIn, colorbarOut, zorla, 'linear', opts);
 
-    coerce('title.text', layout._dfltTitle.colorbar);
+    zorla('title.text', layout._dfltTitle.colorbar);
 
     var tickFont = colorbarOut.showticklabels ? colorbarOut.tickfont : font;
 
@@ -131,6 +134,6 @@ module.exports = function colorbarDefaults(containerIn, containerOut, layout) {
         family: tickFont.family,
         size: Lib.bigFont(tickFont.size)
     });
-    Lib.coerceFont(coerce, 'title.font', dfltTitleFont);
-    coerce('title.side', isVertical ? 'top' : 'right');
+    Lib.coerceFont(zorla, 'title.font', dfltTitleFont);
+    zorla('title.side', isVertical ? 'top' : 'right');
 };

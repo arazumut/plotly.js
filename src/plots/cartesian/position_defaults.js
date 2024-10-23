@@ -4,94 +4,84 @@ var isNumeric = require('fast-isnumeric');
 
 var Lib = require('../../lib');
 
+module.exports = function pozisyonVarsayılanlarınıEleAl(containerIn, containerOut, zorla, seçenekler) {
+    var karşıAkslar = seçenekler.karşıAkslar || [];
+    var üstÜsteBinilebilirAkslar = seçenekler.üstÜsteBinilebilirAkslar || [];
+    var harf = seçenekler.harf;
+    var ızgara = seçenekler.ızgara;
+    var üstÜsteBinenAlan = seçenekler.üstÜsteBinenAlan;
+    var varsayılanBağlama, varsayılanAlan, varsayılanTaraf, varsayılanPozisyon, varsayılanKaydırma, varsayılanOtomatikKenarBoşluğu;
 
-module.exports = function handlePositionDefaults(containerIn, containerOut, coerce, options) {
-    var counterAxes = options.counterAxes || [];
-    var overlayableAxes = options.overlayableAxes || [];
-    var letter = options.letter;
-    var grid = options.grid;
-    var overlayingDomain = options.overlayingDomain;
-    var dfltAnchor, dfltDomain, dfltSide, dfltPosition, dfltShift, dfltAutomargin;
-
-    if(grid) {
-        dfltDomain = grid._domains[letter][grid._axisMap[containerOut._id]];
-        dfltAnchor = grid._anchors[containerOut._id];
-        if(dfltDomain) {
-            dfltSide = grid[letter + 'side'].split(' ')[0];
-            dfltPosition = grid.domain[letter][dfltSide === 'right' || dfltSide === 'top' ? 1 : 0];
+    if(ızgara) {
+        varsayılanAlan = ızgara._alanlar[harf][ızgara._aksHaritası[containerOut._id]];
+        varsayılanBağlama = ızgara._bağlamalar[containerOut._id];
+        if(varsayılanAlan) {
+            varsayılanTaraf = ızgara[harf + 'taraf'].split(' ')[0];
+            varsayılanPozisyon = ızgara.alan[harf][varsayılanTaraf === 'sağ' || varsayılanTaraf === 'üst' ? 1 : 0];
         }
     }
 
-    // Even if there's a grid, this axis may not be in it - fall back on non-grid defaults
-    dfltDomain = dfltDomain || [0, 1];
-    dfltAnchor = dfltAnchor || (isNumeric(containerIn.position) ? 'free' : (counterAxes[0] || 'free'));
-    dfltSide = dfltSide || (letter === 'x' ? 'bottom' : 'left');
-    dfltPosition = dfltPosition || 0;
-    dfltShift = 0;
-    dfltAutomargin = false;
+    // Izgara olsa bile, bu eksen içinde olmayabilir - ızgara dışı varsayılanlara geri dön
+    varsayılanAlan = varsayılanAlan || [0, 1];
+    varsayılanBağlama = varsayılanBağlama || (isNumeric(containerIn.pozisyon) ? 'serbest' : (karşıAkslar[0] || 'serbest'));
+    varsayılanTaraf = varsayılanTaraf || (harf === 'x' ? 'alt' : 'sol');
+    varsayılanPozisyon = varsayılanPozisyon || 0;
+    varsayılanKaydırma = 0;
+    varsayılanOtomatikKenarBoşluğu = false;
 
-    var anchor = Lib.coerce(containerIn, containerOut, {
-        anchor: {
+    var bağlama = Lib.zorla(containerIn, containerOut, {
+        bağlama: {
             valType: 'enumerated',
-            values: ['free'].concat(counterAxes),
-            dflt: dfltAnchor
+            values: ['serbest'].concat(karşıAkslar),
+            dflt: varsayılanBağlama
         }
-    }, 'anchor');
+    }, 'bağlama');
 
-    var side = Lib.coerce(containerIn, containerOut, {
-        side: {
+    var taraf = Lib.zorla(containerIn, containerOut, {
+        taraf: {
             valType: 'enumerated',
-            values: letter === 'x' ? ['bottom', 'top'] : ['left', 'right'],
-            dflt: dfltSide
+            values: harf === 'x' ? ['alt', 'üst'] : ['sol', 'sağ'],
+            dflt: varsayılanTaraf
         }
-    }, 'side');
+    }, 'taraf');
 
-    if(anchor === 'free') {
-        if(letter === 'y') {
-            var autoshift = coerce('autoshift');
-            if(autoshift) {
-                dfltPosition = side === 'left' ? overlayingDomain[0] : overlayingDomain[1];
-                dfltAutomargin = containerOut.automargin ? containerOut.automargin : true;
-                dfltShift = side === 'left' ? -3 : 3;
+    if(bağlama === 'serbest') {
+        if(harf === 'y') {
+            var otomatikKaydırma = zorla('otomatikKaydırma');
+            if(otomatikKaydırma) {
+                varsayılanPozisyon = taraf === 'sol' ? üstÜsteBinenAlan[0] : üstÜsteBinenAlan[1];
+                varsayılanOtomatikKenarBoşluğu = containerOut.otomatikKenarBoşluğu ? containerOut.otomatikKenarBoşluğu : true;
+                varsayılanKaydırma = taraf === 'sol' ? -3 : 3;
             }
-            coerce('shift', dfltShift);
+            zorla('kaydırma', varsayılanKaydırma);
         }
-        coerce('position', dfltPosition);
+        zorla('pozisyon', varsayılanPozisyon);
     }
-    coerce('automargin', dfltAutomargin);
+    zorla('otomatikKenarBoşluğu', varsayılanOtomatikKenarBoşluğu);
 
-    var overlaying = false;
-    if(overlayableAxes.length) {
-        overlaying = Lib.coerce(containerIn, containerOut, {
-            overlaying: {
+    var üstÜsteBinme = false;
+    if(üstÜsteBinilebilirAkslar.length) {
+        üstÜsteBinme = Lib.zorla(containerIn, containerOut, {
+            üstÜsteBinme: {
                 valType: 'enumerated',
-                values: [false].concat(overlayableAxes),
+                values: [false].concat(üstÜsteBinilebilirAkslar),
                 dflt: false
             }
-        }, 'overlaying');
+        }, 'üstÜsteBinme');
     }
 
-    if(!overlaying) {
-        // TODO: right now I'm copying this domain over to overlaying axes
-        // in ax.setscale()... but this means we still need (imperfect) logic
-        // in the axes popover to hide domain for the overlaying axis.
-        // perhaps I should make a private version _domain that all axes get???
-        var domain = coerce('domain', dfltDomain);
+    if(!üstÜsteBinme) {
+        var alan = zorla('alan', varsayılanAlan);
 
-        // according to https://www.npmjs.com/package/canvas-size
-        // the minimum value of max canvas width across browsers and devices is 4096
-        // which applied in the calculation below:
-        if(domain[0] > domain[1] - 1 / 4096) containerOut.domain = dfltDomain;
-        Lib.noneOrAll(containerIn.domain, containerOut.domain, dfltDomain);
+        if(alan[0] > alan[1] - 1 / 4096) containerOut.alan = varsayılanAlan;
+        Lib.noneOrAll(containerIn.alan, containerOut.alan, varsayılanAlan);
 
-        // tickmode sync needs an overlaying axis, otherwise
-        // we should default it to 'auto'
         if(containerOut.tickmode === 'sync') {
             containerOut.tickmode = 'auto';
         }
     }
 
-    coerce('layer');
+    zorla('katman');
 
     return containerOut;
 };

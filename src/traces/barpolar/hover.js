@@ -22,7 +22,7 @@ module.exports = function hoverPoints(pointData, xval, yval) {
     var rVal = Math.abs(radialAxis.g2p(Math.sqrt(xval * xval + yval * yval)));
     var thetaVal = Math.atan2(yval, xval);
 
-    // polar.(x|y)axis.p2c doesn't get the reversed radial axis range case right
+    // polar.(x|y)axis.p2c ters radyal eksen aralığı durumunu doğru yapmıyor
     if(radialAxis.range[0] > radialAxis.range[1]) {
         thetaVal += Math.PI;
     }
@@ -30,11 +30,10 @@ module.exports = function hoverPoints(pointData, xval, yval) {
     var distFn = function(di) {
         if(inboxFn(rVal, thetaVal, [di.rp0, di.rp1], [di.thetag0, di.thetag1], vangles)) {
             return maxHoverDistance +
-                // add a little to the pseudo-distance for wider bars, so that like scatter,
-                // if you are over two overlapping bars, the narrower one wins.
+                // daha geniş çubuklar için sahte mesafeye biraz ekleyin, böylece scatter gibi,
+                // eğer iki üst üste binen çubuğun üzerindeyseniz, daha dar olan kazanır.
                 Math.min(1, Math.abs(di.thetag1 - di.thetag0) / period) - 1 +
-                // add a gradient so hovering near the end of a
-                // bar makes it a little closer match
+                // bir çubuğun sonuna yakın gezinmek, onu biraz daha yakın eşleşme yapar
                 (di.rp1 - rVal) / (di.rp1 - di.rp0) - 1;
         } else {
             return Infinity;

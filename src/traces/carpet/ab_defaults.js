@@ -1,45 +1,48 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var handleAxisDefaults = require('./axis_defaults');
 var Template = require('../../plot_api/plot_template');
 
+// AB varsayılanlarını işleyen fonksiyon
 module.exports = function handleABDefaults(traceIn, traceOut, fullLayout, coerce, dfltColor) {
     var a = coerce('a');
 
-    if(!a) {
+    if (!a) {
         coerce('da');
         coerce('a0');
     }
 
     var b = coerce('b');
 
-    if(!b) {
+    if (!b) {
         coerce('db');
         coerce('b0');
     }
 
-    mimickAxisDefaults(traceIn, traceOut, fullLayout, dfltColor);
+    eksenVarsayilanlariniIsle(traceIn, traceOut, fullLayout, dfltColor);
 };
 
-function mimickAxisDefaults(traceIn, traceOut, fullLayout, dfltColor) {
-    var axesList = ['aaxis', 'baxis'];
+// Eksen varsayılanlarını işleyen fonksiyon
+function eksenVarsayilanlariniIsle(traceIn, traceOut, fullLayout, dfltColor) {
+    var eksenListesi = ['aaxis', 'baxis'];
 
-    axesList.forEach(function(axName) {
-        var axLetter = axName.charAt(0);
-        var axIn = traceIn[axName] || {};
-        var axOut = Template.newContainer(traceOut, axName);
+    eksenListesi.forEach(function (eksenAdi) {
+        var eksenHarf = eksenAdi.charAt(0);
+        var eksenIn = traceIn[eksenAdi] || {};
+        var eksenOut = Template.newContainer(traceOut, eksenAdi);
 
-        var defaultOptions = {
+        var varsayilanSeçenekler = {
             noAutotickangles: true,
             noTicklabelshift: true,
             noTicklabelstandoff: true,
             noTicklabelstep: true,
             tickfont: 'x',
-            id: axLetter + 'axis',
-            letter: axLetter,
+            id: eksenHarf + 'axis',
+            letter: eksenHarf,
             font: traceOut.font,
-            name: axName,
-            data: traceIn[axLetter],
+            name: eksenAdi,
+            data: traceIn[eksenHarf],
             calendar: traceOut.calendar,
             dfltColor: dfltColor,
             bgColor: fullLayout.paper_bgcolor,
@@ -47,13 +50,13 @@ function mimickAxisDefaults(traceIn, traceOut, fullLayout, dfltColor) {
             fullLayout: fullLayout
         };
 
-        handleAxisDefaults(axIn, axOut, defaultOptions);
-        axOut._categories = axOut._categories || [];
+        handleAxisDefaults(eksenIn, eksenOut, varsayilanSeçenekler);
+        eksenOut._categories = eksenOut._categories || [];
 
-        // so we don't have to repeat autotype unnecessarily,
-        // copy an autotype back to traceIn
-        if(!traceIn[axName] && axIn.type !== '-') {
-            traceIn[axName] = {type: axIn.type};
+        // Autotype'ı gereksiz yere tekrar etmemek için,
+        // bir autotype'ı traceIn'e geri kopyala
+        if (!traceIn[eksenAdi] && eksenIn.type !== '-') {
+            traceIn[eksenAdi] = { type: eksenIn.type };
         }
     });
 }

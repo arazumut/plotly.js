@@ -3,31 +3,29 @@
 var d3 = require('@plotly/d3');
 
 /**
- * General helper to manage trace groups based on calcdata
+ * Hesaplanmış veri (calcdata) temelinde iz gruplarını yönetmek için genel yardımcı
  *
- * @param {d3.selection} traceLayer: a selection containing a single group
- *     to draw these traces into
- * @param {array} cdModule: array of calcdata items for this
- *     module and subplot combination. Assumes the calcdata item for each
- *     trace is an array with the fullData trace attached to the first item.
- * @param {string} cls: the class attribute to give each trace group
- *     so you can give multiple classes separated by spaces
+ * @param {d3.selection} traceLayer: bu izleri çizmek için tek bir grup içeren bir seçim
+ * @param {array} cdModule: bu modül ve alt grafik kombinasyonu için hesaplanmış veri öğeleri dizisi.
+ *     Her iz için hesaplanmış veri öğesinin, ilk öğeye eklenmiş tam veri izini içerdiğini varsayar.
+ * @param {string} cls: her iz grubuna vermek için sınıf niteliği,
+ *     böylece birden fazla sınıfı boşluklarla ayırarak verebilirsiniz
  */
-module.exports = function makeTraceGroups(traceLayer, cdModule, cls) {
-    var traces = traceLayer.selectAll('g.' + cls.replace(/\s/g, '.'))
+module.exports = function izGruplarınıOluştur(traceLayer, cdModule, cls) {
+    var izler = traceLayer.selectAll('g.' + cls.replace(/\s/g, '.'))
         .data(cdModule, function(cd) { return cd[0].trace.uid; });
 
-    traces.exit().remove();
+    izler.exit().remove();
 
-    traces.enter().append('g')
+    izler.enter().append('g')
         .attr('class', cls);
 
-    traces.order();
+    izler.order();
 
-    // stash ref node to trace group in calcdata,
-    // useful for (fast) styleOnSelect
+    // Hesaplanmış veride iz grubuna referans düğümünü sakla,
+    // (hızlı) styleOnSelect için kullanışlı
     var k = traceLayer.classed('rangeplot') ? 'nodeRangePlot3' : 'node3';
-    traces.each(function(cd) { cd[0][k] = d3.select(this); });
+    izler.each(function(cd) { cd[0][k] = d3.select(this); });
 
-    return traces;
+    return izler;
 };

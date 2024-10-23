@@ -2,43 +2,43 @@
 
 var EventEmitter = require('events').EventEmitter;
 
-var Events = {
+var Olaylar = {
 
-    init: function(plotObj) {
+    başlat: function(plotObj) {
         /*
-         * If we have already instantiated an emitter for this plot
-         * return early.
+         * Eğer bu grafik için zaten bir emitter oluşturduysak
+         * erken dön.
          */
         if(plotObj._ev instanceof EventEmitter) return plotObj;
 
         var ev = new EventEmitter();
-        var internalEv = new EventEmitter();
+        var içEv = new EventEmitter();
 
         /*
-         * Assign to plot._ev while we still live in a land
-         * where plot is a DOM element with stuff attached to it.
-         * In the future we can make plot the event emitter itself.
+         * plot._ev'ye atama yaparken hala
+         * plot'un bir DOM elemanı olduğu bir dünyada yaşıyoruz.
+         * Gelecekte plot'u doğrudan bir event emitter yapabiliriz.
          */
         plotObj._ev = ev;
 
         /*
-         * Create a second event handler that will manage events *internally*.
-         * This allows parts of plotly to respond to thing like relayout without
-         * having to use the user-facing event handler. They cannot peacefully
-         * coexist on the same handler because a user invoking
-         * plotObj.removeAllListeners() would detach internal events, breaking
-         * plotly.
+         * İç olayları yönetecek ikinci bir olay işleyici oluştur.
+         * Bu, plotly'nin yeniden düzenleme gibi şeylere yanıt vermesini sağlar
+         * kullanıcıya yönelik olay işleyicisini kullanmadan. Aynı işleyicide
+         * barış içinde bir arada bulunamazlar çünkü bir kullanıcı
+         * plotObj.removeAllListeners() çağırdığında iç olayları
+         * ayırır ve plotly'yi bozar.
          */
-        plotObj._internalEv = internalEv;
+        plotObj._içEv = içEv;
 
         /*
-         * Assign bound methods from the ev to the plot object. These methods
-         * will reference the 'this' of plot._ev even though they are methods
-         * of plot. This will keep the event machinery away from the plot object
-         * which currently is often a DOM element but presents an API that will
-         * continue to function when plot becomes an emitter. Not all EventEmitter
-         * methods have been bound to `plot` as some do not currently add value to
-         * the Plotly event API.
+         * ev'den bağlanmış yöntemleri plot nesnesine atayın. Bu yöntemler
+         * plot._ev'nin 'this' referansını alacak, ancak plot'un yöntemleri olacak.
+         * Bu, olay mekanizmasını plot nesnesinden uzak tutar
+         * ki bu şu anda genellikle bir DOM elemanıdır, ancak plot bir emitter
+         * olduğunda çalışmaya devam edecek bir API sunar. Tüm EventEmitter
+         * yöntemleri `plot`a bağlanmamıştır çünkü bazıları şu anda
+         * Plotly olay API'sine değer katmamaktadır.
          */
         plotObj.on = ev.on.bind(ev);
         plotObj.once = ev.once.bind(ev);
@@ -46,71 +46,70 @@ var Events = {
         plotObj.removeAllListeners = ev.removeAllListeners.bind(ev);
 
         /*
-         * Create functions for managing internal events. These are *only* triggered
-         * by the mirroring of external events via the emit function.
+         * İç olayları yönetmek için işlevler oluşturun. Bunlar *yalnızca*
+         * emit işlevi aracılığıyla dış olayların yansıtılmasıyla tetiklenir.
          */
-        plotObj._internalOn = internalEv.on.bind(internalEv);
-        plotObj._internalOnce = internalEv.once.bind(internalEv);
-        plotObj._removeInternalListener = internalEv.removeListener.bind(internalEv);
-        plotObj._removeAllInternalListeners = internalEv.removeAllListeners.bind(internalEv);
+        plotObj._içOn = içEv.on.bind(içEv);
+        plotObj._içBirKez = içEv.once.bind(içEv);
+        plotObj._içDinleyiciKaldır = içEv.removeListener.bind(içEv);
+        plotObj._tümİçDinleyicileriKaldır = içEv.removeAllListeners.bind(içEv);
 
-        plotObj.emit = function(event, data) {
-            ev.emit(event, data);
-            internalEv.emit(event, data);
+        plotObj.emit = function(olay, veri) {
+            ev.emit(olay, veri);
+            içEv.emit(olay, veri);
         };
 
         return plotObj;
     },
 
     /*
-     * This function behaves like jQuery's triggerHandler. It calls
-     * all handlers for a particular event and returns the return value
-     * of the LAST handler.
+     * Bu işlev jQuery'nin triggerHandler'ı gibi davranır. Belirli bir olay için
+     * tüm işleyicileri çağırır ve SON işleyicinin dönüş değerini döner.
      */
-    triggerHandler: function(plotObj, event, data) {
-        var nodeEventHandlerValue;
+    tetikleyiciİşleyici: function(plotObj, olay, veri) {
+        var düğümOlayİşleyiciDeğeri;
 
         /*
-         * Now run all the node style event handlers
+         * Şimdi tüm node tarzı olay işleyicilerini çalıştır
          */
         var ev = plotObj._ev;
         if(!ev) return;
 
-        var handlers = ev._events[event];
-        if(!handlers) return;
+        var işleyiciler = ev._events[olay];
+        if(!işleyiciler) return;
 
-        // making sure 'this' is the EventEmitter instance
-        function apply(handler) {
-            // The 'once' case, we can't just call handler() as we need
-            // the return value here. So,
-            // - remove handler
-            // - call listener and grab return value!
-            // - stash 'fired' key to not call handler twice
-            if(handler.listener) {
-                ev.removeListener(event, handler.listener);
-                if(!handler.fired) {
-                    handler.fired = true;
-                    return handler.listener.apply(ev, [data]);
+        // 'this'in EventEmitter örneği olduğundan emin olun
+        function uygula(işleyici) {
+            // 'once' durumu, işleyiciyi sadece çağırmak yeterli değil
+            // çünkü burada dönüş değerine ihtiyacımız var. Bu yüzden,
+            // - işleyiciyi kaldır
+            // - dinleyiciyi çağır ve dönüş değerini al!
+            // - işleyiciyi iki kez çağırmamak için 'fired' anahtarını sakla
+            if(işleyici.listener) {
+                ev.removeListener(olay, işleyici.listener);
+                if(!işleyici.fired) {
+                    işleyici.fired = true;
+                    return işleyici.listener.apply(ev, [veri]);
                 }
             } else {
-                return handler.apply(ev, [data]);
+                return işleyici.apply(ev, [veri]);
             }
         }
 
-        // handlers can be function or an array of functions
-        handlers = Array.isArray(handlers) ? handlers : [handlers];
+        // işleyiciler işlev veya işlev dizisi olabilir
+        işleyiciler = Array.isArray(işleyiciler) ? işleyiciler : [işleyiciler];
 
         var i;
-        for(i = 0; i < handlers.length - 1; i++) {
-            apply(handlers[i]);
+        for(i = 0; i < işleyiciler.length - 1; i++) {
+            uygula(işleyiciler[i]);
         }
-        // now call the final handler and collect its value
-        nodeEventHandlerValue = apply(handlers[i]);
+        // şimdi son işleyiciyi çağır ve değerini topla
+        düğümOlayİşleyiciDeğeri = uygula(işleyiciler[i]);
 
-        return nodeEventHandlerValue;
+        return düğümOlayİşleyiciDeğeri;
     },
 
-    purge: function(plotObj) {
+    temizle: function(plotObj) {
         delete plotObj._ev;
         delete plotObj.on;
         delete plotObj.once;
@@ -119,15 +118,15 @@ var Events = {
         delete plotObj.emit;
 
         delete plotObj._ev;
-        delete plotObj._internalEv;
-        delete plotObj._internalOn;
-        delete plotObj._internalOnce;
-        delete plotObj._removeInternalListener;
-        delete plotObj._removeAllInternalListeners;
+        delete plotObj._içEv;
+        delete plotObj._içOn;
+        delete plotObj._içBirKez;
+        delete plotObj._içDinleyiciKaldır;
+        delete plotObj._tümİçDinleyicileriKaldır;
 
         return plotObj;
     }
 
 };
 
-module.exports = Events;
+module.exports = Olaylar;

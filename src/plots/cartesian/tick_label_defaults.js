@@ -9,31 +9,29 @@ var handleArrayContainerDefaults = require('../array_container_defaults');
 module.exports = function handleTickLabelDefaults(containerIn, containerOut, coerce, axType, options) {
     if(!options) options = {};
 
-    var labelalias = coerce('labelalias');
-    if(!Lib.isPlainObject(labelalias)) delete containerOut.labelalias;
+    var etiketTakmaAdı = coerce('labelalias');
+    if(!Lib.isPlainObject(etiketTakmaAdı)) delete containerOut.labelalias;
 
-    var showAttrDflt = getShowAttrDflt(containerIn);
+    var gösterimÖzelliğiVarsayılanı = getShowAttrDflt(containerIn);
 
-    var showTickLabels = coerce('showticklabels');
-    if(showTickLabels) {
+    var etiketleriGöster = coerce('showticklabels');
+    if(etiketleriGöster) {
         if(!options.noTicklabelshift) {
             coerce('ticklabelshift');
         }
         if(!options.noTicklabelstandoff) {
             coerce('ticklabelstandoff');
         }
-        var font = options.font || {};
-        var contColor = containerOut.color;
-        var position = containerOut.ticklabelposition || '';
-        var dfltFontColor = position.indexOf('inside') !== -1 ?
+        var yazıTipi = options.font || {};
+        var konteynerRengi = containerOut.color;
+        var pozisyon = containerOut.ticklabelposition || '';
+        var varsayılanYazıRengi = pozisyon.indexOf('inside') !== -1 ?
             contrast(options.bgColor) :
-            // as with title.font.color, inherit axis.color only if one was
-            // explicitly provided
-            (contColor && contColor !== layoutAttributes.color.dflt) ?
-            contColor : font.color;
+            (konteynerRengi && konteynerRengi !== layoutAttributes.color.dflt) ?
+            konteynerRengi : yazıTipi.color;
 
-        Lib.coerceFont(coerce, 'tickfont', font, { overrideDflt: {
-            color: dfltFontColor
+        Lib.coerceFont(coerce, 'tickfont', yazıTipi, { overrideDflt: {
+            color: varsayılanYazıRengi
         }});
 
         if(
@@ -45,14 +43,14 @@ module.exports = function handleTickLabelDefaults(containerIn, containerOut, coe
         }
 
         if(!options.noAng) {
-            var tickAngle = coerce('tickangle');
-            if(!options.noAutotickangles && tickAngle === 'auto') {
+            var etiketAçısı = coerce('tickangle');
+            if(!options.noAutotickangles && etiketAçısı === 'auto') {
                 coerce('autotickangles');
             }
         }
 
         if(axType !== 'category') {
-            var tickFormat = coerce('tickformat');
+            var etiketFormatı = coerce('tickformat');
 
             handleArrayContainerDefaults(containerIn, containerOut, {
                 name: 'tickformatstops',
@@ -63,8 +61,8 @@ module.exports = function handleTickLabelDefaults(containerIn, containerOut, coe
                 delete containerOut.tickformatstops;
             }
 
-            if(!options.noExp && !tickFormat && axType !== 'date') {
-                coerce('showexponent', showAttrDflt);
+            if(!options.noExp && !etiketFormatı && axType !== 'date') {
+                coerce('showexponent', gösterimÖzelliğiVarsayılanı);
                 coerce('exponentformat');
                 coerce('minexponent');
                 coerce('separatethousands');
@@ -78,8 +76,8 @@ function tickformatstopDefaults(valueIn, valueOut) {
         return Lib.coerce(valueIn, valueOut, layoutAttributes.tickformatstops, attr, dflt);
     }
 
-    var enabled = coerce('enabled');
-    if(enabled) {
+    var etkin = coerce('enabled');
+    if(etkin) {
         coerce('dtickrange');
         coerce('value');
     }

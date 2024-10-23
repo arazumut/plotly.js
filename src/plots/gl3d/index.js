@@ -3,98 +3,97 @@
 var overrideAll = require('../../plot_api/edit_types').overrideAll;
 var fxAttrs = require('../../components/fx/layout_attributes');
 
-var Scene = require('./scene');
+var Sahne = require('./scene');
 var getSubplotData = require('../get_data').getSubplotData;
 var Lib = require('../../lib');
 var xmlnsNamespaces = require('../../constants/xmlns_namespaces');
 
 var GL3D = 'gl3d';
-var SCENE = 'scene';
+var SAHNE = 'sahne';
 
+exports.isim = GL3D;
 
-exports.name = GL3D;
+exports.attr = SAHNE;
 
-exports.attr = SCENE;
+exports.idKök = SAHNE;
 
-exports.idRoot = SCENE;
+exports.idRegex = exports.attrRegex = Lib.counterRegex('sahne');
 
-exports.idRegex = exports.attrRegex = Lib.counterRegex('scene');
+exports.özellikler = require('./layout/attributes');
 
-exports.attributes = require('./layout/attributes');
+exports.düzenÖzellikleri = require('./layout/layout_attributes');
 
-exports.layoutAttributes = require('./layout/layout_attributes');
-
-exports.baseLayoutAttrOverrides = overrideAll({
+exports.temelDüzenÖzellikAşırıYazımları = overrideAll({
     hoverlabel: fxAttrs.hoverlabel
 }, 'plot', 'nested');
 
-exports.supplyLayoutDefaults = require('./layout/defaults');
+exports.düzenVarsayılanlarınıSağla = require('./layout/defaults');
 
 exports.plot = function plot(gd) {
-    var fullLayout = gd._fullLayout;
-    var fullData = gd._fullData;
-    var sceneIds = fullLayout._subplots[GL3D];
+    var tamDüzen = gd._fullLayout;
+    var tamVeri = gd._fullData;
+    var sahneIdleri = tamDüzen._subplots[GL3D];
 
-    for(var i = 0; i < sceneIds.length; i++) {
-        var sceneId = sceneIds[i];
-        var fullSceneData = getSubplotData(fullData, GL3D, sceneId);
-        var sceneLayout = fullLayout[sceneId];
-        var camera = sceneLayout.camera;
-        var scene = sceneLayout._scene;
+    for(var i = 0; i < sahneIdleri.length; i++) {
+        var sahneId = sahneIdleri[i];
+        var tamSahneVerisi = getSubplotData(tamVeri, GL3D, sahneId);
+        var sahneDüzeni = tamDüzen[sahneId];
+        var kamera = sahneDüzeni.kamera;
+        var sahne = sahneDüzeni._sahne;
 
-        if(!scene) {
-            scene = new Scene({
-                id: sceneId,
-                graphDiv: gd,
-                container: gd.querySelector('.gl-container'),
-                staticPlot: gd._context.staticPlot,
-                plotGlPixelRatio: gd._context.plotGlPixelRatio,
-                camera: camera
+        if(!sahne) {
+            sahne = new Sahne({
+                id: sahneId,
+                grafikDiv: gd,
+                konteyner: gd.querySelector('.gl-container'),
+                statikPlot: gd._context.staticPlot,
+                plotGlPixelOranı: gd._context.plotGlPixelRatio,
+                kamera: kamera
             },
-                fullLayout
+                tamDüzen
             );
 
-            // set ref to Scene instance
-            sceneLayout._scene = scene;
+            // Sahne örneğine referans ayarla
+            sahneDüzeni._sahne = sahne;
         }
 
-        // save 'initial' camera view settings for modebar button
-        if(!scene.viewInitial) {
-            scene.viewInitial = {
-                up: {
-                    x: camera.up.x,
-                    y: camera.up.y,
-                    z: camera.up.z
+        // Modebar düğmesi için 'ilk' kamera görünüm ayarlarını kaydet
+        if(!sahne.ilkGörünüm) {
+            sahne.ilkGörünüm = {
+                yukarı: {
+                    x: kamera.up.x,
+                    y: kamera.up.y,
+                    z: kamera.up.z
                 },
-                eye: {
-                    x: camera.eye.x,
-                    y: camera.eye.y,
-                    z: camera.eye.z
+                göz: {
+                    x: kamera.eye.x,
+                    y: kamera.eye.y,
+                    z: kamera.eye.z
                 },
-                center: {
-                    x: camera.center.x,
-                    y: camera.center.y,
-                    z: camera.center.z
+                merkez: {
+                    x: kamera.center.x,
+                    y: kamera.center.y,
+                    z: kamera.center.z
                 }
             };
         }
 
-        scene.plot(fullSceneData, fullLayout, gd.layout);
+        sahne.plot(tamSahneVerisi, tamDüzen, gd.layout);
     }
 };
 
-exports.clean = function(newFullData, newFullLayout, oldFullData, oldFullLayout) {
-    var oldSceneKeys = oldFullLayout._subplots[GL3D] || [];
+exports.temizle = function(yeniTamVeri, yeniTamDüzen, eskiTamVeri, eskiTamDüzen) {
+    var eskiSahneAnahtarları = eskiTamDüzen._subplots[GL3D] || [];
 
-    for(var i = 0; i < oldSceneKeys.length; i++) {
-        var oldSceneKey = oldSceneKeys[i];
+    for(var i = 0; i < eskiSahneAnahtarları.length; i++) {
+        var eskiSahneAnahtarı = eskiSahneAnahtarları[i];
 
-        if(!newFullLayout[oldSceneKey] && !!oldFullLayout[oldSceneKey]._scene) {
-            oldFullLayout[oldSceneKey]._scene.destroy();
+        if(!yeniTamDüzen[eskiSahneAnahtarı] && !!eskiTamDüzen[eskiSahneAnahtarı]._sahne) {
+            eskiTamDüzen[eskiSahneAnahtarı]._sahne.destroy();
 
-            if(oldFullLayout._infolayer) {
-                oldFullLayout._infolayer
-                    .selectAll('.annotation-' + oldSceneKey)
+            if(eskiTamDüzen._bilgiKatmanı) {
+                eskiTamDüzen._bilgiKatmanı
+                    .selectAll('.annotation-' + eskiSahneAnahtarı)
                     .remove();
             }
         }
@@ -102,48 +101,48 @@ exports.clean = function(newFullData, newFullLayout, oldFullData, oldFullLayout)
 };
 
 exports.toSVG = function(gd) {
-    var fullLayout = gd._fullLayout;
-    var sceneIds = fullLayout._subplots[GL3D];
-    var size = fullLayout._size;
+    var tamDüzen = gd._fullLayout;
+    var sahneIdleri = tamDüzen._subplots[GL3D];
+    var boyut = tamDüzen._size;
 
-    for(var i = 0; i < sceneIds.length; i++) {
-        var sceneLayout = fullLayout[sceneIds[i]];
-        var domain = sceneLayout.domain;
-        var scene = sceneLayout._scene;
+    for(var i = 0; i < sahneIdleri.length; i++) {
+        var sahneDüzeni = tamDüzen[sahneIdleri[i]];
+        var alan = sahneDüzeni.domain;
+        var sahne = sahneDüzeni._sahne;
 
-        var imageData = scene.toImage('png');
-        var image = fullLayout._glimages.append('svg:image');
+        var resimVerisi = sahne.toImage('png');
+        var resim = tamDüzen._glimages.append('svg:image');
 
-        image.attr({
+        resim.attr({
             xmlns: xmlnsNamespaces.svg,
-            'xlink:href': imageData,
-            x: size.l + size.w * domain.x[0],
-            y: size.t + size.h * (1 - domain.y[1]),
-            width: size.w * (domain.x[1] - domain.x[0]),
-            height: size.h * (domain.y[1] - domain.y[0]),
+            'xlink:href': resimVerisi,
+            x: boyut.l + boyut.w * alan.x[0],
+            y: boyut.t + boyut.h * (1 - alan.y[1]),
+            width: boyut.w * (alan.x[1] - alan.x[0]),
+            height: boyut.h * (alan.y[1] - alan.y[0]),
             preserveAspectRatio: 'none'
         });
 
-        scene.destroy();
+        sahne.destroy();
     }
 };
 
-// clean scene ids, 'scene1' -> 'scene'
-exports.cleanId = function cleanId(id) {
-    if(!id.match(/^scene[0-9]*$/)) return;
+// sahne id'lerini temizle, 'sahne1' -> 'sahne'
+exports.idTemizle = function idTemizle(id) {
+    if(!id.match(/^sahne[0-9]*$/)) return;
 
-    var sceneNum = id.substr(5);
-    if(sceneNum === '1') sceneNum = '';
+    var sahneNumarası = id.substr(5);
+    if(sahneNumarası === '1') sahneNumarası = '';
 
-    return SCENE + sceneNum;
+    return SAHNE + sahneNumarası;
 };
 
-exports.updateFx = function(gd) {
-    var fullLayout = gd._fullLayout;
-    var subplotIds = fullLayout._subplots[GL3D];
+exports.fxGüncelle = function(gd) {
+    var tamDüzen = gd._fullLayout;
+    var altGrafikIdleri = tamDüzen._subplots[GL3D];
 
-    for(var i = 0; i < subplotIds.length; i++) {
-        var subplotObj = fullLayout[subplotIds[i]]._scene;
-        subplotObj.updateFx(fullLayout.dragmode, fullLayout.hovermode);
+    for(var i = 0; i < altGrafikIdleri.length; i++) {
+        var altGrafikObjesi = tamDüzen[altGrafikIdleri[i]]._sahne;
+        altGrafikObjesi.fxGüncelle(tamDüzen.dragmode, tamDüzen.hovermode);
     }
 };

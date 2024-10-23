@@ -17,15 +17,15 @@ function npMaybe(parentCont, prefix) {
 }
 
 /**
- * Colorscale / colorbar default handler
+ * Renk ölçeği / renk çubuğu varsayılan işleyici
  *
- * @param {object} parentContIn : user (input) parent container (e.g. trace or layout coloraxis object)
- * @param {object} parentContOut : full parent container
- * @param {object} layout : (full) layout object
- * @param {fn} coerce : Lib.coerce wrapper
+ * @param {object} parentContIn : kullanıcı (giriş) üst konteyneri (örneğin, iz veya düzen renk ekseni nesnesi)
+ * @param {object} parentContOut : tam üst konteyner
+ * @param {object} layout : (tam) düzen nesnesi
+ * @param {fn} coerce : Lib.coerce sarmalayıcı
  * @param {object} opts :
- * - prefix {string} : attr string prefix to colorscale container from parent root
- * - cLetter {string} : 'c or 'z' color letter
+ * - prefix {string} : üst kökten renk ölçeği konteynerine kadar olan öznitelik dizesi öneki
+ * - cLetter {string} : 'c' veya 'z' renk harfi
  */
 module.exports = function colorScaleDefaults(parentContIn, parentContOut, layout, coerce, opts) {
     var prefix = opts.prefix;
@@ -35,8 +35,8 @@ module.exports = function colorScaleDefaults(parentContIn, parentContOut, layout
     var containerOut = npMaybe(parentContOut, prefix);
     var template = npMaybe(parentContOut._template || {}, prefix) || {};
 
-    // colorScaleDefaults wrapper called if-ever we need to reset the colorscale
-    // attributes for containers that were linked to invalid color axes
+    // colorScaleDefaults sarmalayıcı, geçersiz renk eksenlerine bağlı konteynerlerin renk ölçeği
+    // özniteliklerini sıfırlamamız gerektiğinde çağrılır
     var thisFn = function() {
         delete parentContIn.coloraxis;
         delete parentContOut.coloraxis;
@@ -61,15 +61,15 @@ module.exports = function colorScaleDefaults(parentContIn, parentContOut, layout
                 if(stash[0] !== colorbarVisuals) {
                     stash[0] = false;
                     Lib.warn([
-                        'Ignoring coloraxis:', colorAx, 'setting',
-                        'as it is linked to incompatible colorscales.'
+                        'Renk ekseni yoksayılıyor:', colorAx, 'ayar',
+                        'çünkü uyumsuz renk ölçeklerine bağlı.'
                     ].join(' '));
                 }
             } else {
                 // stash:
-                // - colorbar visual 'type'
-                // - colorbar options to help in Colorbar.draw
-                // - list of colorScaleDefaults wrapper functions
+                // - renk çubuğu görsel 'türü'
+                // - Colorbar.draw'da yardımcı olacak renk çubuğu seçenekleri
+                // - colorScaleDefaults sarmalayıcı işlevlerinin listesi
                 colorAxes[colorAx] = [colorbarVisuals, parentContOut, [thisFn]];
             }
             return;
@@ -88,8 +88,8 @@ module.exports = function colorScaleDefaults(parentContIn, parentContOut, layout
         coerce(prefix + cLetter + 'max');
     }
 
-    // handles both the trace case (autocolorscale is false by default) and
-    // the marker and marker.line case (autocolorscale is true by default)
+    // hem iz durumu (autocolorscale varsayılan olarak false) hem de
+    // işaretleyici ve işaretleyici çizgisi durumu (autocolorscale varsayılan olarak true) için geçerlidir
     var sclIn = containerIn.colorscale;
     var sclTemplate = template.colorscale;
     var autoColorscaleDflt;
@@ -101,8 +101,8 @@ module.exports = function colorScaleDefaults(parentContIn, parentContOut, layout
     coerce(prefix + 'reversescale');
 
     if(prefix !== 'marker.line.') {
-        // handles both the trace case where the dflt is listed in attributes and
-        // the marker case where the dflt is determined by hasColorbar
+        // hem iz durumu için geçerlidir (varsayılan attributes'de listelenmiştir) hem de
+        // işaretleyici durumu için (varsayılan hasColorbar tarafından belirlenir)
         var showScaleDflt;
         if(prefix && inTrace) showScaleDflt = hasColorbar(containerIn);
 

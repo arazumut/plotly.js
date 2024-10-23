@@ -10,14 +10,14 @@ module.exports = {
 };
 
 /*
- * hasClickToShow: does the given hoverData have ANY annotations which will
- * turn ON if we click here? (used by hover events to set cursor)
+ * hasClickToShow: Verilen hoverData herhangi bir anotasyonu açacak mı?
+ * (hover olayları tarafından imleci ayarlamak için kullanılır)
  *
  * gd: graphDiv
- * hoverData: a hoverData array, as included with the *plotly_hover* or
- *     *plotly_click* events in the `points` attribute
+ * hoverData: *plotly_hover* veya *plotly_click* olaylarında `points` 
+ *     özniteliği ile birlikte gelen bir hoverData dizisi
  *
- * returns: boolean
+ * dönüş: boolean
  */
 function hasClickToShow(gd, hoverData) {
     var sets = getToggleSets(gd, hoverData);
@@ -25,14 +25,14 @@ function hasClickToShow(gd, hoverData) {
 }
 
 /*
- * onClick: perform the toggling (via Plotly.update) implied by clicking
- * at this hoverData
+ * onClick: Bu hoverData'ya tıklayarak yapılacak güncellemeleri gerçekleştirir
+ * (Plotly.update aracılığıyla)
  *
  * gd: graphDiv
- * hoverData: a hoverData array, as included with the *plotly_hover* or
- *     *plotly_click* events in the `points` attribute
+ * hoverData: *plotly_hover* veya *plotly_click* olaylarında `points` 
+ *     özniteliği ile birlikte gelen bir hoverData dizisi
  *
- * returns: Promise that the update is complete
+ * dönüş: Güncellemenin tamamlandığına dair Promise
  */
 function onClick(gd, hoverData) {
     var toggleSets = getToggleSets(gd, hoverData);
@@ -60,17 +60,16 @@ function onClick(gd, hoverData) {
 }
 
 /*
- * getToggleSets: find the annotations which will turn on or off at this
- * hoverData
+ * getToggleSets: Bu hoverData'da açılacak veya kapanacak anotasyonları bulur
  *
  * gd: graphDiv
- * hoverData: a hoverData array, as included with the *plotly_hover* or
- *     *plotly_click* events in the `points` attribute
+ * hoverData: *plotly_hover* veya *plotly_click* olaylarında `points` 
+ *     özniteliği ile birlikte gelen bir hoverData dizisi
  *
- * returns: {
- *   on: Array (indices of annotations to turn on),
- *   off: Array (indices to turn off because you're not hovering on them),
- *   explicitOff: Array (indices to turn off because you *are* hovering on them)
+ * dönüş: {
+ *   on: Açılacak anotasyonların dizini,
+ *   off: Üzerinde gezinmediğiniz için kapanacak olanların dizini,
+ *   explicitOff: Üzerinde gezindiğiniz için kapanacak olanların dizini
  * }
  */
 function getToggleSets(gd, hoverData) {
@@ -97,9 +96,9 @@ function getToggleSets(gd, hoverData) {
                     xa.d2r(pointj.x) === clickData2r(anni._xclick, xa) &&
                     ya.d2r(pointj.y) === clickData2r(anni._yclick, ya)
                 ) {
-                    // match! toggle this annotation
-                    // regardless of its clicktoshow mode
-                    // but if it's onout mode, off is implicit
+                    // Eşleşme! Bu anotasyonu değiştir
+                    // clicktoshow modundan bağımsız olarak
+                    // ama eğer 'onout' modundaysa, kapatma işlemi örtük olur
                     if(anni.visible) {
                         if(showMode === 'onout') toggleType = offSet;
                         else toggleType = explicitOffSet;
@@ -112,8 +111,8 @@ function getToggleSets(gd, hoverData) {
             }
 
             if(j === hoverLen) {
-                // no match - only turn this annotation OFF, and only if
-                // showmode is 'onout'
+                // Eşleşme yok - sadece bu anotasyonu kapat,
+                // ve sadece showmode 'onout' ise
                 if(anni.visible && showMode === 'onout') offSet.push(i);
             }
         }
@@ -122,7 +121,7 @@ function getToggleSets(gd, hoverData) {
     return {on: onSet, off: offSet, explicitOff: explicitOffSet};
 }
 
-// to handle log axes until v3
+// log eksenlerini v3'e kadar işlemek için
 function clickData2r(d, ax) {
     return ax.type === 'log' ? ax.l2r(d) : ax.d2r(d);
 }

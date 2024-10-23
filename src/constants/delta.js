@@ -1,12 +1,12 @@
 'use strict';
 
 module.exports = {
-    INCREASING: {
-        COLOR: '#3D9970',
-        SYMBOL: '▲'
+    ARTAN: {
+        RENK: '#3D9970',
+        SEMBOL: '▲'
     },
-    DECREASING: {
-        COLOR: '#FF4136',
-        SYMBOL: '▼'
+    AZALAN: {
+        RENK: '#FF4136',
+        SEMBOL: '▼'
     }
 };

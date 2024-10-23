@@ -1,16 +1,17 @@
 'use strict';
 
-module.exports = function selectPoints(searchInfo, selectionTester) {
-    var cd = searchInfo.cd;
-    var xa = searchInfo.xaxis;
-    var ya = searchInfo.yaxis;
-    var selection = [];
+// Bu modül, belirli noktaları seçmek için kullanılır.
+module.exports = function noktalarıSeç(aramaBilgisi, seçimTesti) {
+    var cd = aramaBilgisi.cd;
+    var xa = aramaBilgisi.xaxis;
+    var ya = aramaBilgisi.yaxis;
+    var seçim = [];
     var i, j;
 
-    if(selectionTester === false) {
+    if(seçimTesti === false) {
         for(i = 0; i < cd.length; i++) {
             for(j = 0; j < (cd[i].pts || []).length; j++) {
-                // clear selection
+                // seçimi temizle
                 cd[i].pts[j].selected = 0;
             }
         }
@@ -21,8 +22,8 @@ module.exports = function selectPoints(searchInfo, selectionTester) {
                 var x = xa.c2p(pt.x);
                 var y = ya.c2p(pt.y);
 
-                if(selectionTester.contains([x, y], null, pt.i, searchInfo)) {
-                    selection.push({
+                if(seçimTesti.contains([x, y], null, pt.i, aramaBilgisi)) {
+                    seçim.push({
                         pointNumber: pt.i,
                         x: xa.c2d(pt.x),
                         y: ya.c2d(pt.y)
@@ -35,5 +36,5 @@ module.exports = function selectPoints(searchInfo, selectionTester) {
         }
     }
 
-    return selection;
+    return seçim;
 };

@@ -3,35 +3,35 @@
 var Lib = require('../lib');
 var Template = require('../plot_api/plot_template');
 
-/** Convenience wrapper for making array container logic DRY and consistent
+/** Dizi konteyner mantığını DRY ve tutarlı hale getirmek için kolaylık sağlayan sarmalayıcı
  *
  * @param {object} parentObjIn
- *  user input object where the container in question is linked
- *  (i.e. either a user trace object or the user layout object)
+ *  Konteynerin bağlandığı kullanıcı girdi nesnesi
+ *  (örneğin, bir kullanıcı iz nesnesi veya kullanıcı düzen nesnesi)
  *
  * @param {object} parentObjOut
- *  full object where the coerced container will be linked
- *  (i.e. either a full trace object or the full layout object)
+ *  Koerced konteynerin bağlanacağı tam nesne
+ *  (örneğin, tam bir iz nesnesi veya tam düzen nesnesi)
  *
  * @param {object} opts
- *  options object:
+ *  seçenekler nesnesi:
  *   - name {string}
- *      name of the key linking the container in question
+ *      Konteynerin bağlandığı anahtarın adı
  *   - inclusionAttr {string}
- *      name of the item attribute for inclusion/exclusion. Default is 'visible'.
- *      Since inclusion is true, use eg 'enabled' instead of 'disabled'.
+ *      Dahil etme/çıkartma için öğe özniteliğinin adı. Varsayılan 'visible' (görünür).
+ *      Dahil etme doğru olduğundan, 'disabled' yerine örneğin 'enabled' kullanın.
  *   - handleItemDefaults {function}
- *      defaults method to be called on each item in the array container in question
+ *      Dizideki her öğe üzerinde çağrılacak varsayılanlar yöntemi
  *
- *      Its arguments are:
- *          - itemIn {object} item in user layout
- *          - itemOut {object} item in full layout
- *          - parentObj {object} (as in closure)
- *          - opts {object} (as in closure)
+ *      Argümanları şunlardır:
+ *          - itemIn {object} kullanıcı düzenindeki öğe
+ *          - itemOut {object} tam düzen nesnesindeki öğe
+ *          - parentObj {object} (closure'daki gibi)
+ *          - opts {object} (closure'daki gibi)
  * N.B.
  *
- *  - opts is passed to handleItemDefaults so it can also store
- *    links to supplementary data (e.g. fullData for layout components)
+ *  - opts handleItemDefaults'a geçirildiğinden, ek verilere bağlantılar da saklayabilir
+ *    (örneğin, düzen bileşenleri için fullData)
  *
  */
 module.exports = function handleArrayContainerDefaults(parentObjIn, parentObjOut, opts) {
@@ -72,8 +72,8 @@ module.exports = function handleArrayContainerDefaults(parentObjIn, parentObjOut
         contOut.push(itemOut);
     }
 
-    // in case this array gets its defaults rebuilt independent of the whole layout,
-    // relink the private keys just for this array.
+    // Bu dizinin varsayılanları tüm düzen bağımsız olarak yeniden oluşturulursa,
+    // özel anahtarları sadece bu dizi için yeniden bağlayın.
     if(Lib.isArrayOrTypedArray(previousContOut)) {
         var len = Math.min(previousContOut.length, contOut.length);
         for(i = 0; i < len; i++) {

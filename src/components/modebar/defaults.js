@@ -1,24 +1,28 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var Color = require('../color');
 var Template = require('../../plot_api/plot_template');
 var attributes = require('./attributes');
 
-module.exports = function supplyLayoutDefaults(layoutIn, layoutOut) {
+// Layout varsayılanlarını sağla
+module.exports = function layoutVarsayilanlariniSagla(layoutIn, layoutOut) {
     var containerIn = layoutIn.modebar || {};
     var containerOut = Template.newContainer(layoutOut, 'modebar');
 
-    function coerce(attr, dflt) {
-        return Lib.coerce(containerIn, containerOut, attributes, attr, dflt);
+    // Değerleri zorla (coerce) fonksiyonu
+    function zorla(attr, varsayilan) {
+        return Lib.coerce(containerIn, containerOut, attributes, attr, varsayilan);
     }
 
-    coerce('orientation');
-    coerce('bgcolor', Color.addOpacity(layoutOut.paper_bgcolor, 0.5));
-    var defaultColor = Color.contrast(Color.rgb(layoutOut.modebar.bgcolor));
-    coerce('color', Color.addOpacity(defaultColor, 0.3));
-    coerce('activecolor', Color.addOpacity(defaultColor, 0.7));
-    coerce('uirevision', layoutOut.uirevision);
-    coerce('add');
-    coerce('remove');
+    // Zorla fonksiyonunu kullanarak değerleri ayarla
+    zorla('orientation');
+    zorla('bgcolor', Color.addOpacity(layoutOut.paper_bgcolor, 0.5));
+    var varsayilanRenk = Color.contrast(Color.rgb(layoutOut.modebar.bgcolor));
+    zorla('color', Color.addOpacity(varsayilanRenk, 0.3));
+    zorla('activecolor', Color.addOpacity(varsayilanRenk, 0.7));
+    zorla('uirevision', layoutOut.uirevision);
+    zorla('add');
+    zorla('remove');
 };

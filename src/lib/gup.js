@@ -2,25 +2,25 @@
 
 var identity = require('./identity');
 
-function wrap(d) {return [d];}
+function sar(d) {return [d];}
 
 module.exports = {
 
-    // The D3 data binding concept and the General Update Pattern promotes the idea of
-    // traversing into the scenegraph by using the `.data(fun, keyFun)` call.
-    // The `fun` is most often a `repeat`, ie. the elements beneath a `<g>` element need
-    // access to the same data, or a `descend`, which fans a scenegraph node into a bunch of
-    // of elements, e.g. points, lines, rows, requiring an array as input.
-    // The role of the `keyFun` is to identify what elements are being entered/exited/updated,
-    // otherwise D3 reverts to using a plain index which would screw up `transition`s.
-    keyFun: function(d) {return d.key;},
-    repeat: wrap,
-    descend: identity,
+    // D3 veri bağlama konsepti ve Genel Güncelleme Deseni, sahne grafiğinde
+    // `.data(fun, keyFun)` çağrısını kullanarak gezinme fikrini teşvik eder.
+    // `fun` çoğunlukla bir `repeat` (tekrar) işlevi olup, `<g>` elemanının altındaki
+    // elemanların aynı verilere erişmesi gerektiğinde kullanılır veya bir `descend` (iniş)
+    // işlevi olup, sahne grafiği düğümünü bir dizi elemanlara (örneğin, noktalar, çizgiler, satırlar)
+    // genişletir ve bir dizi girdi olarak gerektirir.
+    // `keyFun` işlevinin rolü, hangi elemanların girildiğini/çıkıldığını/güncellendiğini
+    // belirlemektir, aksi takdirde D3, `transition`ları bozacak olan düz bir indeks kullanmaya geri döner.
+    anahtarFonksiyonu: function(d) {return d.anahtar;},
+    tekrar: sar,
+    inis: identity,
 
-    // Plotly.js uses a convention of storing the actual contents of the `calcData` as the
-    // element zero of a container array. These helpers are just used for clarity as a
-    // newcomer to the codebase may not know what the `[0]` is, and whether there can be further
-    // elements (not atm).
-    wrap: wrap,
-    unwrap: function(d) {return d[0];}
+    // Plotly.js, `calcData`nın gerçek içeriğini bir konteyner dizisinin sıfırıncı elemanı olarak
+    // saklama geleneğini kullanır. Bu yardımcı işlevler, kod tabanına yeni gelen birinin `[0]`ın
+    // ne olduğunu ve daha fazla eleman olup olmadığını (şu anda yok) bilmemesi durumunda açıklık sağlamak için kullanılır.
+    sar: sar,
+    sarilaniCikar: function(d) {return d[0];}
 };

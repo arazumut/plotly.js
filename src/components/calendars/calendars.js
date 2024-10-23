@@ -1,23 +1,23 @@
 'use strict';
 
-// a trimmed down version of:
+// Kısaltılmış bir versiyon:
 // https://github.com/alexcjohnson/world-calendars/blob/master/dist/index.js
 
 module.exports = require('world-calendars/dist/main');
 
 require('world-calendars/dist/plus');
 
-require('world-calendars/dist/calendars/chinese');
-require('world-calendars/dist/calendars/coptic');
-require('world-calendars/dist/calendars/discworld');
-require('world-calendars/dist/calendars/ethiopian');
-require('world-calendars/dist/calendars/hebrew');
-require('world-calendars/dist/calendars/islamic');
-require('world-calendars/dist/calendars/julian');
-require('world-calendars/dist/calendars/mayan');
-require('world-calendars/dist/calendars/nanakshahi');
-require('world-calendars/dist/calendars/nepali');
-require('world-calendars/dist/calendars/persian');
-require('world-calendars/dist/calendars/taiwan');
-require('world-calendars/dist/calendars/thai');
-require('world-calendars/dist/calendars/ummalqura');
+require('world-calendars/dist/calendars/chinese'); // Çin takvimi
+require('world-calendars/dist/calendars/coptic'); // Kıpti takvimi
+require('world-calendars/dist/calendars/discworld'); // Discworld takvimi
+require('world-calendars/dist/calendars/ethiopian'); // Etiyopya takvimi
+require('world-calendars/dist/calendars/hebrew'); // İbrani takvimi
+require('world-calendars/dist/calendars/islamic'); // İslami takvim
+require('world-calendars/dist/calendars/julian'); // Jülyen takvimi
+require('world-calendars/dist/calendars/mayan'); // Maya takvimi
+require('world-calendars/dist/calendars/nanakshahi'); // Nanakshahi takvimi
+require('world-calendars/dist/calendars/nepali'); // Nepal takvimi
+require('world-calendars/dist/calendars/persian'); // Pers takvimi
+require('world-calendars/dist/calendars/taiwan'); // Tayvan takvimi
+require('world-calendars/dist/calendars/thai'); // Tayland takvimi
+require('world-calendars/dist/calendars/ummalqura'); // Umm al-Qura takvimi

@@ -14,34 +14,34 @@ var attributes = require('./attributes');
 
 var coerceFont = Lib.coerceFont;
 
-function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
-    function coerce(attr, dflt) {
+function varsayılanlarıSağla(traceIn, traceOut, varsayılanRenk, layout) {
+    function zorla(attr, dflt) {
         return Lib.coerce(traceIn, traceOut, attributes, attr, dflt);
     }
 
-    var len = handleXYDefaults(traceIn, traceOut, layout, coerce);
-    if(!len) {
+    var uzunluk = handleXYDefaults(traceIn, traceOut, layout, zorla);
+    if(!uzunluk) {
         traceOut.visible = false;
         return;
     }
 
-    handlePeriodDefaults(traceIn, traceOut, layout, coerce);
-    coerce('xhoverformat');
-    coerce('yhoverformat');
+    handlePeriodDefaults(traceIn, traceOut, layout, zorla);
+    zorla('xhoverformat');
+    zorla('yhoverformat');
 
-    coerce('zorder');
+    zorla('zorder');
 
-    coerce('orientation', (traceOut.x && !traceOut.y) ? 'h' : 'v');
-    coerce('base');
-    coerce('offset');
-    coerce('width');
+    zorla('orientation', (traceOut.x && !traceOut.y) ? 'h' : 'v');
+    zorla('base');
+    zorla('offset');
+    zorla('width');
 
-    coerce('text');
-    coerce('hovertext');
-    coerce('hovertemplate');
+    zorla('text');
+    zorla('hovertext');
+    zorla('hovertemplate');
 
-    var textposition = coerce('textposition');
-    handleText(traceIn, traceOut, layout, coerce, textposition, {
+    var textposition = zorla('textposition');
+    metniEle(traceIn, traceOut, layout, zorla, textposition, {
         moduleHasSelected: true,
         moduleHasUnselected: true,
         moduleHasConstrain: true,
@@ -50,21 +50,21 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         moduleHasInsideanchor: true
     });
 
-    handleStyleDefaults(traceIn, traceOut, coerce, defaultColor, layout);
+    handleStyleDefaults(traceIn, traceOut, zorla, varsayılanRenk, layout);
     var lineColor = (traceOut.marker.line || {}).color;
 
-    // override defaultColor for error bars with defaultLine
+    // Hata çubukları için varsayılan rengi defaultLine ile geçersiz kıl
     var errorBarsSupplyDefaults = Registry.getComponentMethod('errorbars', 'supplyDefaults');
     errorBarsSupplyDefaults(traceIn, traceOut, lineColor || Color.defaultLine, {axis: 'y'});
     errorBarsSupplyDefaults(traceIn, traceOut, lineColor || Color.defaultLine, {axis: 'x', inherit: 'y'});
 
-    Lib.coerceSelectionMarkerOpacity(traceOut, coerce);
+    Lib.coerceSelectionMarkerOpacity(traceOut, zorla);
 }
 
-function crossTraceDefaults(fullData, fullLayout) {
+function çaprazİzVarsayılanları(fullData, fullLayout) {
     var traceIn, traceOut;
 
-    function coerce(attr, dflt) {
+    function zorla(attr, dflt) {
         return Lib.coerce(traceOut._input, traceOut, attributes, attr, dflt);
     }
 
@@ -73,28 +73,27 @@ function crossTraceDefaults(fullData, fullLayout) {
 
         if(traceOut.type === 'bar') {
             traceIn = traceOut._input;
-            // `marker.cornerradius` needs to be coerced here rather than in handleStyleDefaults()
-            // because it needs to happen after `layout.barcornerradius` has been coerced
-            var r = coerce('marker.cornerradius', fullLayout.barcornerradius);
+            // `marker.cornerradius` handleStyleDefaults() içinde değil burada zorlanmalı
+            // çünkü `layout.barcornerradius` zorlandıktan sonra yapılması gerekiyor
+            var r = zorla('marker.cornerradius', fullLayout.barcornerradius);
             if(traceOut.marker) {
-                traceOut.marker.cornerradius = validateCornerradius(r);
+                traceOut.marker.cornerradius = köşeYarıçapınıDoğrula(r);
             }
 
             if(fullLayout.barmode === 'group') {
-                handleGroupingDefaults(traceIn, traceOut, fullLayout, coerce);
+                handleGroupingDefaults(traceIn, traceOut, fullLayout, zorla);
             }
         }
     }
 }
 
-// Returns a value equivalent to the given cornerradius value, if valid;
-// otherwise returns`undefined`.
-// Valid cornerradius values must be either:
-//   - a numeric value (string or number) >= 0, or
-//   - a string consisting of a number >= 0 followed by a % sign
-// If the given cornerradius value is a numeric string, it will be converted
-// to a number.
-function validateCornerradius(r) {
+// Verilen köşe yarıçapı değerine eşdeğer bir değer döndürür, eğer geçerliyse;
+// aksi takdirde `undefined` döner.
+// Geçerli köşe yarıçapı değerleri şunlar olmalıdır:
+//   - >= 0 olan sayısal bir değer (string veya sayı), veya
+//   - >= 0 olan bir sayı ve ardından % işareti içeren bir string
+// Verilen köşe yarıçapı değeri sayısal bir string ise, bir sayıya dönüştürülecektir.
+function köşeYarıçapınıDoğrula(r) {
     if(isNumeric(r)) {
         r = +r;
         if(r >= 0) return r;
@@ -108,7 +107,7 @@ function validateCornerradius(r) {
     return undefined;
 }
 
-function handleText(traceIn, traceOut, layout, coerce, textposition, opts) {
+function metniEle(traceIn, traceOut, layout, zorla, textposition, opts) {
     opts = opts || {};
     var moduleHasSelected = !(opts.moduleHasSelected === false);
     var moduleHasUnselected = !(opts.moduleHasUnselected === false);
@@ -123,47 +122,47 @@ function handleText(traceIn, traceOut, layout, coerce, textposition, opts) {
     var hasOutside = hasBoth || textposition === 'outside';
 
     if(hasInside || hasOutside) {
-        var dfltFont = coerceFont(coerce, 'textfont', layout.font);
+        var varsayılanFont = coerceFont(zorla, 'textfont', layout.font);
 
-        // Note that coercing `insidetextfont` is always needed –
-        // even if `textposition` is `outside` for each trace – since
-        // an outside label can become an inside one, for example because
-        // of a bar being stacked on top of it.
-        var insideTextFontDefault = Lib.extendFlat({}, dfltFont);
-        var isTraceTextfontColorSet = traceIn.textfont && traceIn.textfont.color;
-        var isColorInheritedFromLayoutFont = !isTraceTextfontColorSet;
-        if(isColorInheritedFromLayoutFont) {
-            delete insideTextFontDefault.color;
+        // `insidetextfont`'un zorlanması her zaman gereklidir –
+        // her iz için `textposition` `outside` olsa bile –
+        // çünkü bir dış etiket, örneğin üzerine bir çubuk yığıldığı için
+        // iç etiket haline gelebilir.
+        var içMetinFontVarsayılan = Lib.extendFlat({}, varsayılanFont);
+        var izMetinFontRengiAyarlandı = traceIn.textfont && traceIn.textfont.color;
+        var renkLayoutFonttanMirasAlındı = !izMetinFontRengiAyarlandı;
+        if(renkLayoutFonttanMirasAlındı) {
+            delete içMetinFontVarsayılan.color;
         }
-        coerceFont(coerce, 'insidetextfont', insideTextFontDefault);
+        coerceFont(zorla, 'insidetextfont', içMetinFontVarsayılan);
 
         if(hasPathbar) {
-            var pathbarTextFontDefault = Lib.extendFlat({}, dfltFont);
-            if(isColorInheritedFromLayoutFont) {
-                delete pathbarTextFontDefault.color;
+            var pathbarMetinFontVarsayılan = Lib.extendFlat({}, varsayılanFont);
+            if(renkLayoutFonttanMirasAlındı) {
+                delete pathbarMetinFontVarsayılan.color;
             }
-            coerceFont(coerce, 'pathbar.textfont', pathbarTextFontDefault);
+            coerceFont(zorla, 'pathbar.textfont', pathbarMetinFontVarsayılan);
         }
 
-        if(hasOutside) coerceFont(coerce, 'outsidetextfont', dfltFont);
+        if(hasOutside) coerceFont(zorla, 'outsidetextfont', varsayılanFont);
 
-        if(moduleHasSelected) coerce('selected.textfont.color');
-        if(moduleHasUnselected) coerce('unselected.textfont.color');
-        if(moduleHasConstrain) coerce('constraintext');
-        if(moduleHasCliponaxis) coerce('cliponaxis');
-        if(moduleHasTextangle) coerce('textangle');
+        if(moduleHasSelected) zorla('selected.textfont.color');
+        if(moduleHasUnselected) zorla('unselected.textfont.color');
+        if(moduleHasConstrain) zorla('constraintext');
+        if(moduleHasCliponaxis) zorla('cliponaxis');
+        if(moduleHasTextangle) zorla('textangle');
 
-        coerce('texttemplate');
+        zorla('texttemplate');
     }
 
     if(hasInside) {
-        if(moduleHasInsideanchor) coerce('insidetextanchor');
+        if(moduleHasInsideanchor) zorla('insidetextanchor');
     }
 }
 
 module.exports = {
-    supplyDefaults: supplyDefaults,
-    crossTraceDefaults: crossTraceDefaults,
-    handleText: handleText,
-    validateCornerradius: validateCornerradius,
+    varsayılanlarıSağla: varsayılanlarıSağla,
+    çaprazİzVarsayılanları: çaprazİzVarsayılanları,
+    metniEle: metniEle,
+    köşeYarıçapınıDoğrula: köşeYarıçapınıDoğrula,
 };

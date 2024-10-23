@@ -1,55 +1,52 @@
 'use strict';
 
-// fraction of some size to get to a named position
+// Belirli bir boyutun kesirini kullanarak adlandırılmış bir konuma ulaşmak için
 module.exports = {
-    // from bottom left: this is the origin of our paper-reference
-    // positioning system
-    FROM_BL: {
-        left: 0,
-        center: 0.5,
-        right: 1,
-        bottom: 0,
-        middle: 0.5,
-        top: 1
+    // sol alt köşeden: bu, kağıt-referanslı konumlandırma sistemimizin başlangıç noktasıdır
+    SOL_ALT: {
+        sol: 0,
+        orta: 0.5,
+        sağ: 1,
+        alt: 0,
+        orta: 0.5,
+        üst: 1
     },
-    // from top left: this is the screen pixel positioning origin
-    FROM_TL: {
-        left: 0,
-        center: 0.5,
-        right: 1,
-        bottom: 1,
-        middle: 0.5,
-        top: 0
+    // sol üst köşeden: bu, ekran piksel konumlandırma başlangıç noktasıdır
+    SOL_ÜST: {
+        sol: 0,
+        orta: 0.5,
+        sağ: 1,
+        alt: 1,
+        orta: 0.5,
+        üst: 0
     },
-    // from bottom right: sometimes you just need the opposite of ^^
-    FROM_BR: {
-        left: 1,
-        center: 0.5,
-        right: 0,
-        bottom: 0,
-        middle: 0.5,
-        top: 1
+    // sağ alt köşeden: bazen sadece tersine ihtiyacınız olur
+    SAĞ_ALT: {
+        sol: 1,
+        orta: 0.5,
+        sağ: 0,
+        alt: 0,
+        orta: 0.5,
+        üst: 1
     },
-    // multiple of fontSize to get the vertical offset between lines
-    LINE_SPACING: 1.3,
+    // satırlar arasındaki dikey mesafeyi elde etmek için yazı tipi boyutunun katı
+    SATIR_ARALIĞI: 1.3,
 
-    // multiple of fontSize to shift from the baseline
-    // to the cap (captical letter) line
-    // (to use when we don't calculate this shift from Drawing.bBox)
-    // This is an approximation since in reality cap height can differ
-    // from font to font. However, according to Wikipedia
-    //   an "average" font might have a cap height of 70% of the em
+    // temel çizgiden büyük harf çizgisine kaydırmak için yazı tipi boyutunun katı
+    // (Drawing.bBox'tan bu kaydırmayı hesaplamadığımızda kullanılır)
+    // Bu, gerçekte yazı tipinden yazı tipine farklılık gösterebileceği için bir yaklaşımdır.
+    // Ancak, Wikipedia'ya göre
+    //   "ortalama" bir yazı tipi em'in %70'lik bir büyük harf yüksekliğine sahip olabilir
     // https://en.wikipedia.org/wiki/Em_(typography)#History
-    CAP_SHIFT: 0.70,
+    BÜYÜK_HARF_KAYDIRMA: 0.70,
 
-    // half the cap height (distance between baseline and cap line)
-    // of an "average" font (for more info see above).
-    MID_SHIFT: 0.35,
+    // "ortalama" bir yazı tipinin büyük harf yüksekliğinin yarısı (daha fazla bilgi için yukarıya bakın).
+    ORTA_KAYDIRMA: 0.35,
 
-    OPPOSITE_SIDE: {
-        left: 'right',
-        right: 'left',
-        top: 'bottom',
-        bottom: 'top'
+    KARŞI_TARAF: {
+        sol: 'sağ',
+        sağ: 'sol',
+        üst: 'alt',
+        alt: 'üst'
     }
 };

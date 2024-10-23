@@ -6,121 +6,120 @@ var Axes = require('../../plots/cartesian/axes');
 var constants = require('./constants');
 var helpers = require('./helpers');
 
+module.exports = function otomatikAralikHesapla(gd) {
+    var tamYerlesim = gd._fullLayout;
+    var sekilListesi = Lib.filterVisible(tamYerlesim.shapes);
 
-module.exports = function calcAutorange(gd) {
-    var fullLayout = gd._fullLayout;
-    var shapeList = Lib.filterVisible(fullLayout.shapes);
+    if(!sekilListesi.length || !gd._fullData.length) return;
 
-    if(!shapeList.length || !gd._fullData.length) return;
+    for(var i = 0; i < sekilListesi.length; i++) {
+        var sekil = sekilListesi[i];
+        sekil._extremes = {};
 
-    for(var i = 0; i < shapeList.length; i++) {
-        var shape = shapeList[i];
-        shape._extremes = {};
+        var eksen; var sınırlar;
+        var xRefTipi = Axes.getRefType(sekil.xref);
+        var yRefTipi = Axes.getRefType(sekil.yref);
 
-        var ax; var bounds;
-        var xRefType = Axes.getRefType(shape.xref);
-        var yRefType = Axes.getRefType(shape.yref);
+        // kağıt ve eksen alanı referanslı şekiller otomatik aralığı etkilemez
+        if(sekil.xref !== 'paper' && xRefTipi !== 'domain') {
+            eksen = Axes.getFromId(gd, sekil.xref);
 
-        // paper and axis domain referenced shapes don't affect autorange
-        if(shape.xref !== 'paper' && xRefType !== 'domain') {
-            ax = Axes.getFromId(gd, shape.xref);
-
-            bounds = shapeBounds(ax, shape, constants.paramIsX);
-            if(bounds) {
-                shape._extremes[ax._id] = Axes.findExtremes(ax, bounds, calcXPaddingOptions(shape));
+            sınırlar = sekilSınırları(eksen, sekil, constants.paramIsX);
+            if(sınırlar) {
+                sekil._extremes[eksen._id] = Axes.findExtremes(eksen, sınırlar, xDolguSeçenekleriHesapla(sekil));
             }
         }
 
-        if(shape.yref !== 'paper' && yRefType !== 'domain') {
-            ax = Axes.getFromId(gd, shape.yref);
+        if(sekil.yref !== 'paper' && yRefTipi !== 'domain') {
+            eksen = Axes.getFromId(gd, sekil.yref);
 
-            bounds = shapeBounds(ax, shape, constants.paramIsY);
-            if(bounds) {
-                shape._extremes[ax._id] = Axes.findExtremes(ax, bounds, calcYPaddingOptions(shape));
+            sınırlar = sekilSınırları(eksen, sekil, constants.paramIsY);
+            if(sınırlar) {
+                sekil._extremes[eksen._id] = Axes.findExtremes(eksen, sınırlar, yDolguSeçenekleriHesapla(sekil));
             }
         }
     }
 };
 
-function calcXPaddingOptions(shape) {
-    return calcPaddingOptions(shape.line.width, shape.xsizemode, shape.x0, shape.x1, shape.path, false);
+function xDolguSeçenekleriHesapla(sekil) {
+    return dolguSeçenekleriHesapla(sekil.line.width, sekil.xsizemode, sekil.x0, sekil.x1, sekil.path, false);
 }
 
-function calcYPaddingOptions(shape) {
-    return calcPaddingOptions(shape.line.width, shape.ysizemode, shape.y0, shape.y1, shape.path, true);
+function yDolguSeçenekleriHesapla(sekil) {
+    return dolguSeçenekleriHesapla(sekil.line.width, sekil.ysizemode, sekil.y0, sekil.y1, sekil.path, true);
 }
 
-function calcPaddingOptions(lineWidth, sizeMode, v0, v1, path, isYAxis) {
-    var ppad = lineWidth / 2;
-    var axisDirectionReverted = isYAxis;
+function dolguSeçenekleriHesapla(cizgiGenisligi, boyutModu, v0, v1, yol, yEkseniMi) {
+    var ppad = cizgiGenisligi / 2;
+    var eksenYonuTers = yEkseniMi;
 
-    if(sizeMode === 'pixel') {
-        var coords = path ?
-            helpers.extractPathCoords(path, isYAxis ? constants.paramIsY : constants.paramIsX) :
+    if(boyutModu === 'pixel') {
+        var koordinatlar = yol ?
+            helpers.extractPathCoords(yol, yEkseniMi ? constants.paramIsY : constants.paramIsX) :
             [v0, v1];
-        var maxValue = Lib.aggNums(Math.max, null, coords);
-        var minValue = Lib.aggNums(Math.min, null, coords);
-        var beforePad = minValue < 0 ? Math.abs(minValue) + ppad : ppad;
-        var afterPad = maxValue > 0 ? maxValue + ppad : ppad;
+        var maxDeger = Lib.aggNums(Math.max, null, koordinatlar);
+        var minDeger = Lib.aggNums(Math.min, null, koordinatlar);
+        var onceDolgu = minDeger < 0 ? Math.abs(minDeger) + ppad : ppad;
+        var sonraDolgu = maxDeger > 0 ? maxDeger + ppad : ppad;
 
         return {
             ppad: ppad,
-            ppadplus: axisDirectionReverted ? beforePad : afterPad,
-            ppadminus: axisDirectionReverted ? afterPad : beforePad
+            ppadplus: eksenYonuTers ? onceDolgu : sonraDolgu,
+            ppadminus: eksenYonuTers ? sonraDolgu : onceDolgu
         };
     } else {
         return {ppad: ppad};
     }
 }
 
-function shapeBounds(ax, shape, paramsToUse) {
-    var dim = ax._id.charAt(0) === 'x' ? 'x' : 'y';
-    var isCategory = ax.type === 'category' || ax.type === 'multicategory';
+function sekilSınırları(eksen, sekil, kullanilacakParametreler) {
+    var boyut = eksen._id.charAt(0) === 'x' ? 'x' : 'y';
+    var kategoriMi = eksen.type === 'category' || eksen.type === 'multicategory';
     var v0;
     var v1;
-    var shiftStart = 0;
-    var shiftEnd = 0;
+    var baslangicKaydirma = 0;
+    var bitisKaydirma = 0;
 
-    var convertVal = isCategory ? ax.r2c : ax.d2c;
+    var degerDonustur = kategoriMi ? eksen.r2c : eksen.d2c;
 
-    var isSizeModeScale = shape[dim + 'sizemode'] === 'scaled';
-    if(isSizeModeScale) {
-        v0 = shape[dim + '0'];
-        v1 = shape[dim + '1'];
-        if(isCategory) {
-            shiftStart = shape[dim + '0shift'];
-            shiftEnd = shape[dim + '1shift'];
+    var boyutModuOlcek = sekil[boyut + 'sizemode'] === 'scaled';
+    if(boyutModuOlcek) {
+        v0 = sekil[boyut + '0'];
+        v1 = sekil[boyut + '1'];
+        if(kategoriMi) {
+            baslangicKaydirma = sekil[boyut + '0shift'];
+            bitisKaydirma = sekil[boyut + '1shift'];
         }
     } else {
-        v0 = shape[dim + 'anchor'];
-        v1 = shape[dim + 'anchor'];
+        v0 = sekil[boyut + 'anchor'];
+        v1 = sekil[boyut + 'anchor'];
     }
 
-    if(v0 !== undefined) return [convertVal(v0) + shiftStart, convertVal(v1) + shiftEnd];
-    if(!shape.path) return;
+    if(v0 !== undefined) return [degerDonustur(v0) + baslangicKaydirma, degerDonustur(v1) + bitisKaydirma];
+    if(!sekil.path) return;
 
     var min = Infinity;
     var max = -Infinity;
-    var segments = shape.path.match(constants.segmentRE);
+    var segmentler = sekil.path.match(constants.segmentRE);
     var i;
     var segment;
-    var drawnParam;
-    var params;
-    var val;
+    var cizilenParam;
+    var parametreler;
+    var deger;
 
-    if(ax.type === 'date') convertVal = helpers.decodeDate(convertVal);
+    if(eksen.type === 'date') degerDonustur = helpers.decodeDate(degerDonustur);
 
-    for(i = 0; i < segments.length; i++) {
-        segment = segments[i];
-        drawnParam = paramsToUse[segment.charAt(0)].drawn;
-        if(drawnParam === undefined) continue;
+    for(i = 0; i < segmentler.length; i++) {
+        segment = segmentler[i];
+        cizilenParam = kullanilacakParametreler[segment.charAt(0)].drawn;
+        if(cizilenParam === undefined) continue;
 
-        params = segments[i].substr(1).match(constants.paramRE);
-        if(!params || params.length < drawnParam) continue;
+        parametreler = segmentler[i].substr(1).match(constants.paramRE);
+        if(!parametreler || parametreler.length < cizilenParam) continue;
 
-        val = convertVal(params[drawnParam]);
-        if(val < min) min = val;
-        if(val > max) max = val;
+        deger = degerDonustur(parametreler[cizilenParam]);
+        if(deger < min) min = deger;
+        if(deger > max) max = deger;
     }
     if(max >= min) return [min, max];
 }

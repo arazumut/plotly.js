@@ -3,60 +3,48 @@
 var fontAttrs = require('../../plots/font_attributes');
 var colorAttrs = require('../color/attributes');
 
-
 module.exports = {
-    // not really a 'subplot' attribute container,
-    // but this is the flag we use to denote attributes that
-    // support yaxis, yaxis2, yaxis3, ... counters
     _isSubplotObj: true,
 
     visible: {
         valType: 'boolean',
         dflt: true,
         editType: 'legend',
-        description: [
-            'Determines whether or not this legend is visible.'
-        ].join(' ')
+        description: 'Bu efsanenin görünür olup olmadığını belirler.'
     },
 
     bgcolor: {
         valType: 'color',
         editType: 'legend',
-        description: [
-            'Sets the legend background color.',
-            'Defaults to `layout.paper_bgcolor`.'
-        ].join(' ')
+        description: 'Efsane arka plan rengini ayarlar. Varsayılan olarak `layout.paper_bgcolor` kullanılır.'
     },
     bordercolor: {
         valType: 'color',
         dflt: colorAttrs.defaultLine,
         editType: 'legend',
-        description: 'Sets the color of the border enclosing the legend.'
+        description: 'Efsaneyi çevreleyen sınırın rengini ayarlar.'
     },
     borderwidth: {
         valType: 'number',
         min: 0,
         dflt: 0,
         editType: 'legend',
-        description: 'Sets the width (in px) of the border enclosing the legend.'
+        description: 'Efsaneyi çevreleyen sınırın genişliğini (px cinsinden) ayarlar.'
     },
     font: fontAttrs({
         editType: 'legend',
-        description: 'Sets the font used to text the legend items.'
+        description: 'Efsane öğeleri için kullanılan yazı tipini ayarlar.'
     }),
     grouptitlefont: fontAttrs({
         editType: 'legend',
-        description: [
-            'Sets the font for group titles in legend.',
-            'Defaults to `legend.font` with its size increased about 10%.'
-        ].join(' ')
+        description: 'Efsanedeki grup başlıkları için yazı tipini ayarlar. Varsayılan olarak `legend.font` kullanılır ve boyutu yaklaşık %10 artırılır.'
     }),
     orientation: {
         valType: 'enumerated',
         values: ['v', 'h'],
         dflt: 'v',
         editType: 'legend',
-        description: 'Sets the orientation of the legend.'
+        description: 'Efsanenin yönünü ayarlar.'
     },
     traceorder: {
         valType: 'flaglist',
@@ -64,19 +52,11 @@ module.exports = {
         extras: ['normal'],
         editType: 'legend',
         description: [
-            'Determines the order at which the legend items are displayed.',
-
-            'If *normal*, the items are displayed top-to-bottom in the same',
-            'order as the input data.',
-
-            'If *reversed*, the items are displayed in the opposite order',
-            'as *normal*.',
-
-            'If *grouped*, the items are displayed in groups',
-            '(when a trace `legendgroup` is provided).',
-
-            'if *grouped+reversed*, the items are displayed in the opposite order',
-            'as *grouped*.'
+            'Efsane öğelerinin görüntülenme sırasını belirler.',
+            '*normal* ise, öğeler giriş verileriyle aynı sırada yukarıdan aşağıya doğru görüntülenir.',
+            '*reversed* ise, öğeler *normal* sıranın tersine görüntülenir.',
+            '*grouped* ise, öğeler gruplar halinde görüntülenir (bir iz `legendgroup` sağlandığında).',
+            '*grouped+reversed* ise, öğeler *grouped* sırasının tersine görüntülenir.'
         ].join(' ')
     },
     tracegroupgap: {
@@ -84,18 +64,15 @@ module.exports = {
         min: 0,
         dflt: 10,
         editType: 'legend',
-        description: [
-            'Sets the amount of vertical space (in px) between legend groups.'
-        ].join(' ')
+        description: 'Efsane grupları arasındaki dikey boşluğu (px cinsinden) ayarlar.'
     },
     entrywidth: {
         valType: 'number',
         min: 0,
         editType: 'legend',
         description: [
-            'Sets the width (in px or fraction) of the legend.',
-            'Use 0 to size the entry based on the text width,',
-            'when `entrywidthmode` is set to *pixels*.'
+            'Efsanenin genişliğini (px veya kesir olarak) ayarlar.',
+            '`entrywidthmode` *pixels* olarak ayarlandığında, metin genişliğine göre giriş genişliğini ayarlamak için 0 kullanın.'
         ].join(' ')
     },
     entrywidthmode: {
@@ -103,14 +80,14 @@ module.exports = {
         values: ['fraction', 'pixels'],
         dflt: 'pixels',
         editType: 'legend',
-        description: 'Determines what entrywidth means.',
+        description: 'entrywidth\'in ne anlama geldiğini belirler.'
     },
     indentation: {
         valType: 'number',
         min: -15,
         dflt: 0,
         editType: 'legend',
-        description: 'Sets the indentation (in px) of the legend entries.',
+        description: 'Efsane girişlerinin girintisini (px cinsinden) ayarlar.'
     },
     itemsizing: {
         valType: 'enumerated',
@@ -118,8 +95,7 @@ module.exports = {
         dflt: 'trace',
         editType: 'legend',
         description: [
-            'Determines if the legend items symbols scale with their corresponding *trace* attributes',
-            'or remain *constant* independent of the symbol size on the graph.'
+            'Efsane öğelerinin sembollerinin ilgili *iz* öznitelikleriyle ölçeklenip ölçeklenmeyeceğini veya grafikteki sembol boyutundan bağımsız olarak *sabit* kalıp kalmayacağını belirler.'
         ].join(' ')
     },
     itemwidth: {
@@ -127,7 +103,7 @@ module.exports = {
         min: 30,
         dflt: 30,
         editType: 'legend',
-        description: 'Sets the width (in px) of the legend item symbols (the part other than the title.text).',
+        description: 'Efsane öğesi sembollerinin genişliğini (px cinsinden) ayarlar (başlık metni dışındaki kısım).'
     },
     itemclick: {
         valType: 'enumerated',
@@ -135,10 +111,10 @@ module.exports = {
         dflt: 'toggle',
         editType: 'legend',
         description: [
-            'Determines the behavior on legend item click.',
-            '*toggle* toggles the visibility of the item clicked on the graph.',
-            '*toggleothers* makes the clicked item the sole visible item on the graph.',
-            '*false* disables legend item click interactions.'
+            'Efsane öğesi tıklama davranışını belirler.',
+            '*toggle* grafikte tıklanan öğenin görünürlüğünü değiştirir.',
+            '*toggleothers* tıklanan öğeyi grafikteki tek görünür öğe yapar.',
+            '*false* efsane öğesi tıklama etkileşimlerini devre dışı bırakır.'
         ].join(' ')
     },
     itemdoubleclick: {
@@ -147,10 +123,10 @@ module.exports = {
         dflt: 'toggleothers',
         editType: 'legend',
         description: [
-            'Determines the behavior on legend item double-click.',
-            '*toggle* toggles the visibility of the item clicked on the graph.',
-            '*toggleothers* makes the clicked item the sole visible item on the graph.',
-            '*false* disables legend item double-click interactions.'
+            'Efsane öğesi çift tıklama davranışını belirler.',
+            '*toggle* grafikte tıklanan öğenin görünürlüğünü değiştirir.',
+            '*toggleothers* tıklanan öğeyi grafikteki tek görünür öğe yapar.',
+            '*false* efsane öğesi çift tıklama etkileşimlerini devre dışı bırakır.'
         ].join(' ')
     },
     groupclick: {
@@ -159,22 +135,20 @@ module.exports = {
         dflt: 'togglegroup',
         editType: 'legend',
         description: [
-            'Determines the behavior on legend group item click.',
-            '*toggleitem* toggles the visibility of the individual item clicked on the graph.',
-            '*togglegroup* toggles the visibility of all items in the same legendgroup as the item clicked on the graph.'
+            'Efsane grup öğesi tıklama davranışını belirler.',
+            '*toggleitem* grafikte tıklanan bireysel öğenin görünürlüğünü değiştirir.',
+            '*togglegroup* grafikte tıklanan öğeyle aynı legendgroup içindeki tüm öğelerin görünürlüğünü değiştirir.'
         ].join(' ')
     },
     x: {
         valType: 'number',
         editType: 'legend',
         description: [
-            'Sets the x position with respect to `xref` (in normalized coordinates) of the legend.',
-            'When `xref` is *paper*, defaults to *1.02* for vertical legends and',
-            'defaults to *0* for horizontal legends.',
-            'When `xref` is *container*, defaults to *1* for vertical legends and',
-            'defaults to *0* for horizontal legends.',
-            'Must be between *0* and *1* if `xref` is *container*.',
-            'and between *-2* and *3* if `xref` is *paper*.'
+            'Efsanenin `xref`e göre x konumunu (normalize edilmiş koordinatlarda) ayarlar.',
+            '`xref` *paper* olduğunda, dikey efsaneler için varsayılan olarak *1.02* ve yatay efsaneler için varsayılan olarak *0* kullanılır.',
+            '`xref` *container* olduğunda, dikey efsaneler için varsayılan olarak *1* ve yatay efsaneler için varsayılan olarak *0* kullanılır.',
+            '`xref` *container* ise *0* ile *1* arasında olmalıdır.',
+            '`xref` *paper* ise *-2* ile *3* arasında olmalıdır.'
         ].join(' ')
     },
     xref: {
@@ -183,9 +157,9 @@ module.exports = {
         values: ['container', 'paper'],
         editType: 'layoutstyle',
         description: [
-            'Sets the container `x` refers to.',
-            '*container* spans the entire `width` of the plot.',
-            '*paper* refers to the width of the plotting area only.'
+            '`x`in atıfta bulunduğu konteyneri ayarlar.',
+            '*container* grafiğin tüm `genişliğini` kapsar.',
+            '*paper* yalnızca çizim alanının genişliğine atıfta bulunur.'
         ].join(' ')
     },
     xanchor: {
@@ -194,25 +168,24 @@ module.exports = {
         dflt: 'left',
         editType: 'legend',
         description: [
-            'Sets the legend\'s horizontal position anchor.',
-            'This anchor binds the `x` position to the *left*, *center*',
-            'or *right* of the legend.',
-            'Value *auto* anchors legends to the right for `x` values greater than or equal to 2/3,',
-            'anchors legends to the left for `x` values less than or equal to 1/3 and',
-            'anchors legends with respect to their center otherwise.'
+            'Efsanenin yatay konum çapasını ayarlar.',
+            'Bu çapa, `x` konumunu efsanenin *sol*, *orta* veya *sağ* kısmına bağlar.',
+            '*auto* değeri, `x` değeri 2/3 veya daha büyük olduğunda efsaneleri sağa,',
+            '`x` değeri 1/3 veya daha küçük olduğunda sola ve',
+            'diğer durumlarda ortasına göre bağlar.'
         ].join(' ')
     },
     y: {
         valType: 'number',
         editType: 'legend',
         description: [
-            'Sets the y position with respect to `yref` (in normalized coordinates) of the legend.',
-            'When `yref` is *paper*, defaults to *1* for vertical legends,',
-            'defaults to *-0.1* for horizontal legends on graphs w/o range sliders and',
-            'defaults to *1.1* for horizontal legends on graph with one or multiple range sliders.',
-            'When `yref` is *container*, defaults to *1*.',
-            'Must be between *0* and *1* if `yref` is *container*',
-            'and between *-2* and *3* if `yref` is *paper*.'
+            'Efsanenin `yref`e göre y konumunu (normalize edilmiş koordinatlarda) ayarlar.',
+            '`yref` *paper* olduğunda, dikey efsaneler için varsayılan olarak *1*,',
+            'aralık kaydırıcıları olmayan grafiklerde yatay efsaneler için varsayılan olarak *-0.1* ve',
+            'bir veya birden fazla aralık kaydırıcısı olan grafiklerde yatay efsaneler için varsayılan olarak *1.1* kullanılır.',
+            '`yref` *container* olduğunda, varsayılan olarak *1* kullanılır.',
+            '`yref` *container* ise *0* ile *1* arasında olmalıdır.',
+            '`yref` *paper* ise *-2* ile *3* arasında olmalıdır.'
         ].join(' ')
     },
     yref: {
@@ -221,9 +194,9 @@ module.exports = {
         values: ['container', 'paper'],
         editType: 'layoutstyle',
         description: [
-            'Sets the container `y` refers to.',
-            '*container* spans the entire `height` of the plot.',
-            '*paper* refers to the height of the plotting area only.'
+            '`y`in atıfta bulunduğu konteyneri ayarlar.',
+            '*container* grafiğin tüm `yüksekliğini` kapsar.',
+            '*paper* yalnızca çizim alanının yüksekliğine atıfta bulunur.'
         ].join(' ')
     },
     yanchor: {
@@ -231,20 +204,18 @@ module.exports = {
         values: ['auto', 'top', 'middle', 'bottom'],
         editType: 'legend',
         description: [
-            'Sets the legend\'s vertical position anchor',
-            'This anchor binds the `y` position to the *top*, *middle*',
-            'or *bottom* of the legend.',
-            'Value *auto* anchors legends at their bottom for `y` values less than or equal to 1/3,',
-            'anchors legends to at their top for `y` values greater than or equal to 2/3 and',
-            'anchors legends with respect to their middle otherwise.'
+            'Efsanenin dikey konum çapasını ayarlar.',
+            'Bu çapa, `y` konumunu efsanenin *üst*, *orta* veya *alt* kısmına bağlar.',
+            '*auto* değeri, `y` değeri 1/3 veya daha küçük olduğunda efsaneleri altına,',
+            '`y` değeri 2/3 veya daha büyük olduğunda üstüne ve',
+            'diğer durumlarda ortasına göre bağlar.'
         ].join(' ')
     },
     uirevision: {
         valType: 'any',
         editType: 'none',
         description: [
-            'Controls persistence of legend-driven changes in trace and pie label',
-            'visibility. Defaults to `layout.uirevision`.'
+            'İz ve pasta etiketi görünürlüğündeki efsane kaynaklı değişikliklerin kalıcılığını kontrol eder. Varsayılan olarak `layout.uirevision` kullanılır.'
         ].join(' ')
     },
     valign: {
@@ -252,41 +223,32 @@ module.exports = {
         values: ['top', 'middle', 'bottom'],
         dflt: 'middle',
         editType: 'legend',
-        description: [
-            'Sets the vertical alignment of the symbols with respect to their associated text.',
-        ].join(' ')
+        description: 'Sembollerin ilgili metinlerine göre dikey hizalamasını ayarlar.'
     },
     title: {
         text: {
             valType: 'string',
             dflt: '',
             editType: 'legend',
-            description: [
-                'Sets the title of the legend.'
-            ].join(' ')
+            description: 'Efsanenin başlığını ayarlar.'
         },
         font: fontAttrs({
             editType: 'legend',
-            description: [
-                'Sets this legend\'s title font.',
-                'Defaults to `legend.font` with its size increased about 20%.'
-            ].join(' '),
+            description: 'Bu efsanenin başlık yazı tipini ayarlar. Varsayılan olarak `legend.font` kullanılır ve boyutu yaklaşık %20 artırılır.'
         }),
         side: {
             valType: 'enumerated',
             values: ['top', 'left', 'top left', 'top center', 'top right'],
             editType: 'legend',
             description: [
-                'Determines the location of legend\'s title',
-                'with respect to the legend items.',
-                'Defaulted to *top* with `orientation` is *h*.',
-                'Defaulted to *left* with `orientation` is *v*.',
-                'The *top left* options could be used to expand',
-                'top center and top right are for horizontal alignment',
-                'legend area in both x and y sides.'
+                'Efsane başlığının konumunu belirler.',
+                'Varsayılan olarak *top* kullanılır ve `orientation` *h* olduğunda,',
+                'Varsayılan olarak *left* kullanılır ve `orientation` *v* olduğunda.',
+                '*top left* seçeneği, efsane alanını hem x hem de y yönünde genişletmek için kullanılabilir.',
+                'top center ve top right yatay hizalama içindir.'
             ].join(' ')
         },
-        editType: 'legend',
+        editType: 'legend'
     },
     editType: 'legend'
 };

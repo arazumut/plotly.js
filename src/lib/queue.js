@@ -4,7 +4,7 @@ var Lib = require('../lib');
 var dfltConfig = require('../plot_api/plot_config').dfltConfig;
 
 /**
- * Copy arg array *without* removing `undefined` values from objects.
+ * Argüman dizisini *undefined* değerleri nesnelerden çıkarmadan kopyala.
  *
  * @param gd
  * @param args
@@ -25,44 +25,46 @@ function copyArgArray(gd, args) {
         } else copy[i] = arg;
     }
 
+    
+
     return copy;
 }
 
 
 // -----------------------------------------------------
-// Undo/Redo queue for plots
+// Grafikler için Geri Alma/Yeniden Yapma kuyruğu
 // -----------------------------------------------------
 
 
 var queue = {};
 
-// TODO: disable/enable undo and redo buttons appropriately
+// TODO: Geri al ve yeniden yap düğmelerini uygun şekilde devre dışı bırak/etkinleştir
 
 /**
- * Add an item to the undoQueue for a graphDiv
+ * Bir grafikDiv için geri alma kuyruğuna bir öğe ekle
  *
  * @param gd
- * @param undoFunc Function undo this operation
- * @param undoArgs Args to supply undoFunc with
- * @param redoFunc Function to redo this operation
- * @param redoArgs Args to supply redoFunc with
+ * @param undoFunc Bu işlemi geri almak için fonksiyon
+ * @param undoArgs undoFunc'a sağlanacak argümanlar
+ * @param redoFunc Bu işlemi yeniden yapmak için fonksiyon
+ * @param redoArgs redoFunc'a sağlanacak argümanlar
  */
 queue.add = function(gd, undoFunc, undoArgs, redoFunc, redoArgs) {
     var queueObj,
         queueIndex;
 
-    // make sure we have the queue and our position in it
+    // Kuyruğu ve içindeki pozisyonumuzu kontrol et
     gd.undoQueue = gd.undoQueue || {index: 0, queue: [], sequence: false};
     queueIndex = gd.undoQueue.index;
 
-    // if we're already playing an undo or redo, or if this is an auto operation
-    // (like pane resize... any others?) then we don't save this to the undo queue
+    // Eğer zaten bir geri alma veya yeniden yapma işlemi oynatılıyorsa veya bu otomatik bir işlemse
+    // (örneğin pencere boyutlandırma... başka var mı?) bu işlemi geri alma kuyruğuna kaydetmeyiz
     if(gd.autoplay) {
         if(!gd.undoQueue.inSequence) gd.autoplay = false;
         return;
     }
 
-    // if we're not in a sequence or are just starting, we need a new queue item
+    // Eğer bir dizide değilsek veya yeni başlıyorsak, yeni bir kuyruk öğesine ihtiyacımız var
     if(!gd.undoQueue.sequence || gd.undoQueue.beginSequence) {
         queueObj = {undo: {calls: [], args: []}, redo: {calls: [], args: []}};
         gd.undoQueue.queue.splice(queueIndex, gd.undoQueue.queue.length - queueIndex, queueObj);
@@ -72,7 +74,7 @@ queue.add = function(gd, undoFunc, undoArgs, redoFunc, redoArgs) {
     }
     gd.undoQueue.beginSequence = false;
 
-    // we unshift to handle calls for undo in a forward for loop later
+    // Geri alma çağrılarını ileri bir döngüde işlemek için unshift kullanıyoruz
     if(queueObj) {
         queueObj.undo.calls.unshift(undoFunc);
         queueObj.undo.args.unshift(undoArgs);
@@ -87,7 +89,7 @@ queue.add = function(gd, undoFunc, undoArgs, redoFunc, redoArgs) {
 };
 
 /**
- * Begin a sequence of undoQueue changes
+ * Geri alma kuyruğu değişikliklerinin bir dizisini başlat
  *
  * @param gd
  */
@@ -98,9 +100,9 @@ queue.startSequence = function(gd) {
 };
 
 /**
- * Stop a sequence of undoQueue changes
+ * Geri alma kuyruğu değişikliklerinin bir dizisini durdur
  *
- * Call this *after* you're sure your undo chain has ended
+ * Bu işlemin geri alma zincirinin sona erdiğinden emin olduktan sonra çağır
  *
  * @param gd
  */
@@ -111,7 +113,7 @@ queue.stopSequence = function(gd) {
 };
 
 /**
- * Move one step back in the undo queue, and undo the object there.
+ * Geri alma kuyruğunda bir adım geri git ve oradaki nesneyi geri al.
  *
  * @param gd
  */
@@ -124,13 +126,13 @@ queue.undo = function undo(gd) {
         return;
     }
 
-    // index is pointing to next *forward* queueObj, point to the one we're undoing
+    // index bir sonraki *ileri* queueObj'yi işaret ediyor, geri aldığımızı işaret et
     gd.undoQueue.index--;
 
-    // get the queueObj for instructions on how to undo
+    // Geri alma talimatları için queueObj'yi al
     queueObj = gd.undoQueue.queue[gd.undoQueue.index];
 
-    // this sequence keeps things from adding to the queue during undo/redo
+    // Bu dizi, geri alma/yapma sırasında kuyruğa ekleme yapılmasını engeller
     gd.undoQueue.inSequence = true;
     for(i = 0; i < queueObj.undo.calls.length; i++) {
         queue.plotDo(gd, queueObj.undo.calls[i], queueObj.undo.args[i]);
@@ -140,7 +142,7 @@ queue.undo = function undo(gd) {
 };
 
 /**
- * Redo the current object in the undo, then move forward in the queue.
+ * Geri alma kuyruğundaki mevcut nesneyi yeniden yap, ardından kuyruğun ilerisine git.
  *
  * @param gd
  */
@@ -153,10 +155,10 @@ queue.redo = function redo(gd) {
         return;
     }
 
-    // get the queueObj for instructions on how to undo
+    // Geri alma talimatları için queueObj'yi al
     queueObj = gd.undoQueue.queue[gd.undoQueue.index];
 
-    // this sequence keeps things from adding to the queue during undo/redo
+    // Bu dizi, geri alma/yapma sırasında kuyruğa ekleme yapılmasını engeller
     gd.undoQueue.inSequence = true;
     for(i = 0; i < queueObj.redo.calls.length; i++) {
         queue.plotDo(gd, queueObj.redo.calls[i], queueObj.redo.args[i]);
@@ -164,14 +166,14 @@ queue.redo = function redo(gd) {
     gd.undoQueue.inSequence = false;
     gd.autoplay = false;
 
-    // index is pointing to the thing we just redid, move it
+    // index, yeniden yaptığımız şeyi işaret ediyor, onu hareket ettir
     gd.undoQueue.index++;
 };
 
 /**
- * Called by undo/redo to make the actual changes.
+ * Geri alma/yapma tarafından çağrılır ve gerçek değişiklikleri yapar.
  *
- * Not meant to be called publically, but included for mocking out in tests.
+ * Genel olarak çağrılması amaçlanmamıştır, ancak testlerde taklit edilmek üzere dahil edilmiştir.
  *
  * @param gd
  * @param func
@@ -180,10 +182,10 @@ queue.redo = function redo(gd) {
 queue.plotDo = function(gd, func, args) {
     gd.autoplay = true;
 
-    // this *won't* copy gd and it preserves `undefined` properties!
+    // Bu *gd'yi* kopyalamaz ve `undefined` özelliklerini korur!
     args = copyArgArray(gd, args);
 
-    // call the supplied function
+    // Sağlanan fonksiyonu çağır
     func.apply(null, args);
 };
 

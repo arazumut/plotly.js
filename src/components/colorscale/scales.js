@@ -1,8 +1,10 @@
 'use strict';
 
+// tinycolor kütüphanesini dahil et
 var tinycolor = require('tinycolor2');
 
-var scales = {
+// Renk skalalarını tanımla
+var renkSkalalari = {
     Greys: [
         [0, 'rgb(0,0,0)'], [1, 'rgb(255,255,255)']
     ],
@@ -35,21 +37,17 @@ var scales = {
         [0, 'rgb(0,0,255)'], [1, 'rgb(255,0,0)']
     ],
 
-    // modified RdBu based on
-    // http://www.kennethmoreland.com/color-maps/
     RdBu: [
         [0, 'rgb(5,10,172)'], [0.35, 'rgb(106,137,247)'],
         [0.5, 'rgb(190,190,190)'], [0.6, 'rgb(220,170,132)'],
         [0.7, 'rgb(230,145,90)'], [1, 'rgb(178,10,28)']
     ],
 
-    // Scale for non-negative numeric values
     Reds: [
         [0, 'rgb(220,220,220)'], [0.2, 'rgb(245,195,157)'],
         [0.4, 'rgb(245,160,105)'], [1, 'rgb(178,10,28)']
     ],
 
-    // Scale for non-positive numeric values
     Blues: [
         [0, 'rgb(5,10,172)'], [0.35, 'rgb(40,60,190)'],
         [0.5, 'rgb(70,100,245)'], [0.6, 'rgb(90,120,245)'],
@@ -133,33 +131,35 @@ var scales = {
     ]
 };
 
-var defaultScale = scales.RdBu;
+// Varsayılan renk skalasını tanımla
+var varsayilanRenkSkalasi = renkSkalalari.RdBu;
 
-function getScale(scl, dflt) {
-    if(!dflt) dflt = defaultScale;
+// Renk skalasını al
+function renkSkalasiAl(scl, dflt) {
+    if(!dflt) dflt = varsayilanRenkSkalasi;
     if(!scl) return dflt;
 
-    function parseScale() {
+    function renkSkalasiParseEt() {
         try {
-            scl = scales[scl] || JSON.parse(scl);
+            scl = renkSkalalari[scl] || JSON.parse(scl);
         } catch(e) {
             scl = dflt;
         }
     }
 
     if(typeof scl === 'string') {
-        parseScale();
-        // occasionally scl is double-JSON encoded...
-        if(typeof scl === 'string') parseScale();
+        renkSkalasiParseEt();
+        // bazen scl çift JSON kodlamalı olabilir...
+        if(typeof scl === 'string') renkSkalasiParseEt();
     }
 
-    if(!isValidScaleArray(scl)) return dflt;
+    if(!gecerliRenkSkalasiDizisi(scl)) return dflt;
     return scl;
 }
 
-
-function isValidScaleArray(scl) {
-    var highestVal = 0;
+// Geçerli bir skala dizisi olup olmadığını kontrol et
+function gecerliRenkSkalasiDizisi(scl) {
+    var enYuksekDeger = 0;
 
     if(!Array.isArray(scl) || scl.length < 2) return false;
 
@@ -170,25 +170,27 @@ function isValidScaleArray(scl) {
     for(var i = 0; i < scl.length; i++) {
         var si = scl[i];
 
-        if(si.length !== 2 || +si[0] < highestVal || !tinycolor(si[1]).isValid()) {
+        if(si.length !== 2 || +si[0] < enYuksekDeger || !tinycolor(si[1]).isValid()) {
             return false;
         }
 
-        highestVal = +si[0];
+        enYuksekDeger = +si[0];
     }
 
     return true;
 }
 
-function isValidScale(scl) {
-    if(scales[scl] !== undefined) return true;
-    else return isValidScaleArray(scl);
+// Geçerli bir skala olup olmadığını kontrol et
+function gecerliRenkSkalasi(scl) {
+    if(renkSkalalari[scl] !== undefined) return true;
+    else return gecerliRenkSkalasiDizisi(scl);
 }
 
+// Modülü dışa aktar
 module.exports = {
-    scales: scales,
-    defaultScale: defaultScale,
+    renkSkalalari: renkSkalalari,
+    varsayilanRenkSkalasi: varsayilanRenkSkalasi,
 
-    get: getScale,
-    isValid: isValidScale
+    al: renkSkalasiAl,
+    gecerli: gecerliRenkSkalasi
 };

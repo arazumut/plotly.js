@@ -2,39 +2,39 @@
 
 module.exports = {
 
-    // attribute container name
-    name: 'rangeslider',
+    // öznitelik konteyner adı
+    name: 'aralık kaydırıcı',
 
-    // class names
+    // sınıf adları
 
-    containerClassName: 'rangeslider-container',
-    bgClassName: 'rangeslider-bg',
-    rangePlotClassName: 'rangeslider-rangeplot',
+    containerClassName: 'aralık-kaydırıcı-konteyner',
+    bgClassName: 'aralık-kaydırıcı-arka-plan',
+    rangePlotClassName: 'aralık-kaydırıcı-aralık-grafiği',
 
-    maskMinClassName: 'rangeslider-mask-min',
-    maskMaxClassName: 'rangeslider-mask-max',
-    slideBoxClassName: 'rangeslider-slidebox',
+    maskMinClassName: 'aralık-kaydırıcı-maske-min',
+    maskMaxClassName: 'aralık-kaydırıcı-maske-max',
+    slideBoxClassName: 'aralık-kaydırıcı-kaydırma-kutusu',
 
-    grabberMinClassName: 'rangeslider-grabber-min',
-    grabAreaMinClassName: 'rangeslider-grabarea-min',
-    handleMinClassName: 'rangeslider-handle-min',
+    grabberMinClassName: 'aralık-kaydırıcı-tutucu-min',
+    grabAreaMinClassName: 'aralık-kaydırıcı-tutma-alanı-min',
+    handleMinClassName: 'aralık-kaydırıcı-tutma-yeri-min',
 
-    grabberMaxClassName: 'rangeslider-grabber-max',
-    grabAreaMaxClassName: 'rangeslider-grabarea-max',
-    handleMaxClassName: 'rangeslider-handle-max',
+    grabberMaxClassName: 'aralık-kaydırıcı-tutucu-max',
+    grabAreaMaxClassName: 'aralık-kaydırıcı-tutma-alanı-max',
+    handleMaxClassName: 'aralık-kaydırıcı-tutma-yeri-max',
 
-    maskMinOppAxisClassName: 'rangeslider-mask-min-opp-axis',
-    maskMaxOppAxisClassName: 'rangeslider-mask-max-opp-axis',
+    maskMinOppAxisClassName: 'aralık-kaydırıcı-maske-min-ters-eksen',
+    maskMaxOppAxisClassName: 'aralık-kaydırıcı-maske-max-ters-eksen',
 
-    // style constants
+    // stil sabitleri
 
     maskColor: 'rgba(0,0,0,0.4)',
     maskOppAxisColor: 'rgba(0,0,0,0.2)',
 
-    slideBoxFill: 'transparent',
+    slideBoxFill: 'şeffaf',
     slideBoxCursor: 'ew-resize',
 
-    grabAreaFill: 'transparent',
+    grabAreaFill: 'şeffaf',
     grabAreaCursor: 'col-resize',
     grabAreaWidth: 10,
 

@@ -1,23 +1,24 @@
 'use strict';
 
-var drawModule = require('./draw');
-var clickModule = require('./click');
+// Gerekli modülleri dahil et
+var cizimModulu = require('./draw');
+var tiklamaModulu = require('./click');
 
 module.exports = {
-    moduleType: 'component',
-    name: 'annotations',
+    moduleType: 'component', // Modül tipi: bileşen
+    name: 'annotations', // Adı: açıklamalar
 
-    layoutAttributes: require('./attributes'),
-    supplyLayoutDefaults: require('./defaults'),
-    includeBasePlot: require('../../plots/cartesian/include_components')('annotations'),
+    layoutAttributes: require('./attributes'), // Düzen öznitelikleri
+    supplyLayoutDefaults: require('./defaults'), // Düzen varsayılanlarını sağla
+    includeBasePlot: require('../../plots/cartesian/include_components')('annotations'), // Temel grafiği dahil et
 
-    calcAutorange: require('./calc_autorange'),
-    draw: drawModule.draw,
-    drawOne: drawModule.drawOne,
-    drawRaw: drawModule.drawRaw,
+    calcAutorange: require('./calc_autorange'), // Otomatik aralığı hesapla
+    draw: cizimModulu.draw, // Çizim fonksiyonu
+    drawOne: cizimModulu.drawOne, // Tek bir öğeyi çiz
+    drawRaw: cizimModulu.drawRaw, // Ham çizim fonksiyonu
 
-    hasClickToShow: clickModule.hasClickToShow,
-    onClick: clickModule.onClick,
+    hasClickToShow: tiklamaModulu.hasClickToShow, // Gösterilecek tıklama var mı
+    onClick: tiklamaModulu.onClick, // Tıklama olayında yapılacaklar
 
-    convertCoords: require('./convert_coords')
+    convertCoords: require('./convert_coords') // Koordinatları dönüştür
 };

@@ -1,5 +1,53 @@
 # Contributor Covenant Code of Conduct
 
+## Taahhüdümüz
+
+Açık ve davetkar bir ortamı teşvik etmek amacıyla, biz katkıda bulunanlar ve bakımcılar olarak, yaş, beden ölçüsü, engellilik, etnik köken, cinsiyet kimliği ve ifadesi, deneyim seviyesi, milliyet, kişisel görünüm, ırk, din veya cinsel kimlik ve yönelim gözetmeksizin, projemize ve topluluğumuza katılımın tacizden uzak bir deneyim olmasını taahhüt ediyoruz.
+
+## Standartlarımız
+
+Pozitif bir ortam yaratmaya katkıda bulunan davranış örnekleri şunlardır:
+
+* Davetkar ve kapsayıcı bir dil kullanmak
+* Farklı bakış açılarına ve deneyimlere saygılı olmak
+* Yapıcı eleştiriyi zarifçe kabul etmek
+* Topluluk için en iyisine odaklanmak
+* Diğer topluluk üyelerine empati göstermek
+
+Katılımcılar tarafından kabul edilemez davranış örnekleri şunlardır:
+
+* Cinselleştirilmiş dil veya görsellerin kullanımı ve istenmeyen cinsel ilgi veya yaklaşımlar
+* Trollemek, hakaret/alaycı yorumlar ve kişisel veya siyasi saldırılar
+* Kamuya açık veya özel taciz
+* Başkalarının fiziksel veya elektronik adres gibi özel bilgilerini, açık izin olmadan yayınlamak
+* Profesyonel bir ortamda makul olarak uygunsuz kabul edilebilecek diğer davranışlar
+
+## Sorumluluklarımız
+
+Proje bakımcıları, kabul edilebilir davranış standartlarını netleştirmekten sorumludur ve kabul edilemez davranışların herhangi bir örneğine uygun ve adil düzeltici eylemde bulunmaları beklenir.
+
+Proje bakımcıları, bu Davranış Kuralları'na uymayan veya bu kuralları uygulamayan yorumları, katkıları, kodları, wiki düzenlemelerini, sorunları ve diğer katkıları kaldırma, düzenleme veya reddetme hakkına ve sorumluluğuna sahiptir veya uygunsuz, tehdit edici, saldırgan veya zararlı olarak gördükleri diğer davranışlar için herhangi bir katkıda bulunanı geçici veya kalıcı olarak yasaklama hakkına sahiptir.
+
+## Kapsam
+
+Bu Davranış Kuralları, proje alanlarında ve bir bireyin projeyi veya topluluğunu temsil ettiği kamuya açık alanlarda geçerlidir. Bir projeyi veya topluluğu temsil etmenin örnekleri arasında resmi bir proje e-posta adresi kullanmak, resmi bir sosyal medya hesabı aracılığıyla gönderi yapmak veya çevrimiçi veya çevrimdışı bir etkinlikte atanmış bir temsilci olarak hareket etmek yer alır. Bir projeyi temsil etme durumu, proje bakımcıları tarafından daha fazla tanımlanabilir ve netleştirilebilir.
+
+## Yaptırım
+
+Taciz edici, rahatsız edici veya başka türlü kabul edilemez davranış örnekleri, proje liderliği ile alex@plot.ly (Alex Johnson) veya nicolas@plot.ly (Nicolas Kruchten) adreslerinden iletişime geçilerek bildirilebilir. Tüm şikayetler incelenecek ve araştırılacak ve duruma uygun olarak gerekli ve uygun bir yanıt verilecektir. Proje ekibi, bir olayın raporlayıcısına ilişkin gizliliği korumakla yükümlüdür. Belirli yaptırım politikalarının daha fazla ayrıntısı ayrı olarak yayınlanabilir.
+
+Davranış Kuralları'nı iyi niyetle takip etmeyen veya uygulamayan proje bakımcıları, projenin diğer liderlik üyeleri tarafından belirlenen geçici veya kalıcı sonuçlarla karşılaşabilirler.
+
+## Atıf
+
+Bu Davranış Kuralları, [Contributor Covenant][homepage] sürüm 1.4'ten uyarlanmıştır ve [http://contributor-covenant.org/version/1/4][version] adresinde mevcuttur.
+
+[homepage]: http://contributor-covenant.org
+[version]: http://contributor-covenant.org/version/1/4/
+
+
+# Contributor Covenant Code of Conduct
+
 ## Our Pledge
 
 In the interest of fostering an open and welcoming environment, we as
@@ -72,3 +120,5 @@ available at [http://contributor-covenant.org/version/1/4][version]
 
 [homepage]: http://contributor-covenant.org
 [version]: http://contributor-covenant.org/version/1/4/
+
+

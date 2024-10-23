@@ -3,15 +3,16 @@
 var Lib = require('../../lib');
 var layoutAttributes = require('./layout_attributes');
 
-module.exports = function handleHoverModeDefaults(layoutIn, layoutOut) {
-    function coerce(attr, dflt) {
-        // don't coerce if it is already coerced in other place e.g. in cartesian defaults
+// Hover Mode Varsayılanlarını İşleme Fonksiyonu
+module.exports = function hoverModuVarsayilanlariniIsle(layoutIn, layoutOut) {
+    function zorla(attr, varsayilan) {
+        // Eğer başka bir yerde zaten zorlanmışsa zorlamayı yapma, örneğin kartesyen varsayılanlarda
         if(layoutOut[attr] !== undefined) return layoutOut[attr];
 
-        return Lib.coerce(layoutIn, layoutOut, layoutAttributes, attr, dflt);
+        return Lib.zorla(layoutIn, layoutOut, layoutAttributes, attr, varsayilan);
     }
 
-    coerce('clickmode');
-    coerce('hoversubplots');
-    return coerce('hovermode');
+    zorla('clickmode');
+    zorla('hoversubplots');
+    return zorla('hovermode');
 };

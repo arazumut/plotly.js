@@ -1,150 +1,150 @@
 'use strict';
 
 var Lib = require('../../lib');
-var Color = require('../../components/color');
-var Template = require('../../plot_api/plot_template');
+var Renk = require('../../components/color');
+var Şablon = require('../../plot_api/plot_template');
 
-var handleSubplotDefaults = require('../subplot_defaults');
-var getSubplotData = require('../get_data').getSubplotData;
+var AltGrafikVarsayılanlarıEleAl = require('../subplot_defaults');
+var AltGrafikVerileriniAl = require('../get_data').getSubplotData;
 
-var handlePrefixSuffixDefaults = require('../cartesian/prefix_suffix_defaults');
-var handleTickLabelDefaults = require('../cartesian/tick_label_defaults');
-var handleLineGridDefaults = require('../cartesian/line_grid_defaults');
-var setConvertCartesian = require('../cartesian/set_convert');
+var ÖnekSonekVarsayılanlarınıEleAl = require('../cartesian/prefix_suffix_defaults');
+var EtiketVarsayılanlarınıEleAl = require('../cartesian/tick_label_defaults');
+var ÇizgiIzgaraVarsayılanlarınıEleAl = require('../cartesian/line_grid_defaults');
+var KartesyenDönüşümAyarla = require('../cartesian/set_convert');
 
-var layoutAttributes = require('./layout_attributes');
-var constants = require('./constants');
-var axisNames = constants.axisNames;
+var yerleşimÖzellikleri = require('./layout_attributes');
+var sabitler = require('./constants');
+var eksenAdları = sabitler.axisNames;
 
-var makeImagDflt = memoize(function(realTickvals) {
-    // TODO: handle this case outside supply defaults step
-    if(Lib.isTypedArray(realTickvals)) realTickvals = Array.from(realTickvals);
+var hayaliVarsayılanYap = memoize(function(gerçekTickvals) {
+    // TODO: bu durumu varsayılanları sağlama adımının dışında ele al
+    if(Lib.isTypedArray(gerçekTickvals)) gerçekTickvals = Array.from(gerçekTickvals);
 
-    return realTickvals.slice().reverse().map(function(x) { return -x; })
+    return gerçekTickvals.slice().reverse().map(function(x) { return -x; })
         .concat([0])
-        .concat(realTickvals);
+        .concat(gerçekTickvals);
 }, String);
 
-function handleDefaults(contIn, contOut, coerce, opts) {
-    var bgColor = coerce('bgcolor');
-    opts.bgColor = Color.combine(bgColor, opts.paper_bgcolor);
+function varsayılanlarıEleAl(contIn, contOut, zorla, seçenekler) {
+    var arkaPlanRengi = zorla('bgcolor');
+    seçenekler.bgColor = Renk.combine(arkaPlanRengi, seçenekler.paper_bgcolor);
 
-    var subplotData = getSubplotData(opts.fullData, constants.name, opts.id);
-    var layoutOut = opts.layoutOut;
-    var axName;
+    var altGrafikVerileri = AltGrafikVerileriniAl(seçenekler.fullData, sabitler.name, seçenekler.id);
+    var yerleşimDış = seçenekler.layoutOut;
+    var eksenAdı;
 
-    function coerceAxis(attr, dflt) {
-        return coerce(axName + '.' + attr, dflt);
+    function eksenZorla(attr, varsayılan) {
+        return zorla(eksenAdı + '.' + attr, varsayılan);
     }
 
-    for(var i = 0; i < axisNames.length; i++) {
-        axName = axisNames[i];
+    for(var i = 0; i < eksenAdları.length; i++) {
+        eksenAdı = eksenAdları[i];
 
-        if(!Lib.isPlainObject(contIn[axName])) {
-            contIn[axName] = {};
+        if(!Lib.isPlainObject(contIn[eksenAdı])) {
+            contIn[eksenAdı] = {};
         }
 
-        var axIn = contIn[axName];
-        var axOut = Template.newContainer(contOut, axName);
-        axOut._id = axOut._name = axName;
-        axOut._attr = opts.id + '.' + axName;
-        axOut._traceIndices = subplotData.map(function(t) { return t._expandedIndex; });
+        var eksenİç = contIn[eksenAdı];
+        var eksenDış = Şablon.newContainer(contOut, eksenAdı);
+        eksenDış._id = eksenDış._name = eksenAdı;
+        eksenDış._attr = seçenekler.id + '.' + eksenAdı;
+        eksenDış._traceIndices = altGrafikVerileri.map(function(t) { return t._expandedIndex; });
 
-        var visible = coerceAxis('visible');
+        var görünür = eksenZorla('visible');
 
-        axOut.type = 'linear';
-        setConvertCartesian(axOut, layoutOut);
+        eksenDış.type = 'linear';
+        KartesyenDönüşümAyarla(eksenDış, yerleşimDış);
 
-        handlePrefixSuffixDefaults(axIn, axOut, coerceAxis, axOut.type);
+        ÖnekSonekVarsayılanlarınıEleAl(eksenİç, eksenDış, eksenZorla, eksenDış.type);
 
-        if(visible) {
-            var isRealAxis = axName === 'realaxis';
-            if(isRealAxis) coerceAxis('side');
+        if(görünür) {
+            var gerçekEksenMi = eksenAdı === 'realaxis';
+            if(gerçekEksenMi) eksenZorla('side');
 
-            if(isRealAxis) {
-                coerceAxis('tickvals');
+            if(gerçekEksenMi) {
+                eksenZorla('tickvals');
             } else {
-                var imagTickvalsDflt = makeImagDflt(
+                var hayaliTickvalsVarsayılan = hayaliVarsayılanYap(
                     contOut.realaxis.tickvals ||
-                    layoutAttributes.realaxis.tickvals.dflt
+                    yerleşimÖzellikleri.realaxis.tickvals.dflt
                 );
 
-                coerceAxis('tickvals', imagTickvalsDflt);
+                eksenZorla('tickvals', hayaliTickvalsVarsayılan);
             }
 
-            // TODO: handle this case outside supply defaults step
-            if(Lib.isTypedArray(axOut.tickvals)) axOut.tickvals = Array.from(axOut.tickvals);
+            // TODO: bu durumu varsayılanları sağlama adımının dışında ele al
+            if(Lib.isTypedArray(eksenDış.tickvals)) eksenDış.tickvals = Array.from(eksenDış.tickvals);
 
-            var dfltColor;
-            var dfltFontColor;
-            var dfltFontSize;
-            var dfltFontFamily;
-            var font = opts.font || {};
+            var varsayılanRenk;
+            var varsayılanYazıRengi;
+            var varsayılanYazıBoyutu;
+            var varsayılanYazıAilesi;
+            var yazı = seçenekler.font || {};
 
-            if(visible) {
-                dfltColor = coerceAxis('color');
-                dfltFontColor = (dfltColor === axIn.color) ? dfltColor : font.color;
-                dfltFontSize = font.size;
-                dfltFontFamily = font.family;
+            if(görünür) {
+                varsayılanRenk = eksenZorla('color');
+                varsayılanYazıRengi = (varsayılanRenk === eksenİç.color) ? varsayılanRenk : yazı.color;
+                varsayılanYazıBoyutu = yazı.size;
+                varsayılanYazıAilesi = yazı.family;
             }
 
-            handleTickLabelDefaults(axIn, axOut, coerceAxis, axOut.type, {
+            EtiketVarsayılanlarınıEleAl(eksenİç, eksenDış, eksenZorla, eksenDış.type, {
                 noAutotickangles: true,
                 noTicklabelshift: true,
                 noTicklabelstandoff: true,
                 noTicklabelstep: true,
-                noAng: !isRealAxis,
+                noAng: !gerçekEksenMi,
                 noExp: true,
                 font: {
-                    color: dfltFontColor,
-                    size: dfltFontSize,
-                    family: dfltFontFamily
+                    color: varsayılanYazıRengi,
+                    size: varsayılanYazıBoyutu,
+                    family: varsayılanYazıAilesi
                 }
             });
 
-            Lib.coerce2(contIn, contOut, layoutAttributes, axName + '.ticklen');
-            Lib.coerce2(contIn, contOut, layoutAttributes, axName + '.tickwidth');
-            Lib.coerce2(contIn, contOut, layoutAttributes, axName + '.tickcolor', contOut.color);
-            var showTicks = coerceAxis('ticks');
-            if(!showTicks) {
-                delete contOut[axName].ticklen;
-                delete contOut[axName].tickwidth;
-                delete contOut[axName].tickcolor;
+            Lib.coerce2(contIn, contOut, yerleşimÖzellikleri, eksenAdı + '.ticklen');
+            Lib.coerce2(contIn, contOut, yerleşimÖzellikleri, eksenAdı + '.tickwidth');
+            Lib.coerce2(contIn, contOut, yerleşimÖzellikleri, eksenAdı + '.tickcolor', contOut.color);
+            var gösterTickler = eksenZorla('ticks');
+            if(!gösterTickler) {
+                delete contOut[eksenAdı].ticklen;
+                delete contOut[eksenAdı].tickwidth;
+                delete contOut[eksenAdı].tickcolor;
             }
 
-            handleLineGridDefaults(axIn, axOut, coerceAxis, {
-                dfltColor: dfltColor,
-                bgColor: opts.bgColor,
-                // default grid color is darker here (60%, vs cartesian default ~91%)
-                // because the grid is not square so the eye needs heavier cues to follow
+            ÇizgiIzgaraVarsayılanlarınıEleAl(eksenİç, eksenDış, eksenZorla, {
+                varsayılanRenk: varsayılanRenk,
+                bgColor: seçenekler.bgColor,
+                // varsayılan ızgara rengi burada daha koyu (60%, kartesyen varsayılanı ~91% iken)
+                // çünkü ızgara kare değil, bu yüzden gözün daha ağır ipuçlarına ihtiyacı var
                 blend: 60,
                 showLine: true,
                 showGrid: true,
                 noZeroLine: true,
-                attributes: layoutAttributes[axName]
+                attributes: yerleşimÖzellikleri[eksenAdı]
             });
 
-            coerceAxis('layer');
+            eksenZorla('layer');
         }
 
-        coerceAxis('hoverformat');
+        eksenZorla('hoverformat');
 
-        delete axOut.type;
+        delete eksenDış.type;
 
-        axOut._input = axIn;
+        eksenDış._input = eksenİç;
     }
 }
 
-module.exports = function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
-    handleSubplotDefaults(layoutIn, layoutOut, fullData, {
+module.exports = function yerleşimVarsayılanlarınıSağla(yerleşimİç, yerleşimDış, tamVeri) {
+    AltGrafikVarsayılanlarıEleAl(yerleşimİç, yerleşimDış, tamVeri, {
         noUirevision: true,
-        type: constants.name,
-        attributes: layoutAttributes,
-        handleDefaults: handleDefaults,
-        font: layoutOut.font,
-        paper_bgcolor: layoutOut.paper_bgcolor,
-        fullData: fullData,
-        layoutOut: layoutOut
+        type: sabitler.name,
+        attributes: yerleşimÖzellikleri,
+        handleDefaults: varsayılanlarıEleAl,
+        font: yerleşimDış.font,
+        paper_bgcolor: yerleşimDış.paper_bgcolor,
+        fullData: tamVeri,
+        layoutOut: yerleşimDış
     });
 };
 

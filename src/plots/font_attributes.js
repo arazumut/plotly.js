@@ -1,91 +1,90 @@
 'use strict';
 
 /*
- * make a font attribute group
+ * Bir yazı tipi (font) öznitelik grubu oluştur
  *
- * @param {object} opts
+ * @param {object} seçenekler
  *   @param {string}
- *     opts.description: where & how this font is used
+ *     seçenekler.açıklama: bu yazı tipinin nerede ve nasıl kullanıldığı
  *   @param {optional bool} arrayOk:
- *     should each part (family, size, color) be arrayOk? default false.
- *   @param {string} editType:
- *     the editType for all pieces of this font
- *   @param {optional string} colorEditType:
- *     a separate editType just for color
+ *     her bir parça (family, size, color) arrayOk olmalı mı? varsayılan false.
+ *   @param {string} düzenlemeTürü:
+ *     bu yazı tipinin tüm parçaları için düzenleme türü
+ *   @param {optional string} renkDüzenlemeTürü:
+ *     sadece renk için ayrı bir düzenleme türü
  *
- * @return {object} attributes object containing {family, size, color} as specified
+ * @return {object} {family, size, color} içeren öznitelikler nesnesi
  */
-module.exports = function(opts) {
-    var variantValues = opts.variantValues;
-    var editType = opts.editType;
-    var colorEditType = opts.colorEditType;
-    if(colorEditType === undefined) colorEditType = editType;
+module.exports = function(seçenekler) {
+    var varyantDeğerleri = seçenekler.varyantDeğerleri;
+    var düzenlemeTürü = seçenekler.düzenlemeTürü;
+    var renkDüzenlemeTürü = seçenekler.renkDüzenlemeTürü;
+    if(renkDüzenlemeTürü === undefined) renkDüzenlemeTürü = düzenlemeTürü;
 
-    var weight = {
-        editType: editType,
-        valType: 'integer',
+    var ağırlık = {
+        düzenlemeTürü: düzenlemeTürü,
+        değerTürü: 'integer',
         min: 1,
         max: 1000,
-        extras: ['normal', 'bold'],
-        dflt: 'normal',
-        description: [
-            'Sets the weight (or boldness) of the font.'
+        ekstralar: ['normal', 'bold'],
+        varsayılan: 'normal',
+        açıklama: [
+            'Yazı tipinin ağırlığını (veya kalınlığını) ayarlar.'
         ].join(' ')
     };
 
-    if(opts.noNumericWeightValues) {
-        weight.valType = 'enumerated';
-        weight.values = weight.extras;
-        weight.extras = undefined;
-        weight.min = undefined;
-        weight.max = undefined;
+    if(seçenekler.sayıDeğeriOlmayanAğırlık) {
+        ağırlık.değerTürü = 'enumerated';
+        ağırlık.değerler = ağırlık.ekstralar;
+        ağırlık.ekstralar = undefined;
+        ağırlık.min = undefined;
+        ağırlık.max = undefined;
     }
 
-    var attrs = {
+    var öznitelikler = {
         family: {
-            valType: 'string',
-            noBlank: true,
-            strict: true,
-            editType: editType,
-            description: [
-                'HTML font family - the typeface that will be applied by the web browser.',
-                'The web browser will only be able to apply a font if it is available on the system',
-                'which it operates. Provide multiple font families, separated by commas, to indicate',
-                'the preference in which to apply fonts if they aren\'t available on the system.',
-                'The Chart Studio Cloud (at https://chart-studio.plotly.com or on-premise) generates images on a server,',
-                'where only a select number of',
-                'fonts are installed and supported.',
-                'These include *Arial*, *Balto*, *Courier New*, *Droid Sans*, *Droid Serif*,',
+            değerTürü: 'string',
+            boşOlmasın: true,
+            katı: true,
+            düzenlemeTürü: düzenlemeTürü,
+            açıklama: [
+                'HTML yazı tipi ailesi - web tarayıcısı tarafından uygulanacak yazı tipi.',
+                'Web tarayıcısı, yalnızca sistemde mevcutsa bir yazı tipini uygulayabilir.',
+                'Yazı tiplerini sistemde mevcut değilse uygulama sırasını belirtmek için',
+                'virgülle ayrılmış birden fazla yazı tipi ailesi sağlayın.',
+                'Chart Studio Cloud (https://chart-studio.plotly.com veya yerinde) sunucuda görüntüler oluşturur,',
+                'sadece belirli sayıda yazı tipi yüklenmiş ve desteklenmiştir.',
+                'Bunlar *Arial*, *Balto*, *Courier New*, *Droid Sans*, *Droid Serif*,',
                 '*Droid Sans Mono*, *Gravitas One*, *Old Standard TT*, *Open Sans*, *Overpass*,',
-                '*PT Sans Narrow*, *Raleway*, *Times New Roman*.'
+                '*PT Sans Narrow*, *Raleway*, *Times New Roman* içerir.'
             ].join(' ')
         },
         size: {
-            valType: 'number',
+            değerTürü: 'number',
             min: 1,
-            editType: editType
+            düzenlemeTürü: düzenlemeTürü
         },
         color: {
-            valType: 'color',
-            editType: colorEditType
+            değerTürü: 'color',
+            düzenlemeTürü: renkDüzenlemeTürü
         },
 
-        weight: weight,
+        ağırlık: ağırlık,
 
-        style: {
-            editType: editType,
-            valType: 'enumerated',
-            values: ['normal', 'italic'],
-            dflt: 'normal',
-            description: [
-                'Sets whether a font should be styled with a normal or italic face from its family.'
+        stil: {
+            düzenlemeTürü: düzenlemeTürü,
+            değerTürü: 'enumerated',
+            değerler: ['normal', 'italic'],
+            varsayılan: 'normal',
+            açıklama: [
+                'Bir yazı tipinin normal veya italik yüzle stilize edilip edilmeyeceğini ayarlar.'
             ].join(' ')
         },
 
-        variant: opts.noFontVariant ? undefined : {
-            editType: editType,
-            valType: 'enumerated',
-            values: variantValues || [
+        varyant: seçenekler.yazıTipiVaryantıYok ? undefined : {
+            düzenlemeTürü: düzenlemeTürü,
+            değerTürü: 'enumerated',
+            değerler: varyantDeğerleri || [
                 'normal',
                 'small-caps',
                 'all-small-caps',
@@ -93,76 +92,76 @@ module.exports = function(opts) {
                 'petite-caps',
                 'unicase'
             ],
-            dflt: 'normal',
-            description: [
-                'Sets the variant of the font.'
+            varsayılan: 'normal',
+            açıklama: [
+                'Yazı tipinin varyantını ayarlar.'
             ].join(' ')
         },
 
-        textcase: opts.noFontTextcase ? undefined : {
-            editType: editType,
-            valType: 'enumerated',
-            values: ['normal', 'word caps', 'upper', 'lower'],
-            dflt: 'normal',
-            description: [
-                'Sets capitalization of text.',
-                'It can be used to make text appear in all-uppercase or all-lowercase,',
-                'or with each word capitalized.'
+        metinDurumu: seçenekler.yazıTipiMetinDurumuYok ? undefined : {
+            düzenlemeTürü: düzenlemeTürü,
+            değerTürü: 'enumerated',
+            değerler: ['normal', 'kelime büyük', 'büyük', 'küçük'],
+            varsayılan: 'normal',
+            açıklama: [
+                'Metnin büyük/küçük harf durumunu ayarlar.',
+                'Metni tamamen büyük harf veya tamamen küçük harf olarak görünmesini sağlar,',
+                'veya her kelimenin baş harfi büyük olacak şekilde ayarlar.'
             ].join(' ')
         },
 
-        lineposition: opts.noFontLineposition ? undefined : {
-            editType: editType,
-            valType: 'flaglist',
-            flags: ['under', 'over', 'through'],
-            extras: ['none'],
-            dflt: 'none',
-            description: [
-                'Sets the kind of decoration line(s) with text,',
-                'such as an *under*, *over* or *through*',
-                'as well as combinations e.g. *under+over*, etc.'
+        çizgiKonumu: seçenekler.yazıTipiÇizgiKonumuYok ? undefined : {
+            düzenlemeTürü: düzenlemeTürü,
+            değerTürü: 'flaglist',
+            bayraklar: ['alt', 'üst', 'üzerinden'],
+            ekstralar: ['yok'],
+            varsayılan: 'yok',
+            açıklama: [
+                'Metinle birlikte dekorasyon çizgisi türünü ayarlar,',
+                'örneğin *alt*, *üst* veya *üzerinden*',
+                'veya kombinasyonlar örn. *alt+üst*, vb.'
             ].join(' ')
         },
 
-        shadow: opts.noFontShadow ? undefined : {
-            editType: editType,
-            valType: 'string',
-            dflt: opts.autoShadowDflt ? 'auto' : 'none',
-            description: [
-                'Sets the shape and color of the shadow behind text.',
-                '*auto* places minimal shadow and applies contrast text font color.',
-                'See https://developer.mozilla.org/en-US/docs/Web/CSS/text-shadow for additional options.'
+        gölge: seçenekler.yazıTipiGölgesiYok ? undefined : {
+            düzenlemeTürü: düzenlemeTürü,
+            değerTürü: 'string',
+            varsayılan: seçenekler.otoGölgeVarsayılan ? 'auto' : 'yok',
+            açıklama: [
+                'Metnin arkasındaki gölgenin şeklini ve rengini ayarlar.',
+                '*auto* minimal gölge yerleştirir ve kontrast metin yazı tipi rengini uygular.',
+                'Ek seçenekler için bkz. https://developer.mozilla.org/en-US/docs/Web/CSS/text-shadow.'
             ].join(' ')
         },
 
-        editType: editType,
-        // blank strings so compress_attributes can remove
-        // TODO - that's uber hacky... better solution?
-        description: '' + (opts.description || '') + ''
+        düzenlemeTürü: düzenlemeTürü,
+        // boş dizeler böylece compress_attributes kaldırabilir
+        // TODO - bu çok hileli... daha iyi bir çözüm?
+        açıklama: '' + (seçenekler.açıklama || '') + ''
     };
 
-    if(opts.autoSize) attrs.size.dflt = 'auto';
-    if(opts.autoColor) attrs.color.dflt = 'auto';
+    if(seçenekler.otoBoyut) öznitelikler.size.varsayılan = 'auto';
+    if(seçenekler.otoRenk) öznitelikler.color.varsayılan = 'auto';
 
-    if(opts.arrayOk) {
-        attrs.family.arrayOk = true;
-        attrs.weight.arrayOk = true;
-        attrs.style.arrayOk = true;
-        if(!opts.noFontVariant) {
-            attrs.variant.arrayOk = true;
+    if(seçenekler.arrayOk) {
+        öznitelikler.family.arrayOk = true;
+        öznitelikler.ağırlık.arrayOk = true;
+        öznitelikler.stil.arrayOk = true;
+        if(!seçenekler.yazıTipiVaryantıYok) {
+            öznitelikler.varyant.arrayOk = true;
         }
-        if(!opts.noFontTextcase) {
-            attrs.textcase.arrayOk = true;
+        if(!seçenekler.yazıTipiMetinDurumuYok) {
+            öznitelikler.metinDurumu.arrayOk = true;
         }
-        if(!opts.noFontLineposition) {
-            attrs.lineposition.arrayOk = true;
+        if(!seçenekler.yazıTipiÇizgiKonumuYok) {
+            öznitelikler.çizgiKonumu.arrayOk = true;
         }
-        if(!opts.noFontShadow) {
-            attrs.shadow.arrayOk = true;
+        if(!seçenekler.yazıTipiGölgesiYok) {
+            öznitelikler.gölge.arrayOk = true;
         }
-        attrs.size.arrayOk = true;
-        attrs.color.arrayOk = true;
+        öznitelikler.size.arrayOk = true;
+        öznitelikler.color.arrayOk = true;
     }
 
-    return attrs;
+    return öznitelikler;
 };

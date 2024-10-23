@@ -1,23 +1,24 @@
 'use strict';
 
+// Gerekli kütüphaneleri dahil et
 var Lib = require('../../lib');
-
 var handleSubplotDefaults = require('../subplot_defaults');
 var handleArrayContainerDefaults = require('../array_container_defaults');
 var layoutAttributes = require('./layout_attributes');
 
-
-module.exports = function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
+// Layout varsayılanlarını sağla
+module.exports = function layoutVarsayilanlariniSagla(layoutIn, layoutOut, fullData) {
     handleSubplotDefaults(layoutIn, layoutOut, fullData, {
         type: 'mapbox',
         attributes: layoutAttributes,
-        handleDefaults: handleDefaults,
+        handleDefaults: varsayilanlariIsle,
         partition: 'y',
         accessToken: layoutOut._mapboxAccessToken
     });
 };
 
-function handleDefaults(containerIn, containerOut, coerce, opts) {
+// Varsayılanları işle
+function varsayilanlariIsle(containerIn, containerOut, coerce, opts) {
     coerce('accesstoken', opts.accessToken);
     coerce('style');
     coerce('center.lon');
@@ -26,57 +27,58 @@ function handleDefaults(containerIn, containerOut, coerce, opts) {
     coerce('bearing');
     coerce('pitch');
 
-    var west = coerce('bounds.west');
-    var east = coerce('bounds.east');
-    var south = coerce('bounds.south');
-    var north = coerce('bounds.north');
+    var batı = coerce('bounds.west');
+    var doğu = coerce('bounds.east');
+    var güney = coerce('bounds.south');
+    var kuzey = coerce('bounds.north');
     if(
-        west === undefined ||
-        east === undefined ||
-        south === undefined ||
-        north === undefined
+        batı === undefined ||
+        doğu === undefined ||
+        güney === undefined ||
+        kuzey === undefined
     ) {
         delete containerOut.bounds;
     }
 
     handleArrayContainerDefaults(containerIn, containerOut, {
         name: 'layers',
-        handleItemDefaults: handleLayerDefaults
+        handleItemDefaults: katmanVarsayilanlariniIsle
     });
 
-    // copy ref to input container to update 'center' and 'zoom' on map move
+    // 'center' ve 'zoom' değerlerini harita hareketinde güncellemek için giriş konteynerine referans kopyala
     containerOut._input = containerIn;
 }
 
-function handleLayerDefaults(layerIn, layerOut) {
+// Katman varsayılanlarını işle
+function katmanVarsayilanlariniIsle(layerIn, layerOut) {
     function coerce(attr, dflt) {
         return Lib.coerce(layerIn, layerOut, layoutAttributes.layers, attr, dflt);
     }
 
-    var visible = coerce('visible');
-    if(visible) {
-        var sourceType = coerce('sourcetype');
-        var mustBeRasterLayer = sourceType === 'raster' || sourceType === 'image';
+    var görünür = coerce('visible');
+    if(görünür) {
+        var kaynakTipi = coerce('sourcetype');
+        var rasterKatmanOlmali = kaynakTipi === 'raster' || kaynakTipi === 'image';
 
         coerce('source');
         coerce('sourceattribution');
 
-        if(sourceType === 'vector') {
+        if(kaynakTipi === 'vector') {
             coerce('sourcelayer');
         }
 
-        if(sourceType === 'image') {
+        if(kaynakTipi === 'image') {
             coerce('coordinates');
         }
 
-        var typeDflt;
-        if(mustBeRasterLayer) typeDflt = 'raster';
+        var tipVarsayilan;
+        if(rasterKatmanOlmali) tipVarsayilan = 'raster';
 
-        var type = coerce('type', typeDflt);
+        var tip = coerce('type', tipVarsayilan);
 
-        if(mustBeRasterLayer && type !== 'raster') {
-            type = layerOut.type = 'raster';
-            Lib.log('Source types *raster* and *image* must drawn *raster* layer type.');
+        if(rasterKatmanOlmali && tip !== 'raster') {
+            tip = layerOut.type = 'raster';
+            Lib.log('Kaynak türleri *raster* ve *image* *raster* katman türü çizmelidir.');
         }
 
         coerce('below');
@@ -85,20 +87,20 @@ function handleLayerDefaults(layerIn, layerOut) {
         coerce('minzoom');
         coerce('maxzoom');
 
-        if(type === 'circle') {
+        if(tip === 'circle') {
             coerce('circle.radius');
         }
 
-        if(type === 'line') {
+        if(tip === 'line') {
             coerce('line.width');
             coerce('line.dash');
         }
 
-        if(type === 'fill') {
+        if(tip === 'fill') {
             coerce('fill.outlinecolor');
         }
 
-        if(type === 'symbol') {
+        if(tip === 'symbol') {
             coerce('symbol.icon');
             coerce('symbol.iconsize');
 

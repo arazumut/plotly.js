@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Axes = require('../../plots/cartesian/axes');
 var isArray1D = require('../../lib').isArray1D;
 var cheaterBasis = require('./cheater_basis');
@@ -12,52 +13,48 @@ var smoothFill2dArray = require('./smooth_fill_2d_array');
 var convertColumnData = require('../heatmap/convert_column_xyz');
 var setConvert = require('./set_convert');
 
-module.exports = function calc(gd, trace) {
-    var xa = Axes.getFromId(gd, trace.xaxis);
-    var ya = Axes.getFromId(gd, trace.yaxis);
-    var aax = trace.aaxis;
-    var bax = trace.baxis;
+module.exports = function hesapla(gd, iz) {
+    var xa = Axes.getFromId(gd, iz.xaxis);
+    var ya = Axes.getFromId(gd, iz.yaxis);
+    var aax = iz.aaxis;
+    var bax = iz.baxis;
 
-    var x = trace.x;
-    var y = trace.y;
-    var cols = [];
-    if(x && isArray1D(x)) cols.push('x');
-    if(y && isArray1D(y)) cols.push('y');
+    var x = iz.x;
+    var y = iz.y;
+    var kolonlar = [];
+    if(x && isArray1D(x)) kolonlar.push('x');
+    if(y && isArray1D(y)) kolonlar.push('y');
 
-    if(cols.length) {
-        convertColumnData(trace, aax, bax, 'a', 'b', cols);
+    if(kolonlar.length) {
+        convertColumnData(iz, aax, bax, 'a', 'b', kolonlar);
     }
 
-    var a = trace._a = trace._a || trace.a;
-    var b = trace._b = trace._b || trace.b;
-    x = trace._x || trace.x;
-    y = trace._y || trace.y;
+    var a = iz._a = iz._a || iz.a;
+    var b = iz._b = iz._b || iz.b;
+    x = iz._x || iz.x;
+    y = iz._y || iz.y;
 
     var t = {};
 
-    if(trace._cheater) {
+    if(iz._cheater) {
         var avals = aax.cheatertype === 'index' ? a.length : a;
         var bvals = bax.cheatertype === 'index' ? b.length : b;
-        x = cheaterBasis(avals, bvals, trace.cheaterslope);
+        x = cheaterBasis(avals, bvals, iz.cheaterslope);
     }
 
-    trace._x = x = clean2dArray(x);
-    trace._y = y = clean2dArray(y);
+    iz._x = x = clean2dArray(x);
+    iz._y = y = clean2dArray(y);
 
-    // Fill in any undefined values with elliptic smoothing. This doesn't take
-    // into account the spacing of the values. That is, the derivatives should
-    // be modified to use a and b values. It's not that hard, but this is already
-    // moderate overkill for just filling in missing values.
+    // Tanımsız değerleri eliptik yumuşatma ile doldur. Bu, değerlerin aralığını dikkate almaz.
     smoothFill2dArray(x, a, b);
     smoothFill2dArray(y, a, b);
 
-    setConvert(trace);
+    setConvert(iz);
 
-    // create conversion functions that depend on the data
-    trace.setScale();
+    // Verilere bağlı dönüşüm fonksiyonları oluştur
+    iz.setScale();
 
-    // This is a rather expensive scan. Nothing guarantees monotonicity,
-    // so we need to scan through all data to get proper ranges:
+    // Tüm verileri tarayarak doğru aralıkları elde et:
     var xrange = arrayMinmax(x);
     var yrange = arrayMinmax(y);
 
@@ -67,29 +64,24 @@ module.exports = function calc(gd, trace) {
     var dy = 0.5 * (yrange[1] - yrange[0]);
     var yc = 0.5 * (yrange[1] + yrange[0]);
 
-    // Expand the axes to fit the plot, except just grow it by a factor of 1.3
-    // because the labels should be taken into account except that's difficult
-    // hence 1.3.
-    var grow = 1.3;
-    xrange = [xc - dx * grow, xc + dx * grow];
-    yrange = [yc - dy * grow, yc + dy * grow];
+    // Eksenleri grafiğe sığacak şekilde genişlet, etiketleri dikkate alarak 1.3 faktörüyle büyüt.
+    var buyut = 1.3;
+    xrange = [xc - dx * buyut, xc + dx * buyut];
+    yrange = [yc - dy * buyut, yc + dy * buyut];
 
-    trace._extremes[xa._id] = Axes.findExtremes(xa, xrange, {padded: true});
-    trace._extremes[ya._id] = Axes.findExtremes(ya, yrange, {padded: true});
+    iz._extremes[xa._id] = Axes.findExtremes(xa, xrange, {padded: true});
+    iz._extremes[ya._id] = Axes.findExtremes(ya, yrange, {padded: true});
 
-    // Enumerate the gridlines, both major and minor, and store them on the trace
-    // object:
-    calcGridlines(trace, 'a', 'b');
-    calcGridlines(trace, 'b', 'a');
+    // Izgara çizgilerini hesapla ve iz nesnesine kaydet:
+    calcGridlines(iz, 'a', 'b');
+    calcGridlines(iz, 'b', 'a');
 
-    // Calculate the text labels for each major gridline and store them on the
-    // trace object:
-    calcLabels(trace, aax);
-    calcLabels(trace, bax);
+    // Her ana ızgara çizgisi için metin etiketlerini hesapla ve iz nesnesine kaydet:
+    calcLabels(iz, aax);
+    calcLabels(iz, bax);
 
-    // Tabulate points for the four segments that bound the axes so that we can
-    // map to pixel coordinates in the plot function and create a clip rect:
-    t.clipsegments = calcClipPath(trace._xctrl, trace._yctrl, aax, bax);
+    // Eksenleri sınırlayan dört segment için noktaları tabloya dök ve bir klip dikdörtgeni oluştur:
+    t.clipsegments = calcClipPath(iz._xctrl, iz._yctrl, aax, bax);
 
     t.x = x;
     t.y = y;

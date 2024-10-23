@@ -5,10 +5,10 @@ var Axes = require('../../plots/cartesian/axes');
 
 module.exports = function convert(scene) {
     var fullSceneLayout = scene.fullSceneLayout;
-    var anns = fullSceneLayout.annotations;
+    var annotations = fullSceneLayout.annotations;
 
-    for(var i = 0; i < anns.length; i++) {
-        mockAnnAxes(anns[i], scene);
+    for (var i = 0; i < annotations.length; i++) {
+        fakeAnnotationAxes(annotations[i], scene);
     }
 
     scene.fullLayout._infolayer
@@ -16,40 +16,40 @@ module.exports = function convert(scene) {
         .remove();
 };
 
-function mockAnnAxes(ann, scene) {
+function fakeAnnotationAxes(annotation, scene) {
     var fullSceneLayout = scene.fullSceneLayout;
     var domain = fullSceneLayout.domain;
     var size = scene.fullLayout._size;
 
     var base = {
-        // this gets fill in on render
+        // to be filled during rendering
         pdata: null,
 
-        // to get setConvert to not execute cleanly
+        // to prevent setConvert from working properly
         type: 'linear',
 
-        // don't try to update them on `editable: true`
+        // don't try to update when `editable: true`
         autorange: false,
 
-        // set infinite range so that annotation draw routine
-        // does not try to remove 'outside-range' annotations,
-        // this case is handled in the render loop
+        // set infinite range so that annotation drawing routine
+        // doesn't try to remove 'out of range' annotations,
+        // this is handled in the render loop
         range: [-Infinity, Infinity]
     };
 
-    ann._xa = {};
-    Lib.extendFlat(ann._xa, base);
-    Axes.setConvert(ann._xa);
-    ann._xa._offset = size.l + domain.x[0] * size.w;
-    ann._xa.l2p = function() {
-        return 0.5 * (1 + ann._pdata[0] / ann._pdata[3]) * size.w * (domain.x[1] - domain.x[0]);
+    annotation._xa = {};
+    Lib.extendFlat(annotation._xa, base);
+    Axes.setConvert(annotation._xa);
+    annotation._xa._offset = size.l + domain.x[0] * size.w;
+    annotation._xa.l2p = function() {
+        return 0.5 * (1 + annotation._pdata[0] / annotation._pdata[3]) * size.w * (domain.x[1] - domain.x[0]);
     };
 
-    ann._ya = {};
-    Lib.extendFlat(ann._ya, base);
-    Axes.setConvert(ann._ya);
-    ann._ya._offset = size.t + (1 - domain.y[1]) * size.h;
-    ann._ya.l2p = function() {
-        return 0.5 * (1 - ann._pdata[1] / ann._pdata[3]) * size.h * (domain.y[1] - domain.y[0]);
+    annotation._ya = {};
+    Lib.extendFlat(annotation._ya, base);
+    Axes.setConvert(annotation._ya);
+    annotation._ya._offset = size.t + (1 - domain.y[1]) * size.h;
+    annotation._ya.l2p = function() {
+        return 0.5 * (1 - annotation._pdata[1] / annotation._pdata[3]) * size.h * (domain.y[1] - domain.y[0]);
     };
 }

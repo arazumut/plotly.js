@@ -1,105 +1,105 @@
 'use strict';
 
-var colorAttrs = require('../../components/color/attributes');
-var axesAttrs = require('../cartesian/layout_attributes');
-var domainAttrs = require('../domain').attributes;
+var renkOzellikleri = require('../../components/color/attributes');
+var eksenOzellikleri = require('../cartesian/layout_attributes');
+var alanOzellikleri = require('../domain').attributes;
 var extendFlat = require('../../lib').extendFlat;
 var overrideAll = require('../../plot_api/edit_types').overrideAll;
 
-var axisLineGridAttr = overrideAll({
-    color: axesAttrs.color,
-    showline: extendFlat({}, axesAttrs.showline, {dflt: true}),
-    linecolor: axesAttrs.linecolor,
-    linewidth: axesAttrs.linewidth,
-    showgrid: extendFlat({}, axesAttrs.showgrid, {dflt: true}),
-    gridcolor: axesAttrs.gridcolor,
-    gridwidth: axesAttrs.gridwidth,
-    griddash: axesAttrs.griddash
+var eksenCizgiIzgaraOzellikleri = overrideAll({
+    renk: eksenOzellikleri.color,
+    cizgiGoster: extendFlat({}, eksenOzellikleri.showline, {dflt: true}),
+    cizgiRenk: eksenOzellikleri.linecolor,
+    cizgiGenislik: eksenOzellikleri.linewidth,
+    izgaraGoster: extendFlat({}, eksenOzellikleri.showgrid, {dflt: true}),
+    izgaraRenk: eksenOzellikleri.gridcolor,
+    izgaraGenislik: eksenOzellikleri.gridwidth,
+    izgaraCizgiTipi: eksenOzellikleri.griddash
 }, 'plot', 'from-root');
 
-var axisTickAttrs = overrideAll({
-    ticklen: axesAttrs.ticklen,
-    tickwidth: extendFlat({}, axesAttrs.tickwidth, {dflt: 2}),
-    tickcolor: axesAttrs.tickcolor,
-    showticklabels: axesAttrs.showticklabels,
-    labelalias: axesAttrs.labelalias,
-    showtickprefix: axesAttrs.showtickprefix,
-    tickprefix: axesAttrs.tickprefix,
-    showticksuffix: axesAttrs.showticksuffix,
-    ticksuffix: axesAttrs.ticksuffix,
-    tickfont: axesAttrs.tickfont,
-    tickformat: axesAttrs.tickformat,
-    hoverformat: axesAttrs.hoverformat,
-    layer: axesAttrs.layer
+var eksenTickOzellikleri = overrideAll({
+    tickUzunluk: eksenOzellikleri.ticklen,
+    tickGenislik: extendFlat({}, eksenOzellikleri.tickwidth, {dflt: 2}),
+    tickRenk: eksenOzellikleri.tickcolor,
+    tickEtiketGoster: eksenOzellikleri.showticklabels,
+    etiketTakmaAd: eksenOzellikleri.labelalias,
+    tickOnEkGoster: eksenOzellikleri.showtickprefix,
+    tickOnEk: eksenOzellikleri.tickprefix,
+    tickSonEkGoster: eksenOzellikleri.showticksuffix,
+    tickSonEk: eksenOzellikleri.ticksuffix,
+    tickYaziTipi: eksenOzellikleri.tickfont,
+    tickFormat: eksenOzellikleri.tickformat,
+    hoverFormat: eksenOzellikleri.hoverformat,
+    katman: eksenOzellikleri.layer
 }, 'plot', 'from-root');
 
-var realAxisAttrs = extendFlat({
-    visible: extendFlat({}, axesAttrs.visible, {dflt: true}),
+var gercekEksenOzellikleri = extendFlat({
+    gorunur: extendFlat({}, eksenOzellikleri.visible, {dflt: true}),
 
-    tickvals: {
+    tickDegerleri: {
         dflt: [0.2, 0.5, 1, 2, 5],
         valType: 'data_array',
         editType: 'plot',
-        description: 'Sets the values at which ticks on this axis appear.'
+        description: 'Bu eksendeki ticklerin görüneceği değerleri ayarlar.'
     },
 
-    tickangle: extendFlat({}, axesAttrs.tickangle, {dflt: 90}),
+    tickAci: extendFlat({}, eksenOzellikleri.tickangle, {dflt: 90}),
 
-    ticks: {
+    tickler: {
         valType: 'enumerated',
-        values: ['top', 'bottom', ''],
+        values: ['üst', 'alt', ''],
         editType: 'ticks',
         description: [
-            'Determines whether ticks are drawn or not.',
-            'If **, this axis\' ticks are not drawn.',
-            'If *top* (*bottom*), this axis\' are drawn above (below)',
-            'the axis line.'
+            'Ticklerin çizilip çizilmeyeceğini belirler.',
+            'Eğer ** ise, bu eksenin tickleri çizilmez.',
+            'Eğer *üst* (*alt*) ise, bu eksenin tickleri eksen çizgisinin',
+            'üstünde (altında) çizilir.'
         ].join(' ')
     },
 
-    side: {
+    taraf: {
         valType: 'enumerated',
-        values: ['top', 'bottom'],
-        dflt: 'top',
+        values: ['üst', 'alt'],
+        dflt: 'üst',
         editType: 'plot',
         description: [
-            'Determines on which side of real axis line',
-            'the tick and tick labels appear.'
+            'Gerçek eksen çizgisinin hangi tarafında',
+            'tick ve tick etiketlerinin görüneceğini belirler.'
         ].join(' ')
     },
 
     editType: 'calc',
-}, axisLineGridAttr, axisTickAttrs);
+}, eksenCizgiIzgaraOzellikleri, eksenTickOzellikleri);
 
-var imaginaryAxisAttrs = extendFlat({
-    visible: extendFlat({}, axesAttrs.visible, {dflt: true}),
+var sanalEksenOzellikleri = extendFlat({
+    gorunur: extendFlat({}, eksenOzellikleri.visible, {dflt: true}),
 
-    tickvals: {
+    tickDegerleri: {
         valType: 'data_array',
         editType: 'plot',
         description: [
-            'Sets the values at which ticks on this axis appear.',
-            'Defaults to `realaxis.tickvals` plus the same as negatives and zero.'
+            'Bu eksendeki ticklerin görüneceği değerleri ayarlar.',
+            'Varsayılan olarak `gercekEksen.tickDegerleri` ve aynı zamanda negatifler ve sıfır.'
         ].join(' ')
     },
 
-    ticks: axesAttrs.ticks,
+    tickler: eksenOzellikleri.ticks,
 
     editType: 'calc'
-}, axisLineGridAttr, axisTickAttrs);
+}, eksenCizgiIzgaraOzellikleri, eksenTickOzellikleri);
 
 module.exports = {
-    domain: domainAttrs({name: 'smith', editType: 'plot'}),
+    alan: alanOzellikleri({name: 'smith', editType: 'plot'}),
 
-    bgcolor: {
+    arkaPlanRenk: {
         valType: 'color',
         editType: 'plot',
-        dflt: colorAttrs.background,
-        description: 'Set the background color of the subplot'
+        dflt: renkOzellikleri.background,
+        description: 'Alt grafik alanının arka plan rengini ayarlar'
     },
 
-    realaxis: realAxisAttrs,
-    imaginaryaxis: imaginaryAxisAttrs,
+    gercekEksen: gercekEksenOzellikleri,
+    sanalEksen: sanalEksenOzellikleri,
 
     editType: 'calc'
 };

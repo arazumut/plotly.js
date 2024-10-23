@@ -11,11 +11,11 @@ var DRAW_MODES = require('./constants').DRAW_MODES;
 var extendDeep = require('../../lib').extendDeep;
 
 /**
- * ModeBar wrapper around 'create' and 'update',
- * chooses buttons to pass to ModeBar constructor based on
- * plot type and plot config.
+ * ModeBar 'create' ve 'update' işlemlerini saran bir fonksiyon,
+ * plot türüne ve plot konfigürasyonuna göre ModeBar constructor'ına
+ * geçilecek butonları seçer.
  *
- * @param {object} gd main plot object
+ * @param {object} gd ana plot nesnesi
  *
  */
 module.exports = function manageModeBar(gd) {
@@ -33,15 +33,15 @@ module.exports = function manageModeBar(gd) {
 
     if(!Array.isArray(context.modeBarButtonsToRemove)) {
         throw new Error([
-            '*modeBarButtonsToRemove* configuration options',
-            'must be an array.'
+            '*modeBarButtonsToRemove* konfigürasyon seçenekleri',
+            'bir dizi olmalıdır.'
         ].join(' '));
     }
 
     if(!Array.isArray(context.modeBarButtonsToAdd)) {
         throw new Error([
-            '*modeBarButtonsToAdd* configuration options',
-            'must be an array.'
+            '*modeBarButtonsToAdd* konfigürasyon seçenekleri',
+            'bir dizi olmalıdır.'
         ].join(' '));
     }
 
@@ -60,7 +60,7 @@ module.exports = function manageModeBar(gd) {
     else fullLayout._modeBar = createModeBar(gd, buttonGroups);
 };
 
-// logic behind which buttons are displayed by default
+// varsayılan olarak hangi butonların gösterileceğine dair mantık
 function getButtonGroups(gd) {
     var fullLayout = gd._fullLayout;
     var fullData = gd._fullData;
@@ -143,7 +143,7 @@ function getButtonGroups(gd) {
         groups.push(out);
     }
 
-    // buttons common to all plot types
+    // tüm plot türleri için ortak butonlar
     var commonGroup = ['toImage'];
     if(context.showEditInChartStudio) commonGroup.push('editInChartStudio');
     else if(context.showSendToCloud) commonGroup.push('sendDataToCloud');
@@ -155,8 +155,8 @@ function getButtonGroups(gd) {
     var dragModeGroup = [];
 
     if((hasCartesian || hasPie || hasFunnelarea || hasTernary) + hasGeo + hasGL3D + hasMapbox + hasMap + hasPolar + hasSmith > 1) {
-        // graphs with more than one plot types get 'union buttons'
-        // which reset the view or toggle hover labels across all subplots.
+        // birden fazla plot türü olan grafikler 'birlik butonları' alır
+        // bu butonlar tüm alt grafiklerde görünümü sıfırlar veya hover etiketlerini değiştirir.
         hoverGroup = ['toggleHover'];
         resetGroup = ['resetViews'];
     } else if(hasGeo) {
@@ -180,12 +180,11 @@ function getButtonGroups(gd) {
         hoverGroup = ['hoverClosestCartesian', 'hoverCompareCartesian'];
         resetGroup = ['resetViewSankey'];
     } else { // hasPolar, hasSmith, hasTernary
-        // always show at least one hover icon.
+        // en az bir hover simgesi göster.
         hoverGroup = ['toggleHover'];
     }
-    // if we have cartesian, allow switching between closest and compare
-    // regardless of what other types are on the plot, since they'll all
-    // just treat any truthy hovermode as 'closest'
+    // kartesyen varsa, en yakın ve karşılaştırma arasında geçiş yapmaya izin ver
+    // diğer türlerin grafikte olup olmadığına bakılmaksızın, çünkü hepsi herhangi bir doğruluk hovermode'u 'en yakın' olarak kabul eder
     if(hasCartesian) {
         hoverGroup.push('toggleSpikelines', 'hoverClosestCartesian', 'hoverCompareCartesian');
     }
@@ -213,9 +212,9 @@ function getButtonGroups(gd) {
 
     var enabledHoverGroup = [];
     var enableHover = function(a) {
-        // return if already added
+        // zaten eklenmişse geri dön
         if(enabledHoverGroup.indexOf(a) !== -1) return;
-        // should be in hoverGroup
+        // hoverGroup içinde olmalı
         if(hoverGroup.indexOf(a) !== -1) {
             enabledHoverGroup.push(a);
         }
@@ -228,10 +227,10 @@ function getButtonGroups(gd) {
                 b = b.toLowerCase();
 
                 if(DRAW_MODES.indexOf(b) !== -1) {
-                    // accept pre-defined drag modes i.e. shape drawing features as string
+                    // önceden tanımlanmış sürükleme modlarını kabul et, yani şekil çizim özelliklerini string olarak
                     if(
-                        fullLayout._has('mapbox') || fullLayout._has('map') || // draw shapes in paper coordinate (could be improved in future to support data coordinate, when there is no pitch)
-                        fullLayout._has('cartesian') // draw shapes in data coordinate
+                        fullLayout._has('mapbox') || fullLayout._has('map') || // şekilleri kağıt koordinatında çiz (gelecekte veri koordinatını desteklemek için geliştirilebilir, eğim olmadığında)
+                        fullLayout._has('cartesian') // şekilleri veri koordinatında çiz
                     ) {
                         dragModeGroup.push(b);
                     }
@@ -277,8 +276,8 @@ function areAllAxesFixed(fullLayout) {
     return true;
 }
 
-// look for traces that support selection
-// to be updated as we add more selectPoints handlers
+// seçim destekleyen izleri ara
+// daha fazla selectPoints işleyicisi ekledikçe güncellenecek
 function isSelectable(fullData) {
     var selectable = false;
 
@@ -298,9 +297,8 @@ function isSelectable(fullData) {
                 selectable = true;
             }
         } else {
-            // assume that in general if the trace module has selectPoints,
-            // then it's selectable. Scatter is an exception to this because it must
-            // have markers or text, not just be a scatter type.
+            // genel olarak, iz modülü selectPoints'e sahipse, seçilebilir olduğunu varsay.
+            // Scatter bunun bir istisnasıdır çünkü sadece scatter türü olmakla kalmaz, aynı zamanda işaretleyicilere veya metne sahip olmalıdır.
 
             selectable = true;
         }
@@ -309,7 +307,7 @@ function isSelectable(fullData) {
     return selectable;
 }
 
-// check whether all trace are 'noHover'
+// tüm izlerin 'noHover' olup olmadığını kontrol et
 function hasNoHover(fullData) {
     for(var i = 0; i < fullData.length; i++) {
         if(!Registry.traceIs(fullData[i], 'noHover')) return false;
@@ -329,7 +327,7 @@ function appendButtonsToGroups(groups, buttons) {
     return groups;
 }
 
-// fill in custom buttons referring to default mode bar buttons
+// varsayılan mode bar butonlarına atıfta bulunan özel butonları doldur
 function fillCustomButton(originalModeBarButtons) {
     var customButtons = extendDeep([], originalModeBarButtons);
 
@@ -344,8 +342,8 @@ function fillCustomButton(originalModeBarButtons) {
                     customButtons[i][j] = modeBarButtons[button];
                 } else {
                     throw new Error([
-                        '*modeBarButtons* configuration options',
-                        'invalid button name'
+                        '*modeBarButtons* konfigürasyon seçenekleri',
+                        'geçersiz buton adı'
                     ].join(' '));
                 }
             }

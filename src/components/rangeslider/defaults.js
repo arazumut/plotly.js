@@ -7,70 +7,70 @@ var axisIds = require('../../plots/cartesian/axis_ids');
 var attributes = require('./attributes');
 var oppAxisAttrs = require('./oppaxis_attributes');
 
-module.exports = function handleDefaults(layoutIn, layoutOut, axName) {
-    var axIn = layoutIn[axName];
-    var axOut = layoutOut[axName];
+module.exports = function varsayılanlarıEleAl(layoutIn, layoutOut, eksenAdi) {
+    var eksenGiris = layoutIn[eksenAdi];
+    var eksenCikis = layoutOut[eksenAdi];
 
-    if(!(axIn.rangeslider || layoutOut._requestRangeslider[axOut._id])) return;
+    if(!(eksenGiris.rangeslider || layoutOut._requestRangeslider[eksenCikis._id])) return;
 
-    // not super proud of this (maybe store _ in axis object instead
-    if(!Lib.isPlainObject(axIn.rangeslider)) {
-        axIn.rangeslider = {};
+    // Bu kısımdan çok memnun değilim (belki eksen nesnesinde saklanabilir)
+    if(!Lib.isPlainObject(eksenGiris.rangeslider)) {
+        eksenGiris.rangeslider = {};
     }
 
-    var containerIn = axIn.rangeslider;
-    var containerOut = Template.newContainer(axOut, 'rangeslider');
+    var konteynerGiris = eksenGiris.rangeslider;
+    var konteynerCikis = Template.newContainer(eksenCikis, 'rangeslider');
 
-    function coerce(attr, dflt) {
-        return Lib.coerce(containerIn, containerOut, attributes, attr, dflt);
+    function zorla(attr, varsayilan) {
+        return Lib.coerce(konteynerGiris, konteynerCikis, attributes, attr, varsayilan);
     }
 
-    var rangeContainerIn, rangeContainerOut;
-    function coerceRange(attr, dflt) {
-        return Lib.coerce(rangeContainerIn, rangeContainerOut, oppAxisAttrs, attr, dflt);
+    var aralikKonteynerGiris, aralikKonteynerCikis;
+    function zorlaAralik(attr, varsayilan) {
+        return Lib.coerce(aralikKonteynerGiris, aralikKonteynerCikis, oppAxisAttrs, attr, varsayilan);
     }
 
-    var visible = coerce('visible');
-    if(!visible) return;
+    var gorunur = zorla('visible');
+    if(!gorunur) return;
 
-    coerce('bgcolor', layoutOut.plot_bgcolor);
-    coerce('bordercolor');
-    coerce('borderwidth');
-    coerce('thickness');
+    zorla('bgcolor', layoutOut.plot_bgcolor);
+    zorla('bordercolor');
+    zorla('borderwidth');
+    zorla('thickness');
 
-    coerce('autorange', !axOut.isValidRange(containerIn.range));
-    coerce('range');
+    zorla('autorange', !eksenCikis.isValidRange(konteynerGiris.range));
+    zorla('range');
 
-    var subplots = layoutOut._subplots;
-    if(subplots) {
-        var yIds = subplots.cartesian
-            .filter(function(subplotId) {
-                return subplotId.substr(0, subplotId.indexOf('y')) === axisIds.name2id(axName);
+    var altGrafikler = layoutOut._subplots;
+    if(altGrafikler) {
+        var yKimlikler = altGrafikler.cartesian
+            .filter(function(altGrafikId) {
+                return altGrafikId.substr(0, altGrafikId.indexOf('y')) === axisIds.name2id(eksenAdi);
             })
-            .map(function(subplotId) {
-                return subplotId.substr(subplotId.indexOf('y'), subplotId.length);
+            .map(function(altGrafikId) {
+                return altGrafikId.substr(altGrafikId.indexOf('y'), altGrafikId.length);
             });
-        var yNames = Lib.simpleMap(yIds, axisIds.id2name);
-        for(var i = 0; i < yNames.length; i++) {
-            var yName = yNames[i];
+        var yIsimler = Lib.simpleMap(yKimlikler, axisIds.id2name);
+        for(var i = 0; i < yIsimler.length; i++) {
+            var yIsim = yIsimler[i];
 
-            rangeContainerIn = containerIn[yName] || {};
-            rangeContainerOut = Template.newContainer(containerOut, yName, 'yaxis');
+            aralikKonteynerGiris = konteynerGiris[yIsim] || {};
+            aralikKonteynerCikis = Template.newContainer(konteynerCikis, yIsim, 'yaxis');
 
-            var yAxOut = layoutOut[yName];
+            var yEksenCikis = layoutOut[yIsim];
 
-            var rangemodeDflt;
-            if(rangeContainerIn.range && yAxOut.isValidRange(rangeContainerIn.range)) {
-                rangemodeDflt = 'fixed';
+            var aralikModuVarsayilan;
+            if(aralikKonteynerGiris.range && yEksenCikis.isValidRange(aralikKonteynerGiris.range)) {
+                aralikModuVarsayilan = 'fixed';
             }
 
-            var rangeMode = coerceRange('rangemode', rangemodeDflt);
-            if(rangeMode !== 'match') {
-                coerceRange('range', yAxOut.range.slice());
+            var aralikModu = zorlaAralik('rangemode', aralikModuVarsayilan);
+            if(aralikModu !== 'match') {
+                zorlaAralik('range', yEksenCikis.range.slice());
             }
         }
     }
 
-    // to map back range slider (auto) range
-    containerOut._input = containerIn;
+    // aralık kaydırıcının (otomatik) aralığını geri eşlemek için
+    konteynerCikis._input = konteynerGiris;
 };

@@ -3,75 +3,75 @@
 var d3 = require('@plotly/d3');
 var Lib = require('../../lib');
 
-function resizeText(gd, gTrace, traceType) {
-    var fullLayout = gd._fullLayout;
-    var minSize = fullLayout['_' + traceType + 'Text_minsize'];
-    if(minSize) {
-        var shouldHide = fullLayout.uniformtext.mode === 'hide';
+function metniYenidenBoyutlandır(gd, gIz, izTipi) {
+    var tamYerleşim = gd._fullLayout;
+    var minBoyut = tamYerleşim['_' + izTipi + 'Metin_minboyut'];
+    if(minBoyut) {
+        var gizlenmeli = tamYerleşim.uniformtext.mode === 'hide';
 
-        var selector;
-        switch(traceType) {
-            case 'funnelarea' :
-            case 'pie' :
-            case 'sunburst' :
-                selector = 'g.slice';
+        var seçici;
+        switch(izTipi) {
+            case 'huniAlanı' :
+            case 'pasta' :
+            case 'güneşPatlaması' :
+                seçici = 'g.dilim';
                 break;
-            case 'treemap' :
-            case 'icicle' :
-                selector = 'g.slice, g.pathbar';
+            case 'ağaçHaritası' :
+            case 'buzul' :
+                seçici = 'g.dilim, g.yolÇubuğu';
                 break;
             default :
-                selector = 'g.points > g.point';
+                seçici = 'g.noktalar > g.nokta';
         }
 
-        gTrace.selectAll(selector).each(function(d) {
-            var transform = d.transform;
-            if(transform) {
-                transform.scale = (shouldHide && transform.hide) ? 0 : minSize / transform.fontSize;
+        gIz.selectAll(seçici).each(function(d) {
+            var dönüşüm = d.transform;
+            if(dönüşüm) {
+                dönüşüm.ölçek = (gizlenmeli && dönüşüm.gizle) ? 0 : minBoyut / dönüşüm.fontBoyutu;
 
                 var el = d3.select(this).select('text');
-                Lib.setTransormAndDisplay(el, transform);
+                Lib.dönüşümVeGörünürlüğüAyarla(el, dönüşüm);
             }
         });
     }
 }
 
-function recordMinTextSize(
-    traceType, // in
-    transform, // inout
-    fullLayout // inout
+function minMetinBoyutunuKaydet(
+    izTipi, // giriş
+    dönüşüm, // giriş/çıkış
+    tamYerleşim // giriş/çıkış
 ) {
-    if(fullLayout.uniformtext.mode) {
-        var minKey = getMinKey(traceType);
-        var minSize = fullLayout.uniformtext.minsize;
-        var size = transform.scale * transform.fontSize;
+    if(tamYerleşim.uniformtext.mode) {
+        var minAnahtar = minAnahtarıAl(izTipi);
+        var minBoyut = tamYerleşim.uniformtext.minboyut;
+        var boyut = dönüşüm.ölçek * dönüşüm.fontBoyutu;
 
-        transform.hide = size < minSize;
+        dönüşüm.gizle = boyut < minBoyut;
 
-        fullLayout[minKey] = fullLayout[minKey] || Infinity;
-        if(!transform.hide) {
-            fullLayout[minKey] = Math.min(
-                fullLayout[minKey],
-                Math.max(size, minSize)
+        tamYerleşim[minAnahtar] = tamYerleşim[minAnahtar] || Infinity;
+        if(!dönüşüm.gizle) {
+            tamYerleşim[minAnahtar] = Math.min(
+                tamYerleşim[minAnahtar],
+                Math.max(boyut, minBoyut)
             );
         }
     }
 }
 
-function clearMinTextSize(
-    traceType, // in
-    fullLayout // inout
+function minMetinBoyutunuTemizle(
+    izTipi, // giriş
+    tamYerleşim // giriş/çıkış
 ) {
-    var minKey = getMinKey(traceType);
-    fullLayout[minKey] = undefined;
+    var minAnahtar = minAnahtarıAl(izTipi);
+    tamYerleşim[minAnahtar] = undefined;
 }
 
-function getMinKey(traceType) {
-    return '_' + traceType + 'Text_minsize';
+function minAnahtarıAl(izTipi) {
+    return '_' + izTipi + 'Metin_minboyut';
 }
 
 module.exports = {
-    recordMinTextSize: recordMinTextSize,
-    clearMinTextSize: clearMinTextSize,
-    resizeText: resizeText
+    minMetinBoyutunuKaydet: minMetinBoyutunuKaydet,
+    minMetinBoyutunuTemizle: minMetinBoyutunuTemizle,
+    metniYenidenBoyutlandır: metniYenidenBoyutlandır
 };

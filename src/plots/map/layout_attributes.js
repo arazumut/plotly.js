@@ -16,8 +16,8 @@ var fontAttr = fontAttrs({
     noFontLineposition: true,
     noFontTextcase: true,
     description: [
-        'Sets the icon text font (color=map.layer.paint.text-color, size=map.layer.layout.text-size).',
-        'Has an effect only when `type` is set to *symbol*.'
+        'Simge metin yazı tipini ayarlar (renk=map.layer.paint.text-color, boyut=map.layer.layout.text-size).',
+        'Sadece `type` *symbol* olarak ayarlandığında etkili olur.'
     ].join(' ')
 });
 fontAttr.family.dflt = 'Open Sans Regular, Arial Unicode MS Regular';
@@ -32,18 +32,18 @@ var attrs = module.exports = overrideAll({
         values: constants.styleValuesMap,
         dflt: constants.styleValueDflt,
         description: [
-            'Defines the map layers that are rendered by default below the trace layers defined in `data`,',
-            'which are themselves by default rendered below the layers defined in `layout.map.layers`.',
+            'Varsayılan olarak iz katmanlarının altında render edilen harita katmanlarını tanımlar,',
+            'ki bunlar varsayılan olarak `data` içinde tanımlanan katmanların altında render edilir,',
+            've bunlar da varsayılan olarak `layout.map.layers` içinde tanımlanan katmanların altında render edilir.',
             '',
-            'These layers can be defined either explicitly as a Map Style object which can contain multiple',
-            'layer definitions that load data from any public or private Tile Map Service (TMS or XYZ) or Web Map Service (WMS)',
-            'or implicitly by using one of the built-in style objects which use WMSes',
-            'or by using a custom style URL',
+            'Bu katmanlar, birden fazla katman tanımı içerebilen bir Harita Stili nesnesi olarak açıkça tanımlanabilir,',
+            'veya yerleşik stil nesnelerinden biri kullanılarak dolaylı olarak tanımlanabilir,',
+            'veya özel bir stil URL\'si kullanılarak tanımlanabilir.',
             '',
-            'Map Style objects are of the form described in the MapLibre GL JS documentation available at',
-            'https://maplibre.org/maplibre-style-spec/',
+            'Harita Stili nesneleri, MapLibre GL JS belgelerinde açıklanan formdadır,',
+            'https://maplibre.org/maplibre-style-spec/ adresinde mevcuttur.',
             '',
-            'The built-in plotly.js styles objects are:', constants.styleValuesMap.join(', ') + '.'
+            'Yerleşik plotly.js stil nesneleri şunlardır:', constants.styleValuesMap.join(', ') + '.'
         ].join(' ')
     },
 
@@ -51,30 +51,30 @@ var attrs = module.exports = overrideAll({
         lon: {
             valType: 'number',
             dflt: 0,
-            description: 'Sets the longitude of the center of the map (in degrees East).'
+            description: 'Haritanın merkezinin boylamını ayarlar (Doğu derecelerinde).'
         },
         lat: {
             valType: 'number',
             dflt: 0,
-            description: 'Sets the latitude of the center of the map (in degrees North).'
+            description: 'Haritanın merkezinin enlemini ayarlar (Kuzey derecelerinde).'
         }
     },
     zoom: {
         valType: 'number',
         dflt: 1,
-        description: 'Sets the zoom level of the map (map.zoom).'
+        description: 'Haritanın yakınlaştırma seviyesini ayarlar (map.zoom).'
     },
     bearing: {
         valType: 'number',
         dflt: 0,
-        description: 'Sets the bearing angle of the map in degrees counter-clockwise from North (map.bearing).'
+        description: 'Haritanın kuzeyden saat yönünün tersine olan açı derecesini ayarlar (map.bearing).'
     },
     pitch: {
         valType: 'number',
         dflt: 0,
         description: [
-            'Sets the pitch angle of the map',
-            '(in degrees, where *0* means perpendicular to the surface of the map) (map.pitch).'
+            'Haritanın eğim açısını ayarlar',
+            '(derece cinsinden, *0* haritanın yüzeyine dik anlamına gelir) (map.pitch).'
         ].join(' ')
     },
 
@@ -82,29 +82,29 @@ var attrs = module.exports = overrideAll({
         west: {
             valType: 'number',
             description: [
-                'Sets the minimum longitude of the map (in degrees East)',
-                'if `east`, `south` and `north` are declared.'
+                'Haritanın minimum boylamını ayarlar (Doğu derecelerinde)',
+                'eğer `east`, `south` ve `north` belirtilmişse.'
             ].join(' ')
         },
         east: {
             valType: 'number',
             description: [
-                'Sets the maximum longitude of the map (in degrees East)',
-                'if `west`, `south` and `north` are declared.'
+                'Haritanın maksimum boylamını ayarlar (Doğu derecelerinde)',
+                'eğer `west`, `south` ve `north` belirtilmişse.'
             ].join(' ')
         },
         south: {
             valType: 'number',
             description: [
-                'Sets the minimum latitude of the map (in degrees North)',
-                'if `east`, `west` and `north` are declared.'
+                'Haritanın minimum enlemini ayarlar (Kuzey derecelerinde)',
+                'eğer `east`, `west` ve `north` belirtilmişse.'
             ].join(' ')
         },
         north: {
             valType: 'number',
             description: [
-                'Sets the maximum latitude of the map (in degrees North)',
-                'if `east`, `west` and `south` are declared.'
+                'Haritanın maksimum enlemini ayarlar (Kuzey derecelerinde)',
+                'eğer `east`, `west` ve `south` belirtilmişse.'
             ].join(' ')
         }
     },
@@ -114,7 +114,7 @@ var attrs = module.exports = overrideAll({
             valType: 'boolean',
             dflt: true,
             description: [
-                'Determines whether this layer is displayed'
+                'Bu katmanın görüntülenip görüntülenmeyeceğini belirler'
             ].join(' ')
         },
         sourcetype: {
@@ -122,20 +122,20 @@ var attrs = module.exports = overrideAll({
             values: ['geojson', 'vector', 'raster', 'image'],
             dflt: 'geojson',
             description: [
-                'Sets the source type for this layer,',
-                'that is the type of the layer data.'
+                'Bu katman için kaynak türünü ayarlar,',
+                'yani katman verisinin türünü.'
             ].join(' ')
         },
 
         source: {
             valType: 'any',
             description: [
-                'Sets the source data for this layer (map.layer.source).',
-                'When `sourcetype` is set to *geojson*, `source` can be a URL to a GeoJSON',
-                'or a GeoJSON object.',
-                'When `sourcetype` is set to *vector* or *raster*, `source` can be a URL or',
-                'an array of tile URLs.',
-                'When `sourcetype` is set to *image*, `source` can be a URL to an image.'
+                'Bu katman için kaynak verisini ayarlar (map.layer.source).',
+                '`sourcetype` *geojson* olarak ayarlandığında, `source` bir GeoJSON URL\'si',
+                'veya bir GeoJSON nesnesi olabilir.',
+                '`sourcetype` *vector* veya *raster* olarak ayarlandığında, `source` bir URL veya',
+                'bir dizi döşeme URL\'si olabilir.',
+                '`sourcetype` *image* olarak ayarlandığında, `source` bir resim URL\'si olabilir.'
             ].join(' ')
         },
 
@@ -143,15 +143,15 @@ var attrs = module.exports = overrideAll({
             valType: 'string',
             dflt: '',
             description: [
-                'Specifies the layer to use from a vector tile source (map.layer.source-layer).',
-                'Required for *vector* source type that supports multiple layers.'
+                'Bir vektör döşeme kaynağından kullanılacak katmanı belirtir (map.layer.source-layer).',
+                'Birden fazla katmanı destekleyen *vector* kaynak türü için gereklidir.'
             ].join(' ')
         },
 
         sourceattribution: {
             valType: 'string',
             description: [
-                'Sets the attribution for this source.'
+                'Bu kaynak için atıf ayarlar.'
             ].join(' ')
         },
 
@@ -160,47 +160,46 @@ var attrs = module.exports = overrideAll({
             values: ['circle', 'line', 'fill', 'symbol', 'raster'],
             dflt: 'circle',
             description: [
-                'Sets the layer type,',
-                'that is the how the layer data set in `source` will be rendered',
-                'With `sourcetype` set to *geojson*, the following values are allowed:',
-                '*circle*, *line*, *fill* and *symbol*.',
-                'but note that *line* and *fill* are not compatible with Point',
-                'GeoJSON geometries.',
-                'With `sourcetype` set to *vector*, the following values are allowed:',
-                ' *circle*, *line*, *fill* and *symbol*.',
-                'With `sourcetype` set to *raster* or `*image*`, only the *raster* value is allowed.'
+                'Katman türünü ayarlar,',
+                'yani `source` içinde ayarlanan katman verisinin nasıl render edileceğini belirler.',
+                '`sourcetype` *geojson* olarak ayarlandığında, aşağıdaki değerler izin verilir:',
+                '*circle*, *line*, *fill* ve *symbol*.',
+                'ancak *line* ve *fill* Nokta',
+                'GeoJSON geometrileri ile uyumlu değildir.',
+                '`sourcetype` *vector* olarak ayarlandığında, aşağıdaki değerler izin verilir:',
+                ' *circle*, *line*, *fill* ve *symbol*.',
+                '`sourcetype` *raster* veya *image* olarak ayarlandığında, sadece *raster* değeri izin verilir.'
             ].join(' ')
         },
 
         coordinates: {
             valType: 'any',
             description: [
-                'Sets the coordinates array contains [longitude, latitude] pairs',
-                'for the image corners listed in clockwise order:',
-                'top left, top right, bottom right, bottom left.',
-                'Only has an effect for *image* `sourcetype`.'
+                'Koordinatlar dizisini ayarlar, [boylam, enlem] çiftlerini içerir',
+                'resim köşeleri için saat yönünde sıralanmış: ',
+                'sol üst, sağ üst, sağ alt, sol alt.',
+                'Sadece *image* `sourcetype` için etkili olur.'
             ].join(' ')
         },
 
-        // attributes shared between all types
+        // tüm türler arasında paylaşılan öznitelikler
         below: {
             valType: 'string',
             description: [
-                'Determines if the layer will be inserted',
-                'before the layer with the specified ID.',
-                'If omitted or set to \'\',',
-                'the layer will be inserted above every existing layer.'
+                'Katmanın belirtilen ID\'ye sahip katmanın önüne yerleştirilip yerleştirilmeyeceğini belirler.',
+                'Atlanırsa veya boş bırakılırsa,',
+                'katman mevcut tüm katmanların üzerine yerleştirilir.'
             ].join(' ')
         },
         color: {
             valType: 'color',
             dflt: defaultLine,
             description: [
-                'Sets the primary layer color.',
-                'If `type` is *circle*, color corresponds to the circle color (map.layer.paint.circle-color)',
-                'If `type` is *line*, color corresponds to the line color (map.layer.paint.line-color)',
-                'If `type` is *fill*, color corresponds to the fill color (map.layer.paint.fill-color)',
-                'If `type` is *symbol*, color corresponds to the icon color (map.layer.paint.icon-color)'
+                'Birincil katman rengini ayarlar.',
+                '`type` *circle* ise, renk daire rengini ifade eder (map.layer.paint.circle-color)',
+                '`type` *line* ise, renk çizgi rengini ifade eder (map.layer.paint.line-color)',
+                '`type` *fill* ise, renk dolgu rengini ifade eder (map.layer.paint.fill-color)',
+                '`type` *symbol* ise, renk simge rengini ifade eder (map.layer.paint.icon-color)'
             ].join(' ')
         },
         opacity: {
@@ -209,11 +208,11 @@ var attrs = module.exports = overrideAll({
             max: 1,
             dflt: 1,
             description: [
-                'Sets the opacity of the layer.',
-                'If `type` is *circle*, opacity corresponds to the circle opacity (map.layer.paint.circle-opacity)',
-                'If `type` is *line*, opacity corresponds to the line opacity (map.layer.paint.line-opacity)',
-                'If `type` is *fill*, opacity corresponds to the fill opacity (map.layer.paint.fill-opacity)',
-                'If `type` is *symbol*, opacity corresponds to the icon/text opacity (map.layer.paint.text-opacity)'
+                'Katmanın opaklığını ayarlar.',
+                '`type` *circle* ise, opaklık daire opaklığını ifade eder (map.layer.paint.circle-opacity)',
+                '`type` *line* ise, opaklık çizgi opaklığını ifade eder (map.layer.paint.line-opacity)',
+                '`type` *fill* ise, opaklık dolgu opaklığını ifade eder (map.layer.paint.fill-opacity)',
+                '`type` *symbol* ise, opaklık simge/metin opaklığını ifade eder (map.layer.paint.text-opacity)'
             ].join(' ')
         },
         minzoom: {
@@ -222,8 +221,8 @@ var attrs = module.exports = overrideAll({
             max: 24,
             dflt: 0,
             description: [
-                'Sets the minimum zoom level (map.layer.minzoom).',
-                'At zoom levels less than the minzoom, the layer will be hidden.',
+                'Minimum yakınlaştırma seviyesini ayarlar (map.layer.minzoom).',
+                'Yakınlaştırma seviyeleri minzoom\'dan daha az olduğunda, katman gizlenecektir.',
             ].join(' ')
         },
         maxzoom: {
@@ -232,19 +231,19 @@ var attrs = module.exports = overrideAll({
             max: 24,
             dflt: 24,
             description: [
-                'Sets the maximum zoom level (map.layer.maxzoom).',
-                'At zoom levels equal to or greater than the maxzoom, the layer will be hidden.'
+                'Maksimum yakınlaştırma seviyesini ayarlar (map.layer.maxzoom).',
+                'Yakınlaştırma seviyeleri maxzoom\'a eşit veya daha büyük olduğunda, katman gizlenecektir.'
             ].join(' ')
         },
 
-        // type-specific style attributes
+        // türüne özgü stil öznitelikleri
         circle: {
             radius: {
                 valType: 'number',
                 dflt: 15,
                 description: [
-                    'Sets the circle radius (map.layer.paint.circle-radius).',
-                    'Has an effect only when `type` is set to *circle*.'
+                    'Daire yarıçapını ayarlar (map.layer.paint.circle-radius).',
+                    'Sadece `type` *circle* olarak ayarlandığında etkili olur.'
                 ].join(' ')
             }
         },
@@ -254,15 +253,15 @@ var attrs = module.exports = overrideAll({
                 valType: 'number',
                 dflt: 2,
                 description: [
-                    'Sets the line width (map.layer.paint.line-width).',
-                    'Has an effect only when `type` is set to *line*.'
+                    'Çizgi genişliğini ayarlar (map.layer.paint.line-width).',
+                    'Sadece `type` *line* olarak ayarlandığında etkili olur.'
                 ].join(' ')
             },
             dash: {
                 valType: 'data_array',
                 description: [
-                    'Sets the length of dashes and gaps (map.layer.paint.line-dasharray).',
-                    'Has an effect only when `type` is set to *line*.'
+                    'Çizgi ve boşlukların uzunluğunu ayarlar (map.layer.paint.line-dasharray).',
+                    'Sadece `type` *line* olarak ayarlandığında etkili olur.'
                 ].join(' ')
             }
         },
@@ -272,8 +271,8 @@ var attrs = module.exports = overrideAll({
                 valType: 'color',
                 dflt: defaultLine,
                 description: [
-                    'Sets the fill outline color (map.layer.paint.fill-outline-color).',
-                    'Has an effect only when `type` is set to *fill*.'
+                    'Dolgu dış çizgi rengini ayarlar (map.layer.paint.fill-outline-color).',
+                    'Sadece `type` *fill* olarak ayarlandığında etkili olur.'
                 ].join(' ')
             }
         },
@@ -283,23 +282,23 @@ var attrs = module.exports = overrideAll({
                 valType: 'string',
                 dflt: 'marker',
                 description: [
-                    'Sets the symbol icon image (map.layer.layout.icon-image).',
-                    'Full list: https://www.map.com/maki-icons/'
+                    'Simge simge resmini ayarlar (map.layer.layout.icon-image).',
+                    'Tam liste: https://www.map.com/maki-icons/'
                 ].join(' ')
             },
             iconsize: {
                 valType: 'number',
                 dflt: 10,
                 description: [
-                    'Sets the symbol icon size (map.layer.layout.icon-size).',
-                    'Has an effect only when `type` is set to *symbol*.'
+                    'Simge simge boyutunu ayarlar (map.layer.layout.icon-size).',
+                    'Sadece `type` *symbol* olarak ayarlandığında etkili olur.'
                 ].join(' ')
             },
             text: {
                 valType: 'string',
                 dflt: '',
                 description: [
-                    'Sets the symbol text (map.layer.layout.text-field).'
+                    'Simge metnini ayarlar (map.layer.layout.text-field).'
                 ].join(' ')
             },
             placement: {
@@ -307,10 +306,10 @@ var attrs = module.exports = overrideAll({
                 values: ['point', 'line', 'line-center'],
                 dflt: 'point',
                 description: [
-                    'Sets the symbol and/or text placement (map.layer.layout.symbol-placement).',
-                    'If `placement` is *point*, the label is placed where the geometry is located',
-                    'If `placement` is *line*, the label is placed along the line of the geometry',
-                    'If `placement` is *line-center*, the label is placed on the center of the geometry',
+                    'Simge ve/veya metin yerleşimini ayarlar (map.layer.layout.symbol-placement).',
+                    '`placement` *point* ise, etiket geometrinin bulunduğu yere yerleştirilir',
+                    '`placement` *line* ise, etiket geometrinin hattı boyunca yerleştirilir',
+                    '`placement` *line-center* ise, etiket geometrinin merkezine yerleştirilir',
                 ].join(' ')
             },
             textfont: fontAttr,
@@ -319,12 +318,12 @@ var attrs = module.exports = overrideAll({
     })
 }, 'plot', 'from-root');
 
-// set uirevision outside of overrideAll so it can be `editType: 'none'`
+// uirevision'ı overrideAll dışında ayarlayın, böylece `editType: 'none'` olabilir
 attrs.uirevision = {
     valType: 'any',
     editType: 'none',
     description: [
-        'Controls persistence of user-driven changes in the view:',
-        '`center`, `zoom`, `bearing`, `pitch`. Defaults to `layout.uirevision`.'
+        'Görünümde kullanıcı tarafından yapılan değişikliklerin kalıcılığını kontrol eder:',
+        '`center`, `zoom`, `bearing`, `pitch`. Varsayılan olarak `layout.uirevision`.'
     ].join(' ')
 };

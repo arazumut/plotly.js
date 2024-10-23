@@ -3,8 +3,7 @@
 var isArrayOrTypedArray = require('../../lib').isArrayOrTypedArray;
 
 /*
- * Construct a 2D array of cheater values given a, b, and a slope.
- * If
+ * a, b ve bir eğim (slope) verilerek hileli (cheater) değerlerin 2D bir dizisini oluşturur.
  */
 module.exports = function(a, b, cheaterslope) {
     var i, j, ascal, bscal, aval, bval;
@@ -15,10 +14,9 @@ module.exports = function(a, b, cheaterslope) {
     var adata = isArrayOrTypedArray(a) ? a : null;
     var bdata = isArrayOrTypedArray(b) ? b : null;
 
-    // If we're using data, scale it so that for data that's just barely
-    // not evenly spaced, the switch to value-based indexing is continuous.
-    // This means evenly spaced data should look the same whether value
-    // or index cheatertype.
+    // Eğer veri kullanıyorsak, veriyi ölçeklendiririz ki
+    // veriler tam olarak eşit aralıklı olmasa bile, değer tabanlı indekslemeye geçiş sürekli olsun.
+    // Bu, eşit aralıklı verilerin değer veya indeks hile türü olup olmadığına bakılmaksızın aynı görünmesini sağlar.
     if(adata) {
         ascal = (adata.length - 1) / (adata[adata.length - 1] - adata[0]) / (na - 1);
     }
@@ -42,10 +40,9 @@ module.exports = function(a, b, cheaterslope) {
         }
     }
 
-    // Normalize cheater values to the 0-1 range. This comes into play when you have
-    // multiple cheater plots. After careful consideration, it seems better if cheater
-    // values are normalized to a consistent range. Otherwise one cheater affects the
-    // layout of other cheaters on the same axis.
+    // Hileli değerleri 0-1 aralığına normalize et. Bu, birden fazla hileli grafik olduğunda devreye girer.
+    // Dikkatli bir değerlendirmeden sonra, hileli değerlerin tutarlı bir aralığa normalize edilmesinin daha iyi olduğu görülmüştür.
+    // Aksi takdirde, bir hileli grafik aynı eksendeki diğer hileli grafiklerin düzenini etkiler.
     var slope = 1.0 / (xmax - xmin);
     var offset = -xmin * slope;
     for(j = 0; j < nb; j++) {

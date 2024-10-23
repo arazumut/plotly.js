@@ -1,6 +1,6 @@
 'use strict';
 
-// Simple helper functions
-// none of these need any external deps
+// Basit yardımcı fonksiyonlar
+// bunların hiçbiri harici bağımlılıklara ihtiyaç duymaz
 
-module.exports = function noop() {};
+module.exports = function boşFonksiyon() {};

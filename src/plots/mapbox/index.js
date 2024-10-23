@@ -26,9 +26,9 @@ exports.idRoot = MAPBOX;
 exports.idRegex = exports.attrRegex = Lib.counterRegex(MAPBOX);
 
 var deprecationWarning = [
-    'mapbox subplots and traces are deprecated!',
-    'Please consider switching to `map` subplots and traces.',
-    'Learn more at: https://plotly.com/javascript/maplibre-migration/'
+    'mapbox alt grafik ve izleri kullanımdan kaldırıldı!',
+    'Lütfen `map` alt grafik ve izlerine geçmeyi düşünün.',
+    'Daha fazla bilgi için: https://plotly.com/javascript/maplibre-migration/'
 ].join(' ');
 
 exports.attributes = {
@@ -38,10 +38,10 @@ exports.attributes = {
         editType: 'calc',
         description: [
             deprecationWarning,
-            'Sets a reference between this trace\'s data coordinates and',
-            'a mapbox subplot.',
-            'If *mapbox* (the default value), the data refer to `layout.mapbox`.',
-            'If *mapbox2*, the data refer to `layout.mapbox2`, and so on.'
+            'Bu iz verilerinin koordinatları ile',
+            'bir mapbox alt grafiği arasında bir referans ayarlar.',
+            'Eğer *mapbox* (varsayılan değer) ise, veriler `layout.mapbox`a referans verir.',
+            'Eğer *mapbox2* ise, veriler `layout.mapbox2`ye referans verir ve bu şekilde devam eder.'
         ].join(' ')
     }
 };
@@ -130,7 +130,7 @@ exports.toSVG = function(gd) {
 
         var subplotDiv = d3.select(opts._subplot.div);
 
-        // Append logo if visible
+        // Logo görünürse ekle
         var hidden = subplotDiv.select('.mapboxgl-ctrl-logo').node().offsetParent === null;
         if(!hidden) {
             var logo = fullLayout._glimages.append('g');
@@ -162,7 +162,7 @@ exports.toSVG = function(gd) {
                 });
         }
 
-        // Add attributions
+        // Atıfları ekle
         var attributions = subplotDiv
             .select('.mapboxgl-ctrl-attrib').text()
             .replace('Improve this map', '');
@@ -183,7 +183,7 @@ exports.toSVG = function(gd) {
 
         var bBox = Drawing.bBox(attributionText.node());
 
-        // Break into multiple lines twice larger than domain
+        // Alanın iki katı genişliğinde birden fazla satıra böl
         var maxWidth = size.w * (domain.x[1] - domain.x[0]);
         if((bBox.width > maxWidth / 2)) {
             var multilineAttributions = attributions.split('|').join('<br>');
@@ -196,7 +196,7 @@ exports.toSVG = function(gd) {
         }
         attributionText.attr('transform', strTranslate(-3, -bBox.height + 8));
 
-        // Draw white rectangle behind text
+        // Metnin arkasına beyaz dikdörtgen çiz
         attributionGroup
             .insert('rect', '.static-attribution')
             .attr({
@@ -207,7 +207,7 @@ exports.toSVG = function(gd) {
                 fill: 'rgba(255, 255, 255, 0.75)'
             });
 
-        // Scale down if larger than domain
+        // Alanın genişliğinden büyükse ölçekle
         var scaleRatio = 1;
         if((bBox.width + 6) > maxWidth) scaleRatio = maxWidth / (bBox.width + 6);
 
@@ -216,13 +216,13 @@ exports.toSVG = function(gd) {
     }
 };
 
-// N.B. mapbox-gl only allows one accessToken to be set per page:
+// N.B. mapbox-gl sayfa başına sadece bir accessToken ayarlanmasına izin verir:
 // https://github.com/mapbox/mapbox-gl-js/issues/6331
 function findAccessToken(gd, mapboxIds) {
     var fullLayout = gd._fullLayout;
     var context = gd._context;
 
-    // special case for Mapbox Atlas users
+    // Mapbox Atlas kullanıcıları için özel durum
     if(context.mapboxAccessToken === '') return '';
 
     var tokensUseful = [];
@@ -230,8 +230,8 @@ function findAccessToken(gd, mapboxIds) {
     var hasOneSetMapboxStyle = false;
     var wontWork = false;
 
-    // Take the first token we find in a mapbox subplot.
-    // These default to the context value but may be overridden.
+    // İlk bulduğumuz token'ı alalım.
+    // Bu değerler varsayılan olarak context değerine ayarlanır ancak geçersiz kılınabilir.
     for(var i = 0; i < mapboxIds.length; i++) {
         var opts = fullLayout[mapboxIds[i]];
         var token = opts.accesstoken;
@@ -241,7 +241,7 @@ function findAccessToken(gd, mapboxIds) {
                 Lib.pushUnique(tokensUseful, token);
             } else {
                 if(isStyleRequireAccessToken(opts._input.style)) {
-                    Lib.error('Uses Mapbox map style, but did not set an access token.');
+                    Lib.error('Mapbox harita stili kullanıyor, ancak bir erişim token\'ı ayarlamadı.');
                     hasOneSetMapboxStyle = true;
                 }
                 wontWork = true;
@@ -269,8 +269,8 @@ function findAccessToken(gd, mapboxIds) {
     } else {
         if(tokensListed.length) {
             Lib.log([
-                'Listed mapbox access token(s)', tokensListed.join(','),
-                'but did not use a Mapbox map style, ignoring token(s).'
+                'Listelenen mapbox erişim token(ları)', tokensListed.join(','),
+                'ancak bir Mapbox harita stili kullanmadı, token(lar) göz ardı ediliyor.'
             ].join(' '));
         }
         return '';

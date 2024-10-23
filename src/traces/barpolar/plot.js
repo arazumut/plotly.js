@@ -7,74 +7,74 @@ var Lib = require('../../lib');
 var Drawing = require('../../components/drawing');
 var helpers = require('../../plots/polar/helpers');
 
-module.exports = function plot(gd, subplot, cdbar) {
-    var isStatic = gd._context.staticPlot;
-    var xa = subplot.xaxis;
-    var ya = subplot.yaxis;
-    var radialAxis = subplot.radialAxis;
-    var angularAxis = subplot.angularAxis;
-    var pathFn = makePathFn(subplot);
-    var barLayer = subplot.layers.frontplot.select('g.barlayer');
+module.exports = function çiz(gd, altGrafik, cdbar) {
+    var statikMi = gd._context.staticPlot;
+    var xa = altGrafik.xaxis;
+    var ya = altGrafik.yaxis;
+    var radyalEksen = altGrafik.radialAxis;
+    var açısalEksen = altGrafik.angularAxis;
+    var yolFn = yolFonksiyonuYap(altGrafik);
+    var barKatmanı = altGrafik.layers.frontplot.select('g.barlayer');
 
-    Lib.makeTraceGroups(barLayer, cdbar, 'trace bars').each(function() {
-        var plotGroup = d3.select(this);
-        var pointGroup = Lib.ensureSingle(plotGroup, 'g', 'points');
-        var bars = pointGroup.selectAll('g.point').data(Lib.identity);
+    Lib.makeTraceGroups(barKatmanı, cdbar, 'iz çubukları').each(function() {
+        var grafikGrubu = d3.select(this);
+        var noktaGrubu = Lib.ensureSingle(grafikGrubu, 'g', 'points');
+        var çubuklar = noktaGrubu.selectAll('g.point').data(Lib.identity);
 
-        bars.enter().append('g')
-            .style('vector-effect', isStatic ? 'none' : 'non-scaling-stroke')
+        çubuklar.enter().append('g')
+            .style('vector-effect', statikMi ? 'none' : 'non-scaling-stroke')
             .style('stroke-miterlimit', 2)
             .classed('point', true);
 
-        bars.exit().remove();
+        çubuklar.exit().remove();
 
-        bars.each(function(di) {
-            var bar = d3.select(this);
+        çubuklar.each(function(di) {
+            var çubuk = d3.select(this);
 
-            var rp0 = di.rp0 = radialAxis.c2p(di.s0);
-            var rp1 = di.rp1 = radialAxis.c2p(di.s1);
-            var thetag0 = di.thetag0 = angularAxis.c2g(di.p0);
-            var thetag1 = di.thetag1 = angularAxis.c2g(di.p1);
+            var rp0 = di.rp0 = radyalEksen.c2p(di.s0);
+            var rp1 = di.rp1 = radyalEksen.c2p(di.s1);
+            var thetag0 = di.thetag0 = açısalEksen.c2g(di.p0);
+            var thetag1 = di.thetag1 = açısalEksen.c2g(di.p1);
 
-            var dPath;
+            var yolD;
 
             if(!isNumeric(rp0) || !isNumeric(rp1) ||
                 !isNumeric(thetag0) || !isNumeric(thetag1) ||
                 rp0 === rp1 || thetag0 === thetag1
             ) {
-                // do not remove blank bars, to keep data-to-node
-                // mapping intact during radial drag, that we
-                // can skip calling _module.style during interactions
-                dPath = 'M0,0Z';
+                // Boş çubukları kaldırmayın, veri-düğüm eşlemesini
+                // radyal sürükleme sırasında sağlam tutmak için
+                // etkileşimler sırasında _module.style çağırmayı atlayabiliriz
+                yolD = 'M0,0Z';
             } else {
-                // this 'center' pt is used for selections and hover labels
-                var rg1 = radialAxis.c2g(di.s1);
-                var thetagMid = (thetag0 + thetag1) / 2;
+                // Bu 'merkez' noktası seçimler ve hover etiketleri için kullanılır
+                var rg1 = radyalEksen.c2g(di.s1);
+                var thetagOrta = (thetag0 + thetag1) / 2;
                 di.ct = [
-                    xa.c2p(rg1 * Math.cos(thetagMid)),
-                    ya.c2p(rg1 * Math.sin(thetagMid))
+                    xa.c2p(rg1 * Math.cos(thetagOrta)),
+                    ya.c2p(rg1 * Math.sin(thetagOrta))
                 ];
 
-                dPath = pathFn(rp0, rp1, thetag0, thetag1);
+                yolD = yolFn(rp0, rp1, thetag0, thetag1);
             }
 
-            Lib.ensureSingle(bar, 'path').attr('d', dPath);
+            Lib.ensureSingle(çubuk, 'path').attr('d', yolD);
         });
 
-        // clip plotGroup, when trace layer isn't clipped
+        // grafikGrubu'nu kırp, iz katmanı kırpılmadığında
         Drawing.setClipUrl(
-            plotGroup,
-            subplot._hasClipOnAxisFalse ? subplot.clipIds.forTraces : null,
+            grafikGrubu,
+            altGrafik._hasClipOnAxisFalse ? altGrafik.clipIds.forTraces : null,
             gd
         );
     });
 };
 
-function makePathFn(subplot) {
-    var cxx = subplot.cxx;
-    var cyy = subplot.cyy;
+function yolFonksiyonuYap(altGrafik) {
+    var cxx = altGrafik.cxx;
+    var cyy = altGrafik.cyy;
 
-    if(subplot.vangles) {
+    if(altGrafik.vangles) {
         return function(r0, r1, _a0, _a1) {
             var a0, a1;
 
@@ -86,10 +86,10 @@ function makePathFn(subplot) {
                 a1 = _a0;
             }
 
-            var va0 = helpers.findEnclosingVertexAngles(a0, subplot.vangles)[0];
-            var va1 = helpers.findEnclosingVertexAngles(a1, subplot.vangles)[1];
-            var vaBar = [va0, (a0 + a1) / 2, va1];
-            return helpers.pathPolygonAnnulus(r0, r1, a0, a1, vaBar, cxx, cyy);
+            var va0 = helpers.findEnclosingVertexAngles(a0, altGrafik.vangles)[0];
+            var va1 = helpers.findEnclosingVertexAngles(a1, altGrafik.vangles)[1];
+            var vaÇubuk = [va0, (a0 + a1) / 2, va1];
+            return helpers.pathPolygonAnnulus(r0, r1, a0, a1, vaÇubuk, cxx, cyy);
         };
     }
 

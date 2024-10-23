@@ -2,14 +2,14 @@
 
 var Lib = require('../../lib');
 
-// look for either subplot or xaxis and yaxis attributes
-// does not handle splom case
+// Alt grafik veya x ve y eksenlerini arar
+// splom durumunu ele almaz
 exports.getSubplot = function(trace) {
     return trace.subplot || (trace.xaxis + trace.yaxis) || trace.geo;
 };
 
-// is trace in given list of subplots?
-// does handle splom case
+// Verilen alt grafik listesinde iz var mı?
+// splom durumunu ele alır
 exports.isTraceInSubplots = function(trace, subplots) {
     if(trace.type === 'splom') {
         var xaxes = trace.xaxes || [];
@@ -27,7 +27,7 @@ exports.isTraceInSubplots = function(trace, subplots) {
     return subplots.indexOf(exports.getSubplot(trace)) !== -1;
 };
 
-// convenience functions for mapping all relevant axes
+// Tüm ilgili eksenleri eşlemek için kolaylık fonksiyonları
 exports.flat = function(subplots, v) {
     var out = new Array(subplots.length);
     for(var i = 0; i < subplots.length; i++) {
@@ -50,16 +50,13 @@ exports.getDistanceFunction = function(mode, dx, dy, dxy) {
 };
 
 exports.getClosest = function(cd, distfn, pointData) {
-    // do we already have a point number? (array mode only)
+    // Zaten bir nokta numaramız var mı? (dizi modu sadece)
     if(pointData.index !== false) {
         if(pointData.index >= 0 && pointData.index < cd.length) {
             pointData.distance = 0;
         } else pointData.index = false;
     } else {
-        // apply the distance function to each data point
-        // this is the longest loop... if this bogs down, we may need
-        // to create pre-sorted data (by x or y), not sure how to
-        // do this for 'closest'
+        // Mesafe fonksiyonunu her veri noktasına uygula
         for(var i = 0; i < cd.length; i++) {
             var newDistance = distfn(cd[i]);
             if(newDistance <= pointData.distance) {
@@ -72,12 +69,12 @@ exports.getClosest = function(cd, distfn, pointData) {
 };
 
 /*
- * pseudo-distance function for hover effects on areas: inside the region
- * distance is finite (`passVal`), outside it's Infinity.
+ * Alanlar üzerindeki hover efektleri için pseudo-mesafe fonksiyonu: bölge içinde
+ * mesafe sonludur (`passVal`), dışında sonsuzdur.
  *
- * @param {number} v0: signed difference between the current position and the left edge
- * @param {number} v1: signed difference between the current position and the right edge
- * @param {number} passVal: the value to return on success
+ * @param {number} v0: mevcut pozisyon ile sol kenar arasındaki imzalı fark
+ * @param {number} v1: mevcut pozisyon ile sağ kenar arasındaki imzalı fark
+ * @param {number} passVal: başarı durumunda döndürülecek değer
  */
 exports.inbox = function(v0, v1, passVal) {
     return (v0 * v1 < 0 || v0 === 0) ? passVal : Infinity;
@@ -91,15 +88,15 @@ exports.quadrature = function(dx, dy) {
     };
 };
 
-/** Fill event data point object for hover and selection.
- *  Invokes _module.eventData if present.
+/** Hover ve seçim için olay veri noktası nesnesini doldurur.
+ *  _module.eventData varsa çağırır.
  *
- * N.B. note that point 'index' corresponds to input data array index
- *  whereas 'number' is its post-transform version.
+ * Not: 'index' girdisi veri dizisi indeksine karşılık gelir
+ *  oysa 'number' onun dönüşüm sonrası versiyonudur.
  *
- * If the hovered/selected pt corresponds to an multiple input points
- * (e.g. for histogram and transformed traces), 'pointNumbers` and 'pointIndices'
- * are include in the event data.
+ * Hovered/seçilen nokta birden fazla giriş noktasına karşılık geliyorsa
+ * (örneğin histogram ve dönüştürülmüş izler için), 'pointNumbers` ve 'pointIndices'
+ * olay verilerine dahil edilir.
  *
  * @param {object} pt
  * @param {object} trace
@@ -107,7 +104,7 @@ exports.quadrature = function(dx, dy) {
  * @return {object}
  */
 exports.makeEventData = function(pt, trace, cd) {
-    // hover uses 'index', select uses 'pointNumber'
+    // hover 'index' kullanır, seçim 'pointNumber' kullanır
     var pointNumber = 'index' in pt ? pt.index : pt.pointNumber;
 
     var out = {
@@ -148,12 +145,12 @@ exports.makeEventData = function(pt, trace, cd) {
     return out;
 };
 
-/** Appends values inside array attributes corresponding to given point number
+/** Verilen nokta numarasına karşılık gelen dizi öznitelikleri içindeki değerleri ekler
  *
- * @param {object} pointData : point data object (gets mutated here)
- * @param {object} trace : full trace object
- * @param {number|Array(number)} pointNumber : point number. May be a length-2 array
- *     [row, col] to dig into 2D arrays
+ * @param {object} pointData : nokta veri nesnesi (burada değiştirilir)
+ * @param {object} trace : tam iz nesnesi
+ * @param {number|Array(number)} pointNumber : nokta numarası. 2D dizilere girmek için
+ *     [satır, sütun] uzunluğunda bir dizi olabilir
  */
 exports.appendArrayPointValue = function(pointData, trace, pointNumber) {
     var arrayAttrs = trace._arrayAttrs;
@@ -176,14 +173,14 @@ exports.appendArrayPointValue = function(pointData, trace, pointNumber) {
 };
 
 /**
- * Appends values inside array attributes corresponding to given point number array
- * For use when pointData references a plot entity that arose (or potentially arose)
- * from multiple points in the input data
+ * Verilen nokta numarası dizisine karşılık gelen dizi öznitelikleri içindeki değerleri ekler
+ * Nokta verileri birden fazla giriş noktasından kaynaklanan (veya potansiyel olarak kaynaklanan)
+ * bir çizim varlığını referans aldığında kullanılır
  *
- * @param {object} pointData : point data object (gets mutated here)
- * @param {object} trace : full trace object
- * @param {Array(number)|Array(Array(number))} pointNumbers : Array of point numbers.
- *     Each entry in the array may itself be a length-2 array [row, col] to dig into 2D arrays
+ * @param {object} pointData : nokta veri nesnesi (burada değiştirilir)
+ * @param {object} trace : tam iz nesnesi
+ * @param {Array(number)|Array(Array(number))} pointNumbers : Nokta numaraları dizisi.
+ *     Dizideki her giriş, 2D dizilere girmek için [satır, sütun] uzunluğunda bir dizi olabilir
  */
 exports.appendArrayMultiPointValues = function(pointData, trace, pointNumbers) {
     var arrayAttrs = trace._arrayAttrs;

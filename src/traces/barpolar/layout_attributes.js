@@ -7,11 +7,11 @@ module.exports = {
         dflt: 'stack',
         editType: 'calc',
         description: [
-            'Determines how bars at the same location coordinate',
-            'are displayed on the graph.',
-            'With *stack*, the bars are stacked on top of one another',
-            'With *overlay*, the bars are plotted over one another,',
-            'you might need to reduce *opacity* to see multiple bars.'
+            'Aynı konum koordinatındaki çubukların',
+            'grafikte nasıl görüntüleneceğini belirler.',
+            '*stack* ile çubuklar üst üste yığılır.',
+            '*overlay* ile çubuklar üst üste çizilir,',
+            'birden fazla çubuğu görmek için *opacity* değerini azaltmanız gerekebilir.'
         ].join(' ')
     },
     bargap: {
@@ -21,10 +21,10 @@ module.exports = {
         max: 1,
         editType: 'calc',
         description: [
-            'Sets the gap between bars of',
-            'adjacent location coordinates.',
-            'Values are unitless, they represent fractions of the minimum difference',
-            'in bar positions in the data.'
+            'Bitişik konum koordinatlarındaki çubuklar arasındaki',
+            'boşluğu ayarlar.',
+            'Değerler birimsizdir, veri içindeki çubuk pozisyonlarındaki',
+            'minimum farkın kesirlerini temsil eder.'
         ].join(' ')
     }
 };

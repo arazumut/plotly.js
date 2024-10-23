@@ -3,11 +3,11 @@
 var Lib = require('../../lib');
 
 /**
- * Convert plotly.js 'textposition' to mapbox-gl 'anchor' and 'offset'
- * (with the help of the icon size).
+ * plotly.js 'textposition' değerini mapbox-gl 'anchor' ve 'offset' değerlerine dönüştürür
+ * (ikon boyutu yardımıyla).
  *
- * @param {string} textpostion : plotly.js textposition value
- * @param {number} iconSize : plotly.js icon size (e.g. marker.size for traces)
+ * @param {string} textposition : plotly.js textposition değeri
+ * @param {number} iconSize : plotly.js ikon boyutu (örneğin, izler için marker.size)
  *
  * @return {object}
  *      - anchor
@@ -18,7 +18,7 @@ module.exports = function convertTextOpts(textposition, iconSize) {
     var vPos = parts[0];
     var hPos = parts[1];
 
-    // ballpack values
+    // yaklaşık değerler
     var factor = Lib.isArrayOrTypedArray(iconSize) ? Lib.mean(iconSize) : iconSize;
     var xInc = 0.5 + (factor / 100);
     var yInc = 1.5 + (factor / 100);
@@ -48,7 +48,7 @@ module.exports = function convertTextOpts(textposition, iconSize) {
             break;
     }
 
-    // Mapbox text-anchor must be one of:
+    // Mapbox text-anchor şu değerlerden biri olmalıdır:
     //  center, left, right, top, bottom,
     //  top-left, top-right, bottom-left, bottom-right
 

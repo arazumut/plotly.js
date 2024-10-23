@@ -1,44 +1,44 @@
 'use strict';
 
-var Registry = require('../registry');
+var Kayıt = require('../registry');
 
 /**
- * localize: translate a string for the current locale
+ * yerelleştir: geçerli yerel ayar için bir dizeyi çevir
  *
- * @param {object} gd: the graphDiv for context
- *  gd._context.locale determines the language (& optional region/country)
- *  the dictionary for each locale may either be supplied in
- *  gd._context.locales or globally via Plotly.register
- * @param {string} s: the string to translate
+ * @param {object} gd: bağlam için graphDiv
+ *  gd._context.locale dili (& isteğe bağlı bölge/ülke) belirler
+ *  her yerel ayar için sözlük ya
+ *  gd._context.locales içinde ya da global olarak Plotly.register aracılığıyla sağlanabilir
+ * @param {string} s: çevrilecek dize
  */
-module.exports = function localize(gd, s) {
-    var locale = gd._context.locale;
+module.exports = function yerelleştir(gd, s) {
+    var yerelAyar = gd._context.locale;
 
     /*
-     * Priority of lookup:
-     *     contextDicts[locale],
-     *     registeredDicts[locale],
-     *     contextDicts[baseLocale], (if baseLocale is distinct)
-     *     registeredDicts[baseLocale]
-     * Return the first translation we find.
-     * This way if you have a regionalization you are allowed to specify
-     * only what's different from the base locale, everything else will
-     * fall back on the base.
+     * Arama önceliği:
+     *     contextDicts[yerelAyar],
+     *     registeredDicts[yerelAyar],
+     *     contextDicts[temelYerelAyar], (eğer temelYerelAyar farklıysa)
+     *     registeredDicts[temelYerelAyar]
+     * Bulduğumuz ilk çeviriyi döndür.
+     * Bu şekilde, bir bölgeselleştirme yaparsanız, yalnızca
+     * temel yerel ayardan farklı olanı belirtmenize izin verilir, diğer her şey
+     * temel yerel ayara geri döner.
      */
     for(var i = 0; i < 2; i++) {
-        var locales = gd._context.locales;
+        var yerelAyarlar = gd._context.locales;
         for(var j = 0; j < 2; j++) {
-            var dict = (locales[locale] || {}).dictionary;
-            if(dict) {
-                var out = dict[s];
-                if(out) return out;
+            var sözlük = (yerelAyarlar[yerelAyar] || {}).dictionary;
+            if(sözlük) {
+                var çıktı = sözlük[s];
+                if(çıktı) return çıktı;
             }
-            locales = Registry.localeRegistry;
+            yerelAyarlar = Kayıt.localeRegistry;
         }
 
-        var baseLocale = locale.split('-')[0];
-        if(baseLocale === locale) break;
-        locale = baseLocale;
+        var temelYerelAyar = yerelAyar.split('-')[0];
+        if(temelYerelAyar === yerelAyar) break;
+        yerelAyar = temelYerelAyar;
     }
 
     return s;

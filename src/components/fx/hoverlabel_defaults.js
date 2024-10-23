@@ -4,38 +4,38 @@ var Lib = require('../../lib');
 var Color = require('../color');
 var isUnifiedHover = require('./helpers').isUnifiedHover;
 
-module.exports = function handleHoverLabelDefaults(contIn, contOut, coerce, opts) {
-    opts = opts || {};
+module.exports = function handleHoverLabelDefaults(girdi, çıktı, zorla, seçenekler) {
+    seçenekler = seçenekler || {};
 
-    var hasLegend = contOut.legend;
+    var efsaneVar = çıktı.legend;
 
-    function inheritFontAttr(attr) {
-        if(!opts.font[attr]) {
-            opts.font[attr] = hasLegend ? contOut.legend.font[attr] : contOut.font[attr];
+    function yazıTipiÖzelliğiniMirasAl(özellik) {
+        if(!seçenekler.yazıTipi[özellik]) {
+            seçenekler.yazıTipi[özellik] = efsaneVar ? çıktı.legend.yazıTipi[özellik] : çıktı.yazıTipi[özellik];
         }
     }
 
-    // In unified hover, inherit from layout.legend if available or layout
-    if(contOut && isUnifiedHover(contOut.hovermode)) {
-        if(!opts.font) opts.font = {};
-        inheritFontAttr('size');
-        inheritFontAttr('family');
-        inheritFontAttr('color');
-        inheritFontAttr('weight');
-        inheritFontAttr('style');
-        inheritFontAttr('variant');
+    // Birleşik hover modunda, layout.legend'den veya layout'tan miras al
+    if(çıktı && isUnifiedHover(çıktı.hovermode)) {
+        if(!seçenekler.yazıTipi) seçenekler.yazıTipi = {};
+        yazıTipiÖzelliğiniMirasAl('boyut');
+        yazıTipiÖzelliğiniMirasAl('aile');
+        yazıTipiÖzelliğiniMirasAl('renk');
+        yazıTipiÖzelliğiniMirasAl('ağırlık');
+        yazıTipiÖzelliğiniMirasAl('stil');
+        yazıTipiÖzelliğiniMirasAl('varyant');
 
-        if(hasLegend) {
-            if(!opts.bgcolor) opts.bgcolor = Color.combine(contOut.legend.bgcolor, contOut.paper_bgcolor);
-            if(!opts.bordercolor) opts.bordercolor = contOut.legend.bordercolor;
+        if(efsaneVar) {
+            if(!seçenekler.arkaPlanRengi) seçenekler.arkaPlanRengi = Color.combine(çıktı.legend.arkaPlanRengi, çıktı.kağıtArkaPlanRengi);
+            if(!seçenekler.kenarRengi) seçenekler.kenarRengi = çıktı.legend.kenarRengi;
         } else {
-            if(!opts.bgcolor) opts.bgcolor = contOut.paper_bgcolor;
+            if(!seçenekler.arkaPlanRengi) seçenekler.arkaPlanRengi = çıktı.kağıtArkaPlanRengi;
         }
     }
 
-    coerce('hoverlabel.bgcolor', opts.bgcolor);
-    coerce('hoverlabel.bordercolor', opts.bordercolor);
-    coerce('hoverlabel.namelength', opts.namelength);
-    Lib.coerceFont(coerce, 'hoverlabel.font', opts.font);
-    coerce('hoverlabel.align', opts.align);
+    zorla('hoverlabel.arkaPlanRengi', seçenekler.arkaPlanRengi);
+    zorla('hoverlabel.kenarRengi', seçenekler.kenarRengi);
+    zorla('hoverlabel.isimUzunluğu', seçenekler.isimUzunluğu);
+    Lib.coerceFont(zorla, 'hoverlabel.yazıTipi', seçenekler.yazıTipi);
+    zorla('hoverlabel.hizalama', seçenekler.hizalama);
 };

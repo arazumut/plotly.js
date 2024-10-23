@@ -1,10 +1,10 @@
 'use strict';
 
-/** Filter out object items with visible !== true
- *  insider array container.
+/** Görünür !== true olan nesne öğelerini
+ *  dizi konteyneri içinde filtrele.
  *
- *  @param {array of objects} container
- *  @return {array of objects} of length <= container
+ *  @param {nesne dizisi} container
+ *  @return {nesne dizisi} uzunluğu <= container
  *
  */
 module.exports = function filterVisible(container) {

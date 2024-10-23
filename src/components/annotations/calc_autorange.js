@@ -1,27 +1,25 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var Axes = require('../../plots/cartesian/axes');
-
 var draw = require('./draw').draw;
 
-
+// calcAutorange fonksiyonunu dışa aktar
 module.exports = function calcAutorange(gd) {
     var fullLayout = gd._fullLayout;
     var annotationList = Lib.filterVisible(fullLayout.annotations);
 
-    if(annotationList.length && gd._fullData.length) {
+    if (annotationList.length && gd._fullData.length) {
         return Lib.syncOrAsync([draw, annAutorange], gd);
     }
 };
 
+// annAutorange fonksiyonu
 function annAutorange(gd) {
     var fullLayout = gd._fullLayout;
 
-    // find the bounding boxes for each of these annotations'
-    // relative to their anchor points
-    // use the arrow and the text bg rectangle,
-    // as the whole anno may include hidden text in its bbox
+    // Her bir anotasyon için sınır kutularını bul
     Lib.filterVisible(fullLayout.annotations).forEach(function(ann) {
         var xa = Axes.getFromId(gd, ann.xref);
         var ya = Axes.getFromId(gd, ann.yref);
@@ -29,52 +27,53 @@ function annAutorange(gd) {
         var yRefType = Axes.getRefType(ann.yref);
 
         ann._extremes = {};
-        if(xRefType === 'range') calcAxisExpansion(ann, xa);
-        if(yRefType === 'range') calcAxisExpansion(ann, ya);
+        if (xRefType === 'range') hesaplaEksenGenislemesi(ann, xa);
+        if (yRefType === 'range') hesaplaEksenGenislemesi(ann, ya);
     });
 }
 
-function calcAxisExpansion(ann, ax) {
+// hesaplaEksenGenislemesi fonksiyonu
+function hesaplaEksenGenislemesi(ann, ax) {
     var axId = ax._id;
-    var letter = axId.charAt(0);
-    var pos = ann[letter];
-    var apos = ann['a' + letter];
-    var ref = ann[letter + 'ref'];
-    var aref = ann['a' + letter + 'ref'];
-    var padplus = ann['_' + letter + 'padplus'];
-    var padminus = ann['_' + letter + 'padminus'];
-    var shift = {x: 1, y: -1}[letter] * ann[letter + 'shift'];
-    var headSize = 3 * ann.arrowsize * ann.arrowwidth || 0;
-    var headPlus = headSize + shift;
-    var headMinus = headSize - shift;
-    var startHeadSize = 3 * ann.startarrowsize * ann.arrowwidth || 0;
-    var startHeadPlus = startHeadSize + shift;
-    var startHeadMinus = startHeadSize - shift;
-    var extremes;
+    var harf = axId.charAt(0);
+    var pos = ann[harf];
+    var apos = ann['a' + harf];
+    var ref = ann[harf + 'ref'];
+    var aref = ann['a' + harf + 'ref'];
+    var padplus = ann['_' + harf + 'padplus'];
+    var padminus = ann['_' + harf + 'padminus'];
+    var kayma = {x: 1, y: -1}[harf] * ann[harf + 'shift'];
+    var okBasiBoyutu = 3 * ann.arrowsize * ann.arrowwidth || 0;
+    var okBasiArtı = okBasiBoyutu + kayma;
+    var okBasiEksi = okBasiBoyutu - kayma;
+    var baslangicOkBasiBoyutu = 3 * ann.startarrowsize * ann.arrowwidth || 0;
+    var baslangicOkBasiArtı = baslangicOkBasiBoyutu + kayma;
+    var baslangicOkBasiEksi = baslangicOkBasiBoyutu - kayma;
+    var sınırlar;
 
-    if(aref === ref) {
-        // expand for the arrowhead (padded by arrowhead)
-        var extremeArrowHead = Axes.findExtremes(ax, [ax.r2c(pos)], {
-            ppadplus: headPlus,
-            ppadminus: headMinus
+    if (aref === ref) {
+        // Ok başı için genişlet (ok başı ile yastıklı)
+        var okBasiSınırları = Axes.findExtremes(ax, [ax.r2c(pos)], {
+            ppadplus: okBasiArtı,
+            ppadminus: okBasiEksi
         });
-        // again for the textbox (padded by textbox)
-        var extremeText = Axes.findExtremes(ax, [ax.r2c(apos)], {
-            ppadplus: Math.max(padplus, startHeadPlus),
-            ppadminus: Math.max(padminus, startHeadMinus)
+        // Metin kutusu için tekrar genişlet (metin kutusu ile yastıklı)
+        var metinSınırları = Axes.findExtremes(ax, [ax.r2c(apos)], {
+            ppadplus: Math.max(padplus, baslangicOkBasiArtı),
+            ppadminus: Math.max(padminus, baslangicOkBasiEksi)
         });
-        extremes = {
-            min: [extremeArrowHead.min[0], extremeText.min[0]],
-            max: [extremeArrowHead.max[0], extremeText.max[0]]
+        sınırlar = {
+            min: [okBasiSınırları.min[0], metinSınırları.min[0]],
+            max: [okBasiSınırları.max[0], metinSınırları.max[0]]
         };
     } else {
-        startHeadPlus = apos ? startHeadPlus + apos : startHeadPlus;
-        startHeadMinus = apos ? startHeadMinus - apos : startHeadMinus;
-        extremes = Axes.findExtremes(ax, [ax.r2c(pos)], {
-            ppadplus: Math.max(padplus, headPlus, startHeadPlus),
-            ppadminus: Math.max(padminus, headMinus, startHeadMinus)
+        baslangicOkBasiArtı = apos ? baslangicOkBasiArtı + apos : baslangicOkBasiArtı;
+        baslangicOkBasiEksi = apos ? baslangicOkBasiEksi - apos : baslangicOkBasiEksi;
+        sınırlar = Axes.findExtremes(ax, [ax.r2c(pos)], {
+            ppadplus: Math.max(padplus, okBasiArtı, baslangicOkBasiArtı),
+            ppadminus: Math.max(padminus, okBasiEksi, baslangicOkBasiEksi)
         });
     }
 
-    ann._extremes[axId] = extremes;
+    ann._extremes[axId] = sınırlar;
 }

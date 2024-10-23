@@ -15,8 +15,8 @@ module.exports = function handleRangeDefaults(containerIn, containerOut, coerce,
         if(!options.noInsiderange && axType !== 'log') {
             insiderange = coerce('insiderange');
 
-            // We may support partial insideranges in future
-            // For now it is out of scope
+            // Gelecekte kısmi insiderange'leri destekleyebiliriz
+            // Şu an için kapsam dışı
             if(insiderange && (
                     insiderange[0] === null ||
                     insiderange[1] === null
@@ -34,7 +34,7 @@ module.exports = function handleRangeDefaults(containerIn, containerOut, coerce,
 
     var shouldAutorange;
 
-    // validate range and set autorange true for invalid partial ranges
+    // Aralığı doğrula ve geçersiz kısmi aralıklar için otomatik aralığı true olarak ayarla
     if(range && (
         (range[0] === null && range[1] === null) ||
         ((range[0] === null || range[1] === null) && (autorange === 'reversed' || autorange === true)) ||

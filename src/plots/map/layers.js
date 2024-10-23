@@ -5,203 +5,196 @@ var sanitizeHTML = require('../../lib/svg_text_utils').sanitizeHTML;
 var convertTextOpts = require('./convert_text_opts');
 var constants = require('./constants');
 
-function MapLayer(subplot, index) {
+function HaritaKatmanı(subplot, index) {
     this.subplot = subplot;
 
     this.uid = subplot.uid + '-' + index;
     this.index = index;
 
-    this.idSource = 'source-' + this.uid;
-    this.idLayer = constants.layoutLayerPrefix + this.uid;
+    this.idKaynak = 'kaynak-' + this.uid;
+    this.idKatman = constants.layoutLayerPrefix + this.uid;
 
-    // some state variable to check if a remove/add step is needed
-    this.sourceType = null;
-    this.source = null;
-    this.layerType = null;
-    this.below = null;
+    // Bir kaldırma/ekleme adımının gerekli olup olmadığını kontrol etmek için bazı durum değişkenleri
+    this.kaynakTipi = null;
+    this.kaynak = null;
+    this.katmanTipi = null;
+    this.altında = null;
 
-    // is layer currently visible
-    this.visible = false;
+    // Katman şu anda görünür mü
+    this.görünür = false;
 }
 
-var proto = MapLayer.prototype;
+var proto = HaritaKatmanı.prototype;
 
-proto.update = function update(opts) {
-    if(!this.visible) {
-        // IMPORTANT: must create source before layer to not cause errors
-        this.updateSource(opts);
-        this.updateLayer(opts);
-    } else if(this.needsNewImage(opts)) {
-        this.updateImage(opts);
-    } else if(this.needsNewSource(opts)) {
-        // IMPORTANT: must delete layer before source to not cause errors
-        this.removeLayer();
-        this.updateSource(opts);
-        this.updateLayer(opts);
-    } else if(this.needsNewLayer(opts)) {
-        this.updateLayer(opts);
+proto.güncelle = function güncelle(opts) {
+    if(!this.görünür) {
+        // ÖNEMLİ: Hatalara neden olmamak için katmandan önce kaynak oluşturulmalıdır
+        this.kaynakGüncelle(opts);
+        this.katmanGüncelle(opts);
+    } else if(this.yeniResimGerekli(opts)) {
+        this.resimGüncelle(opts);
+    } else if(this.yeniKaynakGerekli(opts)) {
+        // ÖNEMLİ: Hatalara neden olmamak için kaynaktan önce katman silinmelidir
+        this.katmanKaldır();
+        this.kaynakGüncelle(opts);
+        this.katmanGüncelle(opts);
+    } else if(this.yeniKatmanGerekli(opts)) {
+        this.katmanGüncelle(opts);
     } else {
-        this.updateStyle(opts);
+        this.stilGüncelle(opts);
     }
 
-    this.visible = isVisible(opts);
+    this.görünür = görünürMü(opts);
 };
 
-proto.needsNewImage = function(opts) {
-    var map = this.subplot.map;
+proto.yeniResimGerekli = function(opts) {
+    var harita = this.subplot.map;
     return (
-        map.getSource(this.idSource) &&
-        this.sourceType === 'image' &&
-        opts.sourcetype === 'image' &&
-        (this.source !== opts.source ||
-            JSON.stringify(this.coordinates) !==
-            JSON.stringify(opts.coordinates))
+        harita.getSource(this.idKaynak) &&
+        this.kaynakTipi === 'image' &&
+        opts.kaynakTipi === 'image' &&
+        (this.kaynak !== opts.kaynak ||
+            JSON.stringify(this.koordinatlar) !==
+            JSON.stringify(opts.koordinatlar))
     );
 };
 
-proto.needsNewSource = function(opts) {
-    // for some reason changing layer to 'fill' or 'symbol'
-    // w/o changing the source throws an exception in map-gl 0.18 ;
-    // stay safe and make new source on type changes
+proto.yeniKaynakGerekli = function(opts) {
     return (
-        this.sourceType !== opts.sourcetype ||
-        JSON.stringify(this.source) !== JSON.stringify(opts.source) ||
-        this.layerType !== opts.type
+        this.kaynakTipi !== opts.kaynakTipi ||
+        JSON.stringify(this.kaynak) !== JSON.stringify(opts.kaynak) ||
+        this.katmanTipi !== opts.tip
     );
 };
 
-proto.needsNewLayer = function(opts) {
+proto.yeniKatmanGerekli = function(opts) {
     return (
-        this.layerType !== opts.type ||
-        this.below !== this.subplot.belowLookup['layout-' + this.index]
+        this.katmanTipi !== opts.tip ||
+        this.altında !== this.subplot.altındaLookup['layout-' + this.index]
     );
 };
 
-proto.lookupBelow = function() {
-    return this.subplot.belowLookup['layout-' + this.index];
+proto.altındaLookup = function() {
+    return this.subplot.altındaLookup['layout-' + this.index];
 };
 
-proto.updateImage = function(opts) {
-    var map = this.subplot.map;
-    map.getSource(this.idSource).updateImage({
-        url: opts.source, coordinates: opts.coordinates
+proto.resimGüncelle = function(opts) {
+    var harita = this.subplot.map;
+    harita.getSource(this.idKaynak).updateImage({
+        url: opts.kaynak, coordinates: opts.koordinatlar
     });
 
-    // Since the `updateImage` control flow doesn't call updateLayer,
-    // We need to take care of moving the image layer to match the location
-    // where updateLayer would have placed it.
-    var _below = this.findFollowingMapLayerId(this.lookupBelow());
-    if(_below !== null) {
-        this.subplot.map.moveLayer(this.idLayer, _below);
+    var _altında = this.sonrakiHaritaKatmanıIdBul(this.altındaLookup());
+    if(_altında !== null) {
+        this.subplot.map.moveLayer(this.idKatman, _altında);
     }
 };
 
-proto.updateSource = function(opts) {
-    var map = this.subplot.map;
+proto.kaynakGüncelle = function(opts) {
+    var harita = this.subplot.map;
 
-    if(map.getSource(this.idSource)) map.removeSource(this.idSource);
+    if(harita.getSource(this.idKaynak)) harita.removeSource(this.idKaynak);
 
-    this.sourceType = opts.sourcetype;
-    this.source = opts.source;
+    this.kaynakTipi = opts.kaynakTipi;
+    this.kaynak = opts.kaynak;
 
-    if(!isVisible(opts)) return;
+    if(!görünürMü(opts)) return;
 
-    var sourceOpts = convertSourceOpts(opts);
+    var kaynakOpts = kaynakOptsDönüştür(opts);
 
-    map.addSource(this.idSource, sourceOpts);
+    harita.addSource(this.idKaynak, kaynakOpts);
 };
 
-proto.findFollowingMapLayerId = function(below) {
-    if(below === 'traces') {
-        var mapLayers = this.subplot.getMapLayers();
+proto.sonrakiHaritaKatmanıIdBul = function(altında) {
+    if(altında === 'izler') {
+        var haritaKatmanları = this.subplot.getMapLayers();
 
-        // find id of first plotly trace layer
-        for(var i = 0; i < mapLayers.length; i++) {
-            var layerId = mapLayers[i].id;
-            if(typeof layerId === 'string' &&
-                layerId.indexOf(constants.traceLayerPrefix) === 0
+        for(var i = 0; i < haritaKatmanları.length; i++) {
+            var katmanId = haritaKatmanları[i].id;
+            if(typeof katmanId === 'string' &&
+                katmanId.indexOf(constants.traceLayerPrefix) === 0
             ) {
-                below = layerId;
+                altında = katmanId;
                 break;
             }
         }
     }
-    return below;
+    return altında;
 };
 
-proto.updateLayer = function(opts) {
+proto.katmanGüncelle = function(opts) {
     var subplot = this.subplot;
-    var convertedOpts = convertOpts(opts);
-    var below = this.lookupBelow();
-    var _below = this.findFollowingMapLayerId(below);
+    var dönüştürülmüşOpts = optsDönüştür(opts);
+    var altında = this.altındaLookup();
+    var _altında = this.sonrakiHaritaKatmanıIdBul(altında);
 
-    this.removeLayer();
+    this.katmanKaldır();
 
-    if(isVisible(opts)) {
+    if(görünürMü(opts)) {
         subplot.addLayer({
-            id: this.idLayer,
-            source: this.idSource,
-            'source-layer': opts.sourcelayer || '',
-            type: opts.type,
+            id: this.idKatman,
+            source: this.idKaynak,
+            'source-layer': opts.kaynakKatmanı || '',
+            type: opts.tip,
             minzoom: opts.minzoom,
             maxzoom: opts.maxzoom,
-            layout: convertedOpts.layout,
-            paint: convertedOpts.paint
-        }, _below);
+            layout: dönüştürülmüşOpts.layout,
+            paint: dönüştürülmüşOpts.paint
+        }, _altında);
     }
 
-    this.layerType = opts.type;
-    this.below = below;
+    this.katmanTipi = opts.tip;
+    this.altında = altında;
 };
 
-proto.updateStyle = function(opts) {
-    if(isVisible(opts)) {
-        var convertedOpts = convertOpts(opts);
-        this.subplot.setOptions(this.idLayer, 'setLayoutProperty', convertedOpts.layout);
-        this.subplot.setOptions(this.idLayer, 'setPaintProperty', convertedOpts.paint);
+proto.stilGüncelle = function(opts) {
+    if(görünürMü(opts)) {
+        var dönüştürülmüşOpts = optsDönüştür(opts);
+        this.subplot.setOptions(this.idKatman, 'setLayoutProperty', dönüştürülmüşOpts.layout);
+        this.subplot.setOptions(this.idKatman, 'setPaintProperty', dönüştürülmüşOpts.paint);
     }
 };
 
-proto.removeLayer = function() {
-    var map = this.subplot.map;
-    if(map.getLayer(this.idLayer)) {
-        map.removeLayer(this.idLayer);
+proto.katmanKaldır = function() {
+    var harita = this.subplot.map;
+    if(harita.getLayer(this.idKatman)) {
+        harita.removeLayer(this.idKatman);
     }
 };
 
 proto.dispose = function() {
-    var map = this.subplot.map;
-    if(map.getLayer(this.idLayer)) map.removeLayer(this.idLayer);
-    if(map.getSource(this.idSource)) map.removeSource(this.idSource);
+    var harita = this.subplot.map;
+    if(harita.getLayer(this.idKatman)) harita.removeLayer(this.idKatman);
+    if(harita.getSource(this.idKaynak)) harita.removeSource(this.idKaynak);
 };
 
-function isVisible(opts) {
-    if(!opts.visible) return false;
+function görünürMü(opts) {
+    if(!opts.görünür) return false;
 
-    var source = opts.source;
+    var kaynak = opts.kaynak;
 
-    if(Array.isArray(source) && source.length > 0) {
-        for(var i = 0; i < source.length; i++) {
-            if(typeof source[i] !== 'string' || source[i].length === 0) {
+    if(Array.isArray(kaynak) && kaynak.length > 0) {
+        for(var i = 0; i < kaynak.length; i++) {
+            if(typeof kaynak[i] !== 'string' || kaynak[i].length === 0) {
                 return false;
             }
         }
         return true;
     }
 
-    return Lib.isPlainObject(source) ||
-        (typeof source === 'string' && source.length > 0);
+    return Lib.isPlainObject(kaynak) ||
+        (typeof kaynak === 'string' && kaynak.length > 0);
 }
 
-function convertOpts(opts) {
+function optsDönüştür(opts) {
     var layout = {};
     var paint = {};
 
-    switch(opts.type) {
+    switch(opts.tip) {
         case 'circle':
             Lib.extendFlat(paint, {
                 'circle-radius': opts.circle.radius,
-                'circle-color': opts.color,
+                'circle-color': opts.renk,
                 'circle-opacity': opts.opacity
             });
             break;
@@ -209,7 +202,7 @@ function convertOpts(opts) {
         case 'line':
             Lib.extendFlat(paint, {
                 'line-width': opts.line.width,
-                'line-color': opts.color,
+                'line-color': opts.renk,
                 'line-opacity': opts.opacity,
                 'line-dasharray': opts.line.dash
             });
@@ -217,11 +210,9 @@ function convertOpts(opts) {
 
         case 'fill':
             Lib.extendFlat(paint, {
-                'fill-color': opts.color,
+                'fill-color': opts.renk,
                 'fill-outline-color': opts.fill.outlinecolor,
                 'fill-opacity': opts.opacity
-
-                // no way to pass specify outline width at the moment
             });
             break;
 
@@ -237,14 +228,11 @@ function convertOpts(opts) {
                 'text-size': symbol.textfont.size,
                 'text-anchor': textOpts.anchor,
                 'text-offset': textOpts.offset,
-                'symbol-placement': symbol.placement,
-
-                // TODO font family
-                // 'text-font': symbol.textfont.family.split(', '),
+                'symbol-placement': symbol.placement
             });
 
             Lib.extendFlat(paint, {
-                'icon-color': opts.color,
+                'icon-color': opts.renk,
                 'text-color': symbol.textfont.color,
                 'text-opacity': opts.opacity
             });
@@ -263,37 +251,37 @@ function convertOpts(opts) {
     };
 }
 
-function convertSourceOpts(opts) {
-    var sourceType = opts.sourcetype;
-    var source = opts.source;
-    var sourceOpts = {type: sourceType};
-    var field;
+function kaynakOptsDönüştür(opts) {
+    var kaynakTipi = opts.kaynakTipi;
+    var kaynak = opts.kaynak;
+    var kaynakOpts = {type: kaynakTipi};
+    var alan;
 
-    if(sourceType === 'geojson') {
-        field = 'data';
-    } else if(sourceType === 'vector') {
-        field = typeof source === 'string' ? 'url' : 'tiles';
-    } else if(sourceType === 'raster') {
-        field = 'tiles';
-        sourceOpts.tileSize = 256;
-    } else if(sourceType === 'image') {
-        field = 'url';
-        sourceOpts.coordinates = opts.coordinates;
+    if(kaynakTipi === 'geojson') {
+        alan = 'data';
+    } else if(kaynakTipi === 'vector') {
+        alan = typeof kaynak === 'string' ? 'url' : 'tiles';
+    } else if(kaynakTipi === 'raster') {
+        alan = 'tiles';
+        kaynakOpts.tileSize = 256;
+    } else if(kaynakTipi === 'image') {
+        alan = 'url';
+        kaynakOpts.coordinates = opts.koordinatlar;
     }
 
-    sourceOpts[field] = source;
+    kaynakOpts[alan] = kaynak;
 
-    if(opts.sourceattribution) {
-        sourceOpts.attribution = sanitizeHTML(opts.sourceattribution);
+    if(opts.kaynakAtıf) {
+        kaynakOpts.attribution = sanitizeHTML(opts.kaynakAtıf);
     }
 
-    return sourceOpts;
+    return kaynakOpts;
 }
 
-module.exports = function createMapLayer(subplot, index, opts) {
-    var mapLayer = new MapLayer(subplot, index);
+module.exports = function haritaKatmanıOluştur(subplot, index, opts) {
+    var haritaKatmanı = new HaritaKatmanı(subplot, index);
 
-    mapLayer.update(opts);
+    haritaKatmanı.güncelle(opts);
 
-    return mapLayer;
+    return haritaKatmanı;
 };

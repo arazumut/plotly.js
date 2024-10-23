@@ -7,36 +7,35 @@ var deg2rad = Lib.deg2rad;
 var rad2deg = Lib.rad2deg;
 
 /**
- * setConvert for polar axes!
+ * Polar eksenler için setConvert!
  *
  * @param {object} ax
- *   axis in question (works for both radial and angular axes)
+ *   Söz konusu eksen (hem radyal hem de açısal eksenler için çalışır)
  * @param {object} polarLayout
- *   full polar layout of the subplot associated with 'ax'
+ *   'ax' ile ilişkili alt grafiğin tam polar düzeni
  * @param {object} fullLayout
- *   full layout
+ *   Tam düzen
  *
- * Here, reuse some of the Cartesian setConvert logic,
- * but we must extend some of it, as both radial and angular axes
- * don't have domains and angular axes don't have _true_ ranges.
+ * Burada, bazı Kartesyen setConvert mantığını yeniden kullanıyoruz,
+ * ancak bazılarını genişletmemiz gerekiyor, çünkü hem radyal hem de açısal eksenlerin
+ * alanları yoktur ve açısal eksenlerin _gerçek_ aralıkları yoktur.
  *
- * Moreover, we introduce two new coordinate systems:
- * - 'g' for geometric coordinates and
- * - 't' for angular ticks
+ * Ayrıca iki yeni koordinat sistemi tanıtıyoruz:
+ * - 'g' geometrik koordinatlar için ve
+ * - 't' açısal işaretler için
  *
- * Radial axis coordinate systems:
- * - d, c and l: same as for cartesian axes
- * - g: like calcdata but translated about `radialaxis.range[0]` & `polar.hole`
+ * Radyal eksen koordinat sistemleri:
+ * - d, c ve l: kartesyen eksenler için olduğu gibi
+ * - g: hesaplanmış veri gibi ama `radialaxis.range[0]` ve `polar.hole` etrafında çevrilmiş
  *
- * Angular axis coordinate systems:
- * - d: data, in whatever form it's provided
- * - c: calcdata, turned into radians (for linear axes)
- *      or category indices (category axes)
- * - t: tick calcdata, just like 'c' but in degrees for linear axes
- * - g: geometric calcdata, radians coordinates that take into account
- *      axis rotation and direction
+ * Açısal eksen koordinat sistemleri:
+ * - d: veri, hangi formda sağlanmış olursa olsun
+ * - c: hesaplanmış veri, radyanlara dönüştürülmüş (doğrusal eksenler için)
+ *      veya kategori indeksleri (kategori eksenleri)
+ * - t: işaret hesaplanmış veri, doğrusal eksenler için derecelerde
+ * - g: geometrik hesaplanmış veri, eksen dönüşü ve yönünü dikkate alan radyan koordinatlar
  *
- * Then, 'g'eometric data is ready to be converted to (x,y).
+ * Sonra, 'g'eometrik veri (x,y)'ye dönüştürülmeye hazırdır.
  */
 module.exports = function setConvert(ax, polarLayout, fullLayout) {
     setConvertCartesian(ax, fullLayout);
@@ -100,7 +99,7 @@ function setConvertAngular(ax, polarLayout) {
         ax.c2d = function(v, unit) { return _c2d(fromRadians(v, unit)); };
     }
 
-    // override makeCalcdata to handle thetaunit and special theta0/dtheta logic
+    // thetaunit ve özel theta0/dtheta mantığını işlemek için makeCalcdata'yı geçersiz kıl
     ax.makeCalcdata = function(trace, coord) {
         var arrayIn = trace[coord];
         var len = trace._length;
@@ -128,7 +127,7 @@ function setConvertAngular(ax, polarLayout) {
         return arrayOut;
     };
 
-    // N.B. we mock the axis 'range' here
+    // Not: Burada eksen 'aralığını' taklit ediyoruz
     ax.setGeometry = function() {
         var sector = polarLayout.sector;
         var sectorInRad = sector.map(deg2rad);
@@ -147,8 +146,8 @@ function setConvertAngular(ax, polarLayout) {
                 t2rad = deg2rad;
                 rad2t = rad2deg;
 
-                // Set the angular range in degrees to make auto-tick computation cleaner,
-                // changing rotation/direction should not affect the angular tick value.
+                // Açısal aralığı derecelerde ayarlayın, otomatik işaret hesaplamasını temizlemek için,
+                // dönüş/yön değişikliği açısal işaret değerini etkilememelidir.
                 ax.range = Lib.isFullCircle(sectorInRad) ?
                     [sector[0], sector[0] + 360] :
                     sectorInRad.map(g2rad).map(rad2deg);
@@ -158,7 +157,7 @@ function setConvertAngular(ax, polarLayout) {
                 var catLen = ax._categories.length;
                 var _period = ax.period ? Math.max(ax.period, catLen) : catLen;
 
-                // fallback in case all categories have been filtered out
+                // Tüm kategoriler filtrelenmişse yedekleme
                 if(_period === 0) _period = 1;
 
                 c2rad = t2rad = function(v) { return v * 2 * Math.PI / _period; };

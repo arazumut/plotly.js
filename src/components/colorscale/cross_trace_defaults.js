@@ -19,7 +19,7 @@ module.exports = function crossTraceDefaults(fullData, fullLayout) {
 
         if(cont) {
             if(cont.coloraxis) {
-                // stash ref to color axis
+                // color axis referansını sakla
                 cont._colorAx = fullLayout[cont.coloraxis];
             } else {
                 var cOpts = extractOpts(cont);

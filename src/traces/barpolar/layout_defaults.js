@@ -1,24 +1,28 @@
 'use strict';
 
+// Gerekli kütüphaneleri dahil et
 var Lib = require('../../lib');
 var attrs = require('./layout_attributes');
 
+// Modülü dışa aktar
 module.exports = function(layoutIn, layoutOut, fullData) {
-    var subplotsDone = {};
-    var sp;
+    var işlenmişAltGrafikler = {};
+    var altGrafik;
 
-    function coerce(attr, dflt) {
-        return Lib.coerce(layoutIn[sp] || {}, layoutOut[sp], attrs, attr, dflt);
+    // Koerce fonksiyonu, varsayılan değerleri ayarlamak için kullanılır
+    function koerce(etk, varsayılan) {
+        return Lib.coerce(layoutIn[altGrafik] || {}, layoutOut[altGrafik], attrs, etk, varsayılan);
     }
 
+    // Tüm veriler üzerinde döngü
     for(var i = 0; i < fullData.length; i++) {
-        var trace = fullData[i];
-        if(trace.type === 'barpolar' && trace.visible === true) {
-            sp = trace.subplot;
-            if(!subplotsDone[sp]) {
-                coerce('barmode');
-                coerce('bargap');
-                subplotsDone[sp] = 1;
+        var iz = fullData[i];
+        if(iz.type === 'barpolar' && iz.visible === true) {
+            altGrafik = iz.subplot;
+            if(!işlenmişAltGrafikler[altGrafik]) {
+                koerce('barmode');
+                koerce('bargap');
+                işlenmişAltGrafikler[altGrafik] = 1;
             }
         }
     }

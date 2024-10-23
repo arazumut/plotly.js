@@ -1,13 +1,14 @@
 'use strict';
 
-function sign(x) {
+// x'in işaretini döndüren fonksiyon
+function isaret(x) {
     return (
         x < 0 ? -1 :
         x > 0 ? 1 : 0
     );
 }
 
-// adapted from Mike Bostock's https://observablehq.com/@mbostock/smith-chart
+// Mike Bostock'un https://observablehq.com/@mbostock/smith-chart adresinden uyarlanmıştır
 function smith(a) {
     var R = a[0];
     var X = a[1];
@@ -18,26 +19,29 @@ function smith(a) {
     return [(R * R + X * X - 1) / D, 2 * X / D];
 }
 
-function transform(subplot, a) {
+// Alt grafiği ve a'yı dönüştüren fonksiyon
+function donustur(alGrafik, a) {
     var x = a[0];
     var y = a[1];
 
     return [
-        x * subplot.radius + subplot.cx,
-        -y * subplot.radius + subplot.cy
+        x * alGrafik.yaricap + alGrafik.cx,
+        -y * alGrafik.yaricap + alGrafik.cy
     ];
 }
 
-function scale(subplot, r) {
-    return r * subplot.radius;
+// Alt grafiği ve r'yi ölçeklendiren fonksiyon
+function olcek(alGrafik, r) {
+    return r * alGrafik.yaricap;
 }
 
-function reactanceArc(subplot, X, R1, R2) {
-    var t1 = transform(subplot, smith([R1, X]));
+// Alt grafiği, X, R1 ve R2'yi kullanarak reaktans yayı çizen fonksiyon
+function reaktansYayi(alGrafik, X, R1, R2) {
+    var t1 = donustur(alGrafik, smith([R1, X]));
     var x1 = t1[0];
     var y1 = t1[1];
 
-    var t2 = transform(subplot, smith([R2, X]));
+    var t2 = donustur(alGrafik, smith([R2, X]));
     var x2 = t2[0];
     var y2 = t2[1];
 
@@ -48,7 +52,7 @@ function reactanceArc(subplot, X, R1, R2) {
         ].join(' ');
     }
 
-    var r = scale(subplot, 1 / Math.abs(X));
+    var r = olcek(alGrafik, 1 / Math.abs(X));
 
     return [
         'M' + x1 + ',' + y1,
@@ -56,19 +60,20 @@ function reactanceArc(subplot, X, R1, R2) {
     ].join(' ');
 }
 
-function resistanceArc(subplot, R, X1, X2) {
-    var r = scale(subplot, 1 / (R + 1));
+// Alt grafiği, R, X1 ve X2'yi kullanarak direnç yayı çizen fonksiyon
+function direncYayi(alGrafik, R, X1, X2) {
+    var r = olcek(alGrafik, 1 / (R + 1));
 
-    var t1 = transform(subplot, smith([R, X1]));
+    var t1 = donustur(alGrafik, smith([R, X1]));
     var x1 = t1[0];
     var y1 = t1[1];
 
-    var t2 = transform(subplot, smith([R, X2]));
+    var t2 = donustur(alGrafik, smith([R, X2]));
     var x2 = t2[0];
     var y2 = t2[1];
 
-    if(sign(X1) !== sign(X2)) {
-        var t0 = transform(subplot, smith([R, 0]));
+    if(isaret(X1) !== isaret(X2)) {
+        var t0 = donustur(alGrafik, smith([R, 0]));
         var x0 = t0[0];
         var y0 = t0[1];
 
@@ -87,7 +92,7 @@ function resistanceArc(subplot, R, X1, X2) {
 
 module.exports = {
     smith: smith,
-    reactanceArc: reactanceArc,
-    resistanceArc: resistanceArc,
-    smithTransform: transform
+    reaktansYayi: reaktansYayi,
+    direncYayi: direncYayi,
+    smithDonustur: donustur
 };

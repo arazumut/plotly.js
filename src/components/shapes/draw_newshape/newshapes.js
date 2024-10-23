@@ -1,219 +1,219 @@
 'use strict';
 
-var dragHelpers = require('../../dragelement/helpers');
-var drawMode = dragHelpers.drawMode;
-var openMode = dragHelpers.openMode;
+var sürüklemeYardımcıları = require('../../dragelement/helpers');
+var çizimModu = sürüklemeYardımcıları.çizimModu;
+var açıkMod = sürüklemeYardımcıları.açıkMod;
 
-var constants = require('./constants');
-var i000 = constants.i000;
-var i090 = constants.i090;
-var i180 = constants.i180;
-var i270 = constants.i270;
-var cos45 = constants.cos45;
-var sin45 = constants.sin45;
+var sabitler = require('./constants');
+var i000 = sabitler.i000;
+var i090 = sabitler.i090;
+var i180 = sabitler.i180;
+var i270 = sabitler.i270;
+var cos45 = sabitler.cos45;
+var sin45 = sabitler.sin45;
 
-var cartesianHelpers = require('../../selections/helpers');
-var p2r = cartesianHelpers.p2r;
-var r2p = cartesianHelpers.r2p;
+var kartezyenYardımcıları = require('../../selections/helpers');
+var p2r = kartezyenYardımcıları.p2r;
+var r2p = kartezyenYardımcıları.r2p;
 
-var handleOutline = require('.././handle_outline');
-var clearOutline = handleOutline.clearOutline;
+var konturÇiz = require('.././handle_outline');
+var konturTemizle = konturÇiz.konturTemizle;
 
-var helpers = require('./helpers');
-var readPaths = helpers.readPaths;
-var writePaths = helpers.writePaths;
-var ellipseOver = helpers.ellipseOver;
-var fixDatesForPaths = helpers.fixDatesForPaths;
+var yardımcılar = require('./helpers');
+var yollarıOku = yardımcılar.yollarıOku;
+var yollarıYaz = yardımcılar.yollarıYaz;
+var elipsÜzerinde = yardımcılar.elipsÜzerinde;
+var yollarİçinTarihleriDüzelt = yardımcılar.yollarİçinTarihleriDüzelt;
 
-function newShapes(outlines, dragOptions) {
-    if(!outlines.length) return;
-    var e = outlines[0][0]; // pick first
+function yeniŞekiller(konturlar, sürüklemeSeçenekleri) {
+    if(!konturlar.length) return;
+    var e = konturlar[0][0]; // ilkini seç
     if(!e) return;
 
-    var gd = dragOptions.gd;
+    var gd = sürüklemeSeçenekleri.gd;
 
-    var isActiveShape = dragOptions.isActiveShape;
-    var dragmode = dragOptions.dragmode;
+    var aktifŞekil = sürüklemeSeçenekleri.aktifŞekil;
+    var sürüklemeModu = sürüklemeSeçenekleri.sürüklemeModu;
 
-    var shapes = (gd.layout || {}).shapes || [];
+    var şekiller = (gd.layout || {}).shapes || [];
 
-    if(!drawMode(dragmode) && isActiveShape !== undefined) {
-        var id = gd._fullLayout._activeShapeIndex;
-        if(id < shapes.length) {
+    if(!çizimModu(sürüklemeModu) && aktifŞekil !== undefined) {
+        var id = gd._fullLayout._aktifŞekilIndex;
+        if(id < şekiller.length) {
             switch(gd._fullLayout.shapes[id].type) {
                 case 'rect':
-                    dragmode = 'drawrect';
+                    sürüklemeModu = 'dikdörtgenÇiz';
                     break;
                 case 'circle':
-                    dragmode = 'drawcircle';
+                    sürüklemeModu = 'daireÇiz';
                     break;
                 case 'line':
-                    dragmode = 'drawline';
+                    sürüklemeModu = 'çizgiÇiz';
                     break;
                 case 'path':
-                    var path = shapes[id].path || '';
-                    if(path[path.length - 1] === 'Z') {
-                        dragmode = 'drawclosedpath';
+                    var yol = şekiller[id].path || '';
+                    if(yol[yol.length - 1] === 'Z') {
+                        sürüklemeModu = 'kapalıYolÇiz';
                     } else {
-                        dragmode = 'drawopenpath';
+                        sürüklemeModu = 'açıkYolÇiz';
                     }
                     break;
             }
         }
     }
 
-    var newShape = createShapeObj(outlines, dragOptions, dragmode);
+    var yeniŞekil = şekilObjesiOluştur(konturlar, sürüklemeSeçenekleri, sürüklemeModu);
 
-    clearOutline(gd);
+    konturTemizle(gd);
 
-    var editHelpers = dragOptions.editHelpers;
-    var modifyItem = (editHelpers || {}).modifyItem;
+    var düzenlemeYardımcıları = sürüklemeSeçenekleri.düzenlemeYardımcıları;
+    var öğeyiDeğiştir = (düzenlemeYardımcıları || {}).öğeyiDeğiştir;
 
-    var allShapes = [];
-    for(var q = 0; q < shapes.length; q++) {
-        var beforeEdit = gd._fullLayout.shapes[q];
-        allShapes[q] = beforeEdit._input;
+    var tümŞekiller = [];
+    for(var q = 0; q < şekiller.length; q++) {
+        var düzenlemeÖncesi = gd._fullLayout.shapes[q];
+        tümŞekiller[q] = düzenlemeÖncesi._input;
 
         if(
-            isActiveShape !== undefined &&
-            q === gd._fullLayout._activeShapeIndex
+            aktifŞekil !== undefined &&
+            q === gd._fullLayout._aktifŞekilIndex
         ) {
-            var afterEdit = newShape;
+            var düzenlemeSonrası = yeniŞekil;
 
-            switch(beforeEdit.type) {
+            switch(düzenlemeÖncesi.type) {
                 case 'line':
                 case 'rect':
                 case 'circle':
-                    modifyItem('x0', afterEdit.x0 - (beforeEdit.x0shift || 0));
-                    modifyItem('x1', afterEdit.x1 - (beforeEdit.x1shift || 0));
-                    modifyItem('y0', afterEdit.y0 - (beforeEdit.y0shift || 0));
-                    modifyItem('y1', afterEdit.y1 - (beforeEdit.y1shift || 0));
+                    öğeyiDeğiştir('x0', düzenlemeSonrası.x0 - (düzenlemeÖncesi.x0shift || 0));
+                    öğeyiDeğiştir('x1', düzenlemeSonrası.x1 - (düzenlemeÖncesi.x1shift || 0));
+                    öğeyiDeğiştir('y0', düzenlemeSonrası.y0 - (düzenlemeÖncesi.y0shift || 0));
+                    öğeyiDeğiştir('y1', düzenlemeSonrası.y1 - (düzenlemeÖncesi.y1shift || 0));
                     break;
 
                 case 'path':
-                    modifyItem('path', afterEdit.path);
+                    öğeyiDeğiştir('path', düzenlemeSonrası.path);
                     break;
             }
         }
     }
 
-    if(isActiveShape === undefined) {
-        allShapes.push(newShape); // add new shape
-        return allShapes;
+    if(aktifŞekil === undefined) {
+        tümŞekiller.push(yeniŞekil); // yeni şekil ekle
+        return tümŞekiller;
     }
 
-    return editHelpers ? editHelpers.getUpdateObj() : {};
+    return düzenlemeYardımcıları ? düzenlemeYardımcıları.güncellemeObjesiAl() : {};
 }
 
-function createShapeObj(outlines, dragOptions, dragmode) {
-    var e = outlines[0][0]; // pick first outline
-    var gd = dragOptions.gd;
+function şekilObjesiOluştur(konturlar, sürüklemeSeçenekleri, sürüklemeModu) {
+    var e = konturlar[0][0]; // ilk konturu seç
+    var gd = sürüklemeSeçenekleri.gd;
 
     var d = e.getAttribute('d');
-    var newStyle = gd._fullLayout.newshape;
-    var plotinfo = dragOptions.plotinfo;
-    var isActiveShape = dragOptions.isActiveShape;
+    var yeniStil = gd._fullLayout.yeniŞekil;
+    var plotinfo = sürüklemeSeçenekleri.plotinfo;
+    var aktifŞekil = sürüklemeSeçenekleri.aktifŞekil;
 
     var xaxis = plotinfo.xaxis;
     var yaxis = plotinfo.yaxis;
-    var xPaper = !!plotinfo.domain || !plotinfo.xaxis;
-    var yPaper = !!plotinfo.domain || !plotinfo.yaxis;
+    var xKağıt = !!plotinfo.domain || !plotinfo.xaxis;
+    var yKağıt = !!plotinfo.domain || !plotinfo.yaxis;
 
-    var isOpenMode = openMode(dragmode);
-    var polygons = readPaths(d, gd, plotinfo, isActiveShape);
+    var açıkModda = açıkMod(sürüklemeModu);
+    var çokgenler = yollarıOku(d, gd, plotinfo, aktifŞekil);
 
-    var newShape = {
-        editable: true,
+    var yeniŞekil = {
+        düzenlenebilir: true,
 
-        visible: newStyle.visible,
-        name: newStyle.name,
-        showlegend: newStyle.showlegend,
-        legend: newStyle.legend,
-        legendwidth: newStyle.legendwidth,
-        legendgroup: newStyle.legendgroup,
-        legendgrouptitle: {
-            text: newStyle.legendgrouptitle.text,
-            font: newStyle.legendgrouptitle.font
+        görünür: yeniStil.görünür,
+        isim: yeniStil.isim,
+        efsaneGöster: yeniStil.efsaneGöster,
+        efsane: yeniStil.efsane,
+        efsaneGenişlik: yeniStil.efsaneGenişlik,
+        efsaneGrubu: yeniStil.efsaneGrubu,
+        efsaneGrupBaşlığı: {
+            metin: yeniStil.efsaneGrupBaşlığı.metin,
+            yazıtipi: yeniStil.efsaneGrupBaşlığı.yazıtipi
         },
-        legendrank: newStyle.legendrank,
+        efsaneSırası: yeniStil.efsaneSırası,
 
-        label: newStyle.label,
+        etiket: yeniStil.etiket,
 
-        xref: xPaper ? 'paper' : xaxis._id,
-        yref: yPaper ? 'paper' : yaxis._id,
+        xref: xKağıt ? 'kağıt' : xaxis._id,
+        yref: yKağıt ? 'kağıt' : yaxis._id,
 
-        layer: newStyle.layer,
-        opacity: newStyle.opacity,
-        line: {
-            color: newStyle.line.color,
-            width: newStyle.line.width,
-            dash: newStyle.line.dash
+        katman: yeniStil.katman,
+        opaklık: yeniStil.opaklık,
+        çizgi: {
+            renk: yeniStil.çizgi.renk,
+            genişlik: yeniStil.çizgi.genişlik,
+            çizgiStili: yeniStil.çizgi.çizgiStili
         }
     };
 
-    if(!isOpenMode) {
-        newShape.fillcolor = newStyle.fillcolor;
-        newShape.fillrule = newStyle.fillrule;
+    if(!açıkModda) {
+        yeniŞekil.dolguRengi = yeniStil.dolguRengi;
+        yeniŞekil.dolguKuralı = yeniStil.dolguKuralı;
     }
 
-    var cell;
-    // line, rect and circle can be in one cell
-    // only define cell if there is single cell
-    if(polygons.length === 1) cell = polygons[0];
+    var hücre;
+    // çizgi, dikdörtgen ve daire bir hücrede olabilir
+    // sadece tek hücre varsa hücreyi tanımla
+    if(çokgenler.length === 1) hücre = çokgenler[0];
 
     if(
-        cell &&
-        cell.length === 5 && // ensure we only have 4 corners for a rect
-        dragmode === 'drawrect'
+        hücre &&
+        hücre.length === 5 && // dikdörtgen için sadece 4 köşe olduğundan emin ol
+        sürüklemeModu === 'dikdörtgenÇiz'
     ) {
-        newShape.type = 'rect';
-        newShape.x0 = cell[0][1];
-        newShape.y0 = cell[0][2];
-        newShape.x1 = cell[2][1];
-        newShape.y1 = cell[2][2];
+        yeniŞekil.tip = 'dikdörtgen';
+        yeniŞekil.x0 = hücre[0][1];
+        yeniŞekil.y0 = hücre[0][2];
+        yeniŞekil.x1 = hücre[2][1];
+        yeniŞekil.y1 = hücre[2][2];
     } else if(
-        cell &&
-        dragmode === 'drawline'
+        hücre &&
+        sürüklemeModu === 'çizgiÇiz'
     ) {
-        newShape.type = 'line';
-        newShape.x0 = cell[0][1];
-        newShape.y0 = cell[0][2];
-        newShape.x1 = cell[1][1];
-        newShape.y1 = cell[1][2];
+        yeniŞekil.tip = 'çizgi';
+        yeniŞekil.x0 = hücre[0][1];
+        yeniŞekil.y0 = hücre[0][2];
+        yeniŞekil.x1 = hücre[1][1];
+        yeniŞekil.y1 = hücre[1][2];
     } else if(
-        cell &&
-        dragmode === 'drawcircle'
+        hücre &&
+        sürüklemeModu === 'daireÇiz'
     ) {
-        newShape.type = 'circle'; // an ellipse!
+        yeniŞekil.tip = 'daire'; // bir elips!
 
-        var xA = cell[i000][1];
-        var xB = cell[i090][1];
-        var xC = cell[i180][1];
-        var xD = cell[i270][1];
+        var xA = hücre[i000][1];
+        var xB = hücre[i090][1];
+        var xC = hücre[i180][1];
+        var xD = hücre[i270][1];
 
-        var yA = cell[i000][2];
-        var yB = cell[i090][2];
-        var yC = cell[i180][2];
-        var yD = cell[i270][2];
+        var yA = hücre[i000][2];
+        var yB = hücre[i090][2];
+        var yC = hücre[i180][2];
+        var yD = hücre[i270][2];
 
-        var xDateOrLog = plotinfo.xaxis && (
-            plotinfo.xaxis.type === 'date' ||
-            plotinfo.xaxis.type === 'log'
+        var xTarihVeyaLog = plotinfo.xaxis && (
+            plotinfo.xaxis.tip === 'date' ||
+            plotinfo.xaxis.tip === 'log'
         );
 
-        var yDateOrLog = plotinfo.yaxis && (
-            plotinfo.yaxis.type === 'date' ||
-            plotinfo.yaxis.type === 'log'
+        var yTarihVeyaLog = plotinfo.yaxis && (
+            plotinfo.yaxis.tip === 'date' ||
+            plotinfo.yaxis.tip === 'log'
         );
 
-        if(xDateOrLog) {
+        if(xTarihVeyaLog) {
             xA = r2p(plotinfo.xaxis, xA);
             xB = r2p(plotinfo.xaxis, xB);
             xC = r2p(plotinfo.xaxis, xC);
             xD = r2p(plotinfo.xaxis, xD);
         }
 
-        if(yDateOrLog) {
+        if(yTarihVeyaLog) {
             yA = r2p(plotinfo.yaxis, yA);
             yB = r2p(plotinfo.yaxis, yB);
             yC = r2p(plotinfo.yaxis, yC);
@@ -224,37 +224,37 @@ function createShapeObj(outlines, dragOptions, dragmode) {
         var y0 = (yA + yC) / 2;
         var rx = (xD - xB + xC - xA) / 2;
         var ry = (yD - yB + yC - yA) / 2;
-        var pos = ellipseOver({
+        var pos = elipsÜzerinde({
             x0: x0,
             y0: y0,
             x1: x0 + rx * cos45,
             y1: y0 + ry * sin45
         });
 
-        if(xDateOrLog) {
+        if(xTarihVeyaLog) {
             pos.x0 = p2r(plotinfo.xaxis, pos.x0);
             pos.x1 = p2r(plotinfo.xaxis, pos.x1);
         }
 
-        if(yDateOrLog) {
+        if(yTarihVeyaLog) {
             pos.y0 = p2r(plotinfo.yaxis, pos.y0);
             pos.y1 = p2r(plotinfo.yaxis, pos.y1);
         }
 
-        newShape.x0 = pos.x0;
-        newShape.y0 = pos.y0;
-        newShape.x1 = pos.x1;
-        newShape.y1 = pos.y1;
+        yeniŞekil.x0 = pos.x0;
+        yeniŞekil.y0 = pos.y0;
+        yeniŞekil.x1 = pos.x1;
+        yeniŞekil.y1 = pos.y1;
     } else {
-        newShape.type = 'path';
-        if(xaxis && yaxis) fixDatesForPaths(polygons, xaxis, yaxis);
-        newShape.path = writePaths(polygons);
-        cell = null;
+        yeniŞekil.tip = 'yol';
+        if(xaxis && yaxis) yollarİçinTarihleriDüzelt(çokgenler, xaxis, yaxis);
+        yeniŞekil.yol = yollarıYaz(çokgenler);
+        hücre = null;
     }
-    return newShape;
+    return yeniŞekil;
 }
 
 module.exports = {
-    newShapes: newShapes,
-    createShapeObj: createShapeObj,
+    yeniŞekiller: yeniŞekiller,
+    şekilObjesiOluştur: şekilObjesiOluştur,
 };

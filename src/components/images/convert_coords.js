@@ -4,22 +4,22 @@ var isNumeric = require('fast-isnumeric');
 var toLogRange = require('../../lib/to_log_range');
 
 /*
- * convertCoords: when converting an axis between log and linear
- * you need to alter any images on that axis to keep them
- * pointing at the same data point.
- * In v3.0 this will become obsolete (or perhaps size will still need conversion?)
- * we convert size by declaring that the maximum extent *in data units* should be
- * the same, assuming the image is anchored by its center (could remove that restriction
- * if we think it's important) even though the actual left and right values will not be
- * quite the same since the scale becomes nonlinear (and central anchor means the pixel
- * center of the image, not the data units center)
+ * convertCoords: Bir ekseni logaritmik ve doğrusal arasında dönüştürürken,
+ * eksendeki herhangi bir görüntüyü aynı veri noktasına işaret etmeye devam edecek şekilde
+ * değiştirmeniz gerekir.
+ * V3.0'da bu gereksiz hale gelecek (veya belki boyut hala dönüştürme gerektirebilir?)
+ * Boyutu, maksimum genişliğin *veri birimleri cinsinden* aynı olması gerektiğini
+ * belirterek dönüştürüyoruz, görüntünün merkezi tarafından sabitlendiğini varsayarak
+ * (bu kısıtlamayı kaldırabiliriz eğer önemli olduğunu düşünürsek) 
+ * ölçek doğrusal olmayan hale geldiğinden gerçek sol ve sağ değerler tam olarak aynı olmayacak
+ * (ve merkezi sabitleme, görüntünün piksel merkezini, veri birimleri merkezini değil)
  *
- * gd: the plot div
- * ax: the axis being changed
- * newType: the type it's getting
- * doExtra: function(attr, val) from inside relayout that sets the attribute.
- *     Use this to make the changes as it's aware if any other changes in the
- *     same relayout call should override this conversion.
+ * gd: grafik divi
+ * ax: değiştirilen eksen
+ * newType: eksenin alacağı yeni tür
+ * doExtra: relayout içinden attribute'u ayarlayan function(attr, val).
+ *     Bunu değişiklikleri yapmak için kullanın çünkü aynı relayout çağrısındaki
+ *     diğer değişikliklerin bu dönüşümü geçersiz kılıp kılmayacağını bilir.
  */
 module.exports = function convertCoords(gd, ax, newType, doExtra) {
     ax = ax || {};
@@ -47,9 +47,9 @@ module.exports = function convertCoords(gd, ax, newType, doExtra) {
             if(toLog) {
                 newPos = toLogRange(currentPos, ax.range);
 
-                // this is the inverse of the conversion we do in fromLog below
-                // so that the conversion is reversible (notice the fromLog conversion
-                // is like sinh, and this one looks like arcsinh)
+                // Bu, aşağıdaki fromLog dönüşümünde yaptığımız dönüşümün tersidir
+                // böylece dönüşüm tersine çevrilebilir (dikkat edin fromLog dönüşümü
+                // sinh gibidir ve bu dönüşüm arcsinh gibidir)
                 var dx = currentSize / Math.pow(10, newPos) / 2;
                 newSize = 2 * Math.log(dx + Math.sqrt(1 + dx * dx)) / Math.LN10;
             } else {
@@ -57,7 +57,7 @@ module.exports = function convertCoords(gd, ax, newType, doExtra) {
                 newSize = newPos * (Math.pow(10, currentSize / 2) - Math.pow(10, -currentSize / 2));
             }
 
-            // if conversion failed, delete the value so it can get a default later on
+            // Eğer dönüşüm başarısız olursa, değeri silin böylece daha sonra varsayılan bir değer alabilir
             if(!isNumeric(newPos)) {
                 newPos = null;
                 newSize = null;

@@ -1,64 +1,68 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var d3 = require('@plotly/d3');
-var Color = require('../../components/color');
-var Drawing = require('../../components/drawing');
+var Renk = require('../../components/color');
+var Çizim = require('../../components/drawing');
 
-function style(gd, cd, sel) {
+// Stil fonksiyonu
+function stil(gd, cd, sel) {
     var s = sel ? sel : d3.select(gd).selectAll('g.trace.boxes');
 
     s.style('opacity', function(d) { return d[0].trace.opacity; });
 
     s.each(function(d) {
         var el = d3.select(this);
-        var trace = d[0].trace;
-        var lineWidth = trace.line.width;
+        var iz = d[0].trace;
+        var çizgiKalınlığı = iz.line.width;
 
-        function styleBox(boxSel, lineWidth, lineColor, fillColor) {
-            boxSel.style('stroke-width', lineWidth + 'px')
-                .call(Color.stroke, lineColor)
-                .call(Color.fill, fillColor);
+        function kutuStili(kutuSel, çizgiKalınlığı, çizgiRengi, dolguRengi) {
+            kutuSel.style('stroke-width', çizgiKalınlığı + 'px')
+                .call(Renk.stroke, çizgiRengi)
+                .call(Renk.fill, dolguRengi);
         }
 
-        var allBoxes = el.selectAll('path.box');
+        var tümKutular = el.selectAll('path.box');
 
-        if(trace.type === 'candlestick') {
-            allBoxes.each(function(boxData) {
-                if(boxData.empty) return;
+        if(iz.type === 'candlestick') {
+            tümKutular.each(function(kutuVerisi) {
+                if(kutuVerisi.empty) return;
 
-                var thisBox = d3.select(this);
-                var container = trace[boxData.dir]; // dir = 'increasing' or 'decreasing'
-                styleBox(thisBox, container.line.width, container.line.color, container.fillcolor);
-                // TODO: custom selection style for candlesticks
-                thisBox.style('opacity', trace.selectedpoints && !boxData.selected ? 0.3 : 1);
+                var buKutu = d3.select(this);
+                var konteyner = iz[kutuVerisi.dir]; // dir = 'increasing' veya 'decreasing'
+                kutuStili(buKutu, konteyner.line.width, konteyner.line.color, konteyner.fillcolor);
+                // TODO: Mum çubukları için özel seçim stili
+                buKutu.style('opacity', iz.selectedpoints && !kutuVerisi.selected ? 0.3 : 1);
             });
         } else {
-            styleBox(allBoxes, lineWidth, trace.line.color, trace.fillcolor);
+            kutuStili(tümKutular, çizgiKalınlığı, iz.line.color, iz.fillcolor);
             el.selectAll('path.mean')
                 .style({
-                    'stroke-width': lineWidth,
-                    'stroke-dasharray': (2 * lineWidth) + 'px,' + lineWidth + 'px'
+                    'stroke-width': çizgiKalınlığı,
+                    'stroke-dasharray': (2 * çizgiKalınlığı) + 'px,' + çizgiKalınlığı + 'px'
                 })
-                .call(Color.stroke, trace.line.color);
+                .call(Renk.stroke, iz.line.color);
 
-            var pts = el.selectAll('path.point');
-            Drawing.pointStyle(pts, trace, gd);
+            var noktalar = el.selectAll('path.point');
+            Çizim.pointStyle(noktalar, iz, gd);
         }
     });
 }
 
-function styleOnSelect(gd, cd, sel) {
-    var trace = cd[0].trace;
-    var pts = sel.selectAll('path.point');
+// Seçim üzerine stil fonksiyonu
+function seçimÜzerineStil(gd, cd, sel) {
+    var iz = cd[0].trace;
+    var noktalar = sel.selectAll('path.point');
 
-    if(trace.selectedpoints) {
-        Drawing.selectedPointStyle(pts, trace);
+    if(iz.selectedpoints) {
+        Çizim.selectedPointStyle(noktalar, iz);
     } else {
-        Drawing.pointStyle(pts, trace, gd);
+        Çizim.pointStyle(noktalar, iz, gd);
     }
 }
 
+// Modülleri dışa aktar
 module.exports = {
-    style: style,
-    styleOnSelect: styleOnSelect
+    stil: stil,
+    seçimÜzerineStil: seçimÜzerineStil
 };

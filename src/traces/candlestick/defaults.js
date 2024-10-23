@@ -1,41 +1,51 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var Color = require('../../components/color');
 var handleOHLC = require('../ohlc/ohlc_defaults');
 var handlePeriodDefaults = require('../scatter/period_defaults');
 var attributes = require('./attributes');
 
-module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
-    function coerce(attr, dflt) {
+// Varsayılan değerleri sağlama fonksiyonu
+module.exports = function varsayilanDegerleriSagla(traceIn, traceOut, varsayilanRenk, layout) {
+    // Koerce fonksiyonu, bir özelliği varsayılan değeriyle birlikte zorlar
+    function koerce(attr, dflt) {
         return Lib.coerce(traceIn, traceOut, attributes, attr, dflt);
     }
 
-    var len = handleOHLC(traceIn, traceOut, coerce, layout);
-    if(!len) {
+    // OHLC verilerini işleme
+    var uzunluk = handleOHLC(traceIn, traceOut, koerce, layout);
+    if(!uzunluk) {
         traceOut.visible = false;
         return;
     }
 
-    handlePeriodDefaults(traceIn, traceOut, layout, coerce, {x: true});
-    coerce('xhoverformat');
-    coerce('yhoverformat');
+    // Periyot varsayılanlarını işleme
+    handlePeriodDefaults(traceIn, traceOut, layout, koerce, {x: true});
+    koerce('xhoverformat');
+    koerce('yhoverformat');
 
-    coerce('line.width');
+    // Çizgi genişliğini zorla
+    koerce('line.width');
 
-    handleDirection(traceIn, traceOut, coerce, 'increasing');
-    handleDirection(traceIn, traceOut, coerce, 'decreasing');
+    // Artan ve azalan yönleri işleme
+    yonuIsle(traceIn, traceOut, koerce, 'increasing');
+    yonuIsle(traceIn, traceOut, koerce, 'decreasing');
 
-    coerce('text');
-    coerce('hovertext');
-    coerce('whiskerwidth');
+    // Metin ve hover metinlerini zorla
+    koerce('text');
+    koerce('hovertext');
+    koerce('whiskerwidth');
 
+    // Range slider isteğini layout'a ekle
     layout._requestRangeslider[traceOut.xaxis] = true;
-    coerce('zorder');
+    koerce('zorder');
 };
 
-function handleDirection(traceIn, traceOut, coerce, direction) {
-    var lineColor = coerce(direction + '.line.color');
-    coerce(direction + '.line.width', traceOut.line.width);
-    coerce(direction + '.fillcolor', Color.addOpacity(lineColor, 0.5));
+// Yönü işleme fonksiyonu
+function yonuIsle(traceIn, traceOut, koerce, yon) {
+    var cizgiRengi = koerce(yon + '.line.color');
+    koerce(yon + '.line.width', traceOut.line.width);
+    koerce(yon + '.fillcolor', Color.addOpacity(cizgiRengi, 0.5));
 }

@@ -1,27 +1,28 @@
 'use strict';
 
-module.exports = function selectPoints(searchInfo, selectionTester) {
+// Bu modül, belirli noktaları seçmek için kullanılır.
+module.exports = function noktalarıSeç(searchInfo, seçimTesti) {
     var cd = searchInfo.cd;
     var xa = searchInfo.xaxis;
     var ya = searchInfo.yaxis;
-    var trace = cd[0].trace;
-    var isFunnel = (trace.type === 'funnel');
-    var isHorizontal = (trace.orientation === 'h');
-    var selection = [];
+    var iz = cd[0].trace;
+    var huniMi = (iz.type === 'funnel');
+    var yatayMi = (iz.orientation === 'h');
+    var seçim = [];
     var i;
 
-    if(selectionTester === false) {
-        // clear selection
+    if(seçimTesti === false) {
+        // Seçimi temizle
         for(i = 0; i < cd.length; i++) {
             cd[i].selected = 0;
         }
     } else {
         for(i = 0; i < cd.length; i++) {
             var di = cd[i];
-            var ct = 'ct' in di ? di.ct : getCentroid(di, xa, ya, isHorizontal, isFunnel);
+            var ct = 'ct' in di ? di.ct : merkezNoktası(di, xa, ya, yatayMi, huniMi);
 
-            if(selectionTester.contains(ct, false, i, searchInfo)) {
-                selection.push({
+            if(seçimTesti.contains(ct, false, i, searchInfo)) {
+                seçim.push({
                     pointNumber: i,
                     x: xa.c2d(di.x),
                     y: ya.c2d(di.y)
@@ -33,19 +34,20 @@ module.exports = function selectPoints(searchInfo, selectionTester) {
         }
     }
 
-    return selection;
+    return seçim;
 };
 
-function getCentroid(d, xa, ya, isHorizontal, isFunnel) {
-    var x0 = xa.c2p(isHorizontal ? d.s0 : d.p0, true);
-    var x1 = xa.c2p(isHorizontal ? d.s1 : d.p1, true);
-    var y0 = ya.c2p(isHorizontal ? d.p0 : d.s0, true);
-    var y1 = ya.c2p(isHorizontal ? d.p1 : d.s1, true);
+// Merkez noktasını hesaplayan fonksiyon
+function merkezNoktası(d, xa, ya, yatayMi, huniMi) {
+    var x0 = xa.c2p(yatayMi ? d.s0 : d.p0, true);
+    var x1 = xa.c2p(yatayMi ? d.s1 : d.p1, true);
+    var y0 = ya.c2p(yatayMi ? d.p0 : d.s0, true);
+    var y1 = ya.c2p(yatayMi ? d.p1 : d.s1, true);
 
-    if(isFunnel) {
+    if(huniMi) {
         return [(x0 + x1) / 2, (y0 + y1) / 2];
     } else {
-        if(isHorizontal) {
+        if(yatayMi) {
             return [x1, (y0 + y1) / 2];
         } else {
             return [(x0 + x1) / 2, y1];

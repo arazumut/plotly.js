@@ -1,31 +1,31 @@
 'use strict';
 
-module.exports = function incrementNumeric(x, delta) {
+module.exports = function sayiyiArttir(x, delta) {
     if(!delta) return x;
 
-    // Note 1:
+    // Not 1:
     // 0.3 != 0.1 + 0.2 == 0.30000000000000004
-    // but 0.3 == (10 * 0.1 + 10 * 0.2) / 10
-    // Attempt to use integer steps to increment
-    var scale = 1 / Math.abs(delta);
-    var newX = (scale > 1) ? (
-        scale * x +
-        scale * delta
-    ) / scale : x + delta;
+    // fakat 0.3 == (10 * 0.1 + 10 * 0.2) / 10
+    // Sayıyı arttırmak için tam sayı adımlarını kullanmaya çalış
+    var ölçek = 1 / Math.abs(delta);
+    var yeniX = (ölçek > 1) ? (
+        ölçek * x +
+        ölçek * delta
+    ) / ölçek : x + delta;
 
-    // Note 2:
-    // now we may also consider rounding to cover few more edge cases
-    // e.g. 0.3 * 3 = 0.8999999999999999
-    var lenX1 = String(newX).length;
-    if(lenX1 > 16) {
-        var lenDt = String(delta).length;
-        var lenX0 = String(x).length;
+    // Not 2:
+    // şimdi birkaç kenar durumunu daha kapsamak için yuvarlamayı da düşünebiliriz
+    // örn. 0.3 * 3 = 0.8999999999999999
+    var uzunlukX1 = String(yeniX).length;
+    if(uzunlukX1 > 16) {
+        var uzunlukDelta = String(delta).length;
+        var uzunlukX0 = String(x).length;
 
-        if(lenX1 >= lenX0 + lenDt) { // likely a rounding error!
-            var s = parseFloat(newX).toPrecision(12);
-            if(s.indexOf('e+') === -1) newX = +s;
+        if(uzunlukX1 >= uzunlukX0 + uzunlukDelta) { // muhtemelen bir yuvarlama hatası!
+            var s = parseFloat(yeniX).toPrecision(12);
+            if(s.indexOf('e+') === -1) yeniX = +s;
         }
     }
 
-    return newX;
+    return yeniX;
 };

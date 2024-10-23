@@ -3,45 +3,45 @@
 var d3Time = require('d3-time');
 var titleCase = require('../../lib').titleCase;
 
-module.exports = function getUpdateObject(axisLayout, buttonLayout) {
-    var axName = axisLayout._name;
-    var update = {};
+module.exports = function güncellemeObjesiAl(axisYerleşimi, butonYerleşimi) {
+    var eksenAdi = axisYerleşimi._name;
+    var güncelleme = {};
 
-    if(buttonLayout.step === 'all') {
-        update[axName + '.autorange'] = true;
+    if(butonYerleşimi.adım === 'hepsi') {
+        güncelleme[eksenAdi + '.autorange'] = true;
     } else {
-        var xrange = getXRange(axisLayout, buttonLayout);
+        var xAraligi = xAraligiAl(axisYerleşimi, butonYerleşimi);
 
-        update[axName + '.range[0]'] = xrange[0];
-        update[axName + '.range[1]'] = xrange[1];
+        güncelleme[eksenAdi + '.range[0]'] = xAraligi[0];
+        güncelleme[eksenAdi + '.range[1]'] = xAraligi[1];
     }
 
-    return update;
+    return güncelleme;
 };
 
-function getXRange(axisLayout, buttonLayout) {
-    var currentRange = axisLayout.range;
-    var base = new Date(axisLayout.r2l(currentRange[1]));
-    var step = buttonLayout.step;
+function xAraligiAl(axisYerleşimi, butonYerleşimi) {
+    var mevcutAralik = axisYerleşimi.range;
+    var temel = new Date(axisYerleşimi.r2l(mevcutAralik[1]));
+    var adim = butonYerleşimi.adım;
 
-    var utcStep = d3Time['utc' + titleCase(step)];
+    var utcAdim = d3Time['utc' + titleCase(adim)];
 
-    var count = buttonLayout.count;
-    var range0;
+    var sayi = butonYerleşimi.sayi;
+    var aralik0;
 
-    switch(buttonLayout.stepmode) {
-        case 'backward':
-            range0 = axisLayout.l2r(+utcStep.offset(base, -count));
+    switch(butonYerleşimi.adimModu) {
+        case 'geri':
+            aralik0 = axisYerleşimi.l2r(+utcAdim.offset(temel, -sayi));
             break;
 
-        case 'todate':
-            var base2 = utcStep.offset(base, -count);
+        case 'bugüne':
+            var temel2 = utcAdim.offset(temel, -sayi);
 
-            range0 = axisLayout.l2r(+utcStep.ceil(base2));
+            aralik0 = axisYerleşimi.l2r(+utcAdim.ceil(temel2));
             break;
     }
 
-    var range1 = currentRange[1];
+    var aralik1 = mevcutAralik[1];
 
-    return [range0, range1];
+    return [aralik0, aralik1];
 }

@@ -13,7 +13,7 @@ exports.initInteractions = function initInteractions(gd) {
     var fullLayout = gd._fullLayout;
 
     if(gd._context.staticPlot) {
-        // this sweeps up more than just cartesian drag elements...
+        // Bu sadece kartesyen sürükleme elemanlarını değil, daha fazlasını temizler...
         d3.select(gd).selectAll('.drag').remove();
         return;
     }
@@ -21,7 +21,7 @@ exports.initInteractions = function initInteractions(gd) {
     if(!fullLayout._has('cartesian') && !fullLayout._has('splom')) return;
 
     var subplots = Object.keys(fullLayout._plots || {}).sort(function(a, b) {
-        // sort overlays last, then by x axis number, then y axis number
+        // Önce bindirmeleri sıralar, sonra x ekseni numarasına, sonra y ekseni numarasına göre sıralar
         if((fullLayout._plots[a].mainplot && true) ===
             (fullLayout._plots[b].mainplot && true)) {
             var aParts = a.split('y');
@@ -38,17 +38,14 @@ exports.initInteractions = function initInteractions(gd) {
         var xa = plotinfo.xaxis;
         var ya = plotinfo.yaxis;
 
-        // main and corner draggers need not be repeated for
-        // overlaid subplots - these draggers drag them all
+        // Ana ve köşe sürükleyiciler, bindirilmiş alt grafikler için tekrar edilmemelidir
         if(!plotinfo.mainplot) {
-            // main dragger goes over the grids and data, so we use its
-            // mousemove events for all data hover effects
+            // Ana sürükleyici ızgaraların ve verilerin üzerine gider, bu yüzden tüm veri hover efektleri için onun mousemove olaylarını kullanırız
             var maindrag = makeDragBox(gd, plotinfo, xa._offset, ya._offset,
                 xa._length, ya._length, 'ns', 'ew');
 
             maindrag.onmousemove = function(evt) {
-                // This is on `gd._fullLayout`, *not* fullLayout because the reference
-                // changes by the time this is called again.
+                // Bu `gd._fullLayout` üzerinde, çünkü referans bu tekrar çağrıldığında değişir.
                 gd._fullLayout._rehover = function() {
                     if((gd._fullLayout._hoversubplot === subplot) && gd._fullLayout._plots[subplot]) {
                         Fx.hover(gd, evt, subplot);
@@ -57,31 +54,30 @@ exports.initInteractions = function initInteractions(gd) {
 
                 Fx.hover(gd, evt, subplot);
 
-                // Note that we have *not* used the cached fullLayout variable here
-                // since that may be outdated when this is called as a callback later on
+                // Burada önbelleğe alınmış fullLayout değişkenini kullanmadığımıza dikkat edin
+                // çünkü bu daha sonra bir geri çağırma olarak çağrıldığında güncel olmayabilir
                 gd._fullLayout._lasthover = maindrag;
                 gd._fullLayout._hoversubplot = subplot;
             };
 
             /*
-             * IMPORTANT:
-             * We must check for the presence of the drag cover here.
-             * If we don't, a 'mouseout' event is triggered on the
-             * maindrag before each 'click' event, which has the effect
-             * of clearing the hoverdata; thus, cancelling the click event.
+             * ÖNEMLİ:
+             * Burada sürükleme kapağının varlığını kontrol etmeliyiz.
+             * Eğer yapmazsak, her 'click' olayından önce 'mouseout' olayı tetiklenir,
+             * bu da hover verilerini temizler; böylece tıklama olayını iptal eder.
              */
             maindrag.onmouseout = function(evt) {
                 if(gd._dragging) return;
 
-                // When the mouse leaves this maindrag, unset the hovered subplot.
-                // This may cause problems if it leaves the subplot directly *onto*
-                // another subplot, but that's a tiny corner case at the moment.
+                // Fare bu ana sürükleyiciden çıktığında, hover edilen alt grafiği kaldır.
+                // Bu, fare doğrudan başka bir alt grafiğe geçtiğinde sorunlara neden olabilir,
+                // ancak bu şu anda küçük bir köşe durumu.
                 gd._fullLayout._hoversubplot = null;
 
                 dragElement.unhover(gd, evt);
             };
 
-            // corner draggers
+            // köşe sürükleyiciler
             if(gd._context.showAxisDragHandles) {
                 makeDragBox(gd, plotinfo, xa._offset - DRAGGERSIZE, ya._offset - DRAGGERSIZE,
                     DRAGGERSIZE, DRAGGERSIZE, 'n', 'w');
@@ -94,10 +90,10 @@ exports.initInteractions = function initInteractions(gd) {
             }
         }
         if(gd._context.showAxisDragHandles) {
-            // x axis draggers - if you have overlaid plots,
-            // these drag each axis separately
+            // x ekseni sürükleyiciler - bindirilmiş grafikleriniz varsa,
+            // bu her ekseni ayrı ayrı sürükler
             if(subplot === xa._mainSubplot) {
-                // the y position of the main x axis line
+                // ana x ekseni çizgisinin y konumu
                 var y0 = xa._mainLinePosition;
                 if(xa.side === 'top') y0 -= DRAGGERSIZE;
                 makeDragBox(gd, plotinfo, xa._offset + xa._length * 0.1, y0,
@@ -107,9 +103,9 @@ exports.initInteractions = function initInteractions(gd) {
                 makeDragBox(gd, plotinfo, xa._offset + xa._length * 0.9, y0,
                     xa._length * 0.1, DRAGGERSIZE, '', 'e');
             }
-            // y axis draggers
+            // y ekseni sürükleyiciler
             if(subplot === ya._mainSubplot) {
-                // the x position of the main y axis line
+                // ana y ekseni çizgisinin x konumu
                 var x0 = ya._mainLinePosition;
                 if(ya.side !== 'right') x0 -= DRAGGERSIZE;
                 makeDragBox(gd, plotinfo, x0, ya._offset + ya._length * 0.1,
@@ -122,9 +118,9 @@ exports.initInteractions = function initInteractions(gd) {
         }
     });
 
-    // In case you mousemove over some hovertext, send it to Fx.hover too
-    // we do this so that we can put the hover text in front of everything,
-    // but still be able to interact with everything as if it isn't there
+    // Hover metni üzerinde fare hareket ettirdiğinizde, bunu Fx.hover'a da gönderin
+    // bunu yapıyoruz çünkü hover metnini her şeyin önüne koyabiliriz,
+    // ancak her şeyle etkileşime girebiliriz sanki orada değilmiş gibi
     var hoverLayer = fullLayout._hoverlayer.node();
 
     hoverLayer.onmousemove = function(evt) {
@@ -137,7 +133,7 @@ exports.initInteractions = function initInteractions(gd) {
         Fx.click(gd, evt);
     };
 
-    // also delegate mousedowns... TODO: does this actually work?
+    // ayrıca fare basmalarını da delege et... TODO: bu gerçekten çalışıyor mu?
     hoverLayer.onmousedown = function(evt) {
         gd._fullLayout._lasthover.onmousedown(evt);
     };
@@ -145,11 +141,11 @@ exports.initInteractions = function initInteractions(gd) {
     exports.updateFx(gd);
 };
 
-// Minimal set of update needed on 'modebar' edits.
-// We only need to update the <g .draglayer> cursor style.
+// 'modebar' düzenlemelerinde gereken minimal güncelleme seti.
+// Sadece <g .draglayer> imleç stilini güncellememiz gerekiyor.
 //
-// Note that changing the axis configuration and/or the fixedrange attribute
-// should trigger a full initInteractions.
+// Eksen yapılandırmasını ve/veya fixedrange özniteliğini değiştirmek
+// tam bir initInteractions tetiklemelidir.
 exports.updateFx = function(gd) {
     var fullLayout = gd._fullLayout;
     var cursor = fullLayout.dragmode === 'pan' ? 'move' : 'crosshair';

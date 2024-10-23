@@ -9,156 +9,155 @@ var shapeTexttemplateAttrs = require('../../../plots/template_attributes').shape
 var shapeLabelTexttemplateVars = require('../label_texttemplate');
 
 module.exports = overrideAll({
-    newshape: {
-        visible: extendFlat({}, basePlotAttributes.visible, {
+    yenisekil: {
+        gorunur: extendFlat({}, basePlotAttributes.visible, {
             description: [
-                'Determines whether or not new shape is visible.',
-                'If *legendonly*, the shape is not drawn,',
-                'but can appear as a legend item',
-                '(provided that the legend itself is visible).'
+                'Yeni şeklin görünür olup olmadığını belirler.',
+                '*legendonly* ise, şekil çizilmez,',
+                'ancak efsane öğesi olarak görünebilir',
+                '(efsane kendisi görünürse).'
             ].join(' ')
         }),
 
-        showlegend: {
+        efsanegoster: {
             valType: 'boolean',
             dflt: false,
             description: [
-                'Determines whether or not new',
-                'shape is shown in the legend.'
+                'Yeni şeklin efsanede gösterilip gösterilmeyeceğini belirler.'
             ].join(' ')
         },
 
-        legend: extendFlat({}, basePlotAttributes.legend, {
+        efsane: extendFlat({}, basePlotAttributes.legend, {
             description: [
-                'Sets the reference to a legend to show new shape in.',
-                'References to these legends are *legend*, *legend2*, *legend3*, etc.',
-                'Settings for these legends are set in the layout, under',
-                '`layout.legend`, `layout.legend2`, etc.'
+                'Yeni şekli göstermek için bir efsaneye referans ayarlar.',
+                'Bu efsanelere referanslar *legend*, *legend2*, *legend3*, vb. şeklindedir.',
+                'Bu efsanelerin ayarları, düzen içinde,',
+                '`layout.legend`, `layout.legend2`, vb. altında ayarlanır.'
             ].join(' ')
         }),
 
-        legendgroup: extendFlat({}, basePlotAttributes.legendgroup, {
+        efsanegrubu: extendFlat({}, basePlotAttributes.legendgroup, {
             description: [
-                'Sets the legend group for new shape.',
-                'Traces and shapes part of the same legend group hide/show at the same time',
-                'when toggling legend items.'
+                'Yeni şekil için efsane grubunu ayarlar.',
+                'Aynı efsane grubunun parçası olan izler ve şekiller,',
+                'efsane öğelerini değiştirirken aynı anda gizlenir/gösterilir.'
             ].join(' ')
         }),
 
-        legendgrouptitle: {
+        efsanegrububasligi: {
             text: extendFlat({}, basePlotAttributes.legendgrouptitle.text, {
             }),
             font: fontAttrs({
                 description: [
-                    'Sets this legend group\'s title font.'
+                    'Bu efsane grubunun başlık yazı tipini ayarlar.'
                 ].join(' '),
             })
         },
 
-        legendrank: extendFlat({}, basePlotAttributes.legendrank, {
+        efsanesirasi: extendFlat({}, basePlotAttributes.legendrank, {
             description: [
-                'Sets the legend rank for new shape.',
-                'Items and groups with smaller ranks are presented on top/left side while',
-                'with *reversed* `legend.traceorder` they are on bottom/right side.',
-                'The default legendrank is 1000,',
-                'so that you can use ranks less than 1000 to place certain items before all unranked items,',
-                'and ranks greater than 1000 to go after all unranked items.'
+                'Yeni şekil için efsane sırasını ayarlar.',
+                'Küçük sıralara sahip öğeler ve gruplar üstte/sol tarafta sunulurken,',
+                '*ters* `legend.traceorder` ile altta/sağ tarafta sunulurlar.',
+                'Varsayılan efsane sırası 1000\'dir,',
+                'bu nedenle belirli öğeleri tüm sıralanmamış öğelerden önce yerleştirmek için 1000\'den küçük sıralar,',
+                've tüm sıralanmamış öğelerden sonra gitmek için 1000\'den büyük sıralar kullanabilirsiniz.'
             ].join(' ')
         }),
 
-        legendwidth: extendFlat({}, basePlotAttributes.legendwidth, {
-            description: 'Sets the width (in px or fraction) of the legend for new shape.',
+        efsanegenisligi: extendFlat({}, basePlotAttributes.legendwidth, {
+            description: 'Yeni şekil için efsanenin genişliğini (px veya kesir olarak) ayarlar.',
         }),
 
-        line: {
-            color: {
+        cizgi: {
+            renk: {
                 valType: 'color',
                 description: [
-                    'Sets the line color.',
-                    'By default uses either dark grey or white',
-                    'to increase contrast with background color.'
+                    'Çizgi rengini ayarlar.',
+                    'Varsayılan olarak, arka plan rengiyle kontrastı artırmak için',
+                    'ya koyu gri ya da beyaz kullanılır.'
                 ].join(' ')
             },
-            width: {
+            genislik: {
                 valType: 'number',
                 min: 0,
                 dflt: 4,
-                description: 'Sets the line width (in px).'
+                description: 'Çizgi genişliğini (px olarak) ayarlar.'
             },
-            dash: extendFlat({}, dash, {
+            cizgiStili: extendFlat({}, dash, {
                 dflt: 'solid',
             })
         },
-        fillcolor: {
+        dolguRengi: {
             valType: 'color',
             dflt: 'rgba(0,0,0,0)',
             description: [
-                'Sets the color filling new shapes\' interior.',
-                'Please note that if using a fillcolor with alpha greater than half,',
-                'drag inside the active shape starts moving the shape underneath,',
-                'otherwise a new shape could be started over.'
+                'Yeni şekillerin içini dolduran rengi ayarlar.',
+                'Lütfen alfa değeri yarıdan fazla olan bir dolgu rengi kullanıyorsanız,',
+                'aktif şeklin içindeki sürükleme altındaki şekli hareket ettirmeye başlar,',
+                'aksi takdirde yeni bir şekil başlatılabilir.'
             ].join(' ')
         },
-        fillrule: {
+        dolguKuralı: {
             valType: 'enumerated',
             values: ['evenodd', 'nonzero'],
             dflt: 'evenodd',
             description: [
-                'Determines the path\'s interior.',
-                'For more info please visit https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-rule'
+                'Yolun içini belirler.',
+                'Daha fazla bilgi için lütfen https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-rule adresini ziyaret edin.'
             ].join(' ')
         },
-        opacity: {
+        opaklık: {
             valType: 'number',
             min: 0,
             max: 1,
             dflt: 1,
-            description: 'Sets the opacity of new shapes.'
+            description: 'Yeni şekillerin opaklığını ayarlar.'
         },
-        layer: {
+        katman: {
             valType: 'enumerated',
             values: ['below', 'above', 'between'],
             dflt: 'above',
             description: [
-                'Specifies whether new shapes are drawn below gridlines (*below*),',
-                'between gridlines and traces (*between*) or above traces (*above*).'
+                'Yeni şekillerin ızgara çizgilerinin altında (*below*),',
+                'ızgara çizgileri ve izler arasında (*between*) veya izlerin üstünde (*above*) çizilip çizilmeyeceğini belirtir.'
             ].join(' ')
         },
-        drawdirection: {
+        cizimYonu: {
             valType: 'enumerated',
             values: ['ortho', 'horizontal', 'vertical', 'diagonal'],
             dflt: 'diagonal',
             description: [
-                'When `dragmode` is set to *drawrect*, *drawline* or *drawcircle*',
-                'this limits the drag to be horizontal, vertical or diagonal.',
-                'Using *diagonal* there is no limit e.g. in drawing lines in any direction.',
-                '*ortho* limits the draw to be either horizontal or vertical.',
-                '*horizontal* allows horizontal extend.',
-                '*vertical* allows vertical extend.'
+                '`dragmode` *drawrect*, *drawline* veya *drawcircle* olarak ayarlandığında,',
+                'bu sürüklemeyi yatay, dikey veya çapraz olarak sınırlar.',
+                '*diagonal* kullanıldığında, herhangi bir yönde çizim yapmada sınır yoktur.',
+                '*ortho* çizimi yatay veya dikey olarak sınırlar.',
+                '*horizontal* yatay genişlemeye izin verir.',
+                '*vertical* dikey genişlemeye izin verir.'
             ].join(' ')
         },
 
-        name: extendFlat({}, basePlotAttributes.name, {
+        isim: extendFlat({}, basePlotAttributes.name, {
             description: [
-                'Sets new shape name.',
-                'The name appears as the legend item.'
+                'Yeni şekil adını ayarlar.',
+                'Ad, efsane öğesi olarak görünür.'
             ].join(' ')
         }),
 
-        label: {
-            text: {
+        etiket: {
+            metin: {
                 valType: 'string',
                 dflt: '',
                 description: [
-                    'Sets the text to display with the new shape.',
-                    'It is also used for legend item if `name` is not provided.'
+                    'Yeni şekille görüntülenecek metni ayarlar.',
+                    'Eğer `isim` sağlanmamışsa, efsane öğesi için de kullanılır.'
                 ].join(' ')
             },
-            texttemplate: shapeTexttemplateAttrs({newshape: true}, {keys: Object.keys(shapeLabelTexttemplateVars)}),
+            metinSablonu: shapeTexttemplateAttrs({newshape: true}, {keys: Object.keys(shapeLabelTexttemplateVars)}),
             font: fontAttrs({
-                description: 'Sets the new shape label text font.'
+                description: 'Yeni şekil etiket metin yazı tipini ayarlar.'
             }),
-            textposition: {
+            metinPozisyonu: {
                 valType: 'enumerated',
                 values: [
                     'top left', 'top center', 'top right',
@@ -167,73 +166,70 @@ module.exports = overrideAll({
                     'start', 'middle', 'end',
                 ],
                 description: [
-                    'Sets the position of the label text relative to the new shape.',
-                    'Supported values for rectangles, circles and paths are',
+                    'Yeni şekle göre etiket metninin pozisyonunu ayarlar.',
+                    'Dikdörtgenler, daireler ve yollar için desteklenen değerler',
                     '*top left*, *top center*, *top right*, *middle left*,',
                     '*middle center*, *middle right*, *bottom left*, *bottom center*,',
-                    'and *bottom right*.',
-                    'Supported values for lines are *start*, *middle*, and *end*.',
-                    'Default: *middle center* for rectangles, circles, and paths; *middle* for lines.',
+                    've *bottom right* şeklindedir.',
+                    'Çizgiler için desteklenen değerler *start*, *middle*, ve *end* şeklindedir.',
+                    'Dikdörtgenler, daireler ve yollar için varsayılan: *middle center*; çizgiler için *middle*.'
                 ].join(' ')
             },
-            textangle: {
+            metinAcisi: {
                 valType: 'angle',
                 dflt: 'auto',
                 description: [
-                    'Sets the angle at which the label text is drawn',
-                    'with respect to the horizontal. For lines, angle *auto*',
-                    'is the same angle as the line. For all other shapes,',
-                    'angle *auto* is horizontal.'
+                    'Etiket metninin yataya göre çizildiği açıyı ayarlar.',
+                    'Çizgiler için, açı *auto* çizgiyle aynı açıdır.',
+                    'Diğer tüm şekiller için, açı *auto* yataydır.'
                 ].join(' ')
             },
-            xanchor: {
+            xCapa: {
                 valType: 'enumerated',
                 values: ['auto', 'left', 'center', 'right'],
                 dflt: 'auto',
                 description: [
-                    'Sets the label\'s horizontal position anchor',
-                    'This anchor binds the specified `textposition` to the *left*, *center*',
-                    'or *right* of the label text.',
-                    'For example, if `textposition` is set to *top right* and',
-                    '`xanchor` to *right* then the right-most portion of the',
-                    'label text lines up with the right-most edge of the',
-                    'new shape.',
+                    'Etiketin yatay pozisyon çapası',
+                    'Bu çapa, belirtilen `metinPozisyonu`nu etiket metninin *sol*, *orta*',
+                    'veya *sağ* kısmına bağlar.',
+                    'Örneğin, `metinPozisyonu` *top right* olarak ayarlanmışsa ve',
+                    '`xCapa` *right* olarak ayarlanmışsa, etiket metninin',
+                    'sağ kenarı yeni şeklin sağ kenarıyla hizalanır.'
                 ].join(' '),
             },
-            yanchor: {
+            yCapa: {
                 valType: 'enumerated',
                 values: ['top', 'middle', 'bottom'],
                 description: [
-                    'Sets the label\'s vertical position anchor',
-                    'This anchor binds the specified `textposition` to the *top*, *middle*',
-                    'or *bottom* of the label text.',
-                    'For example, if `textposition` is set to *top right* and',
-                    '`yanchor` to *top* then the top-most portion of the',
-                    'label text lines up with the top-most edge of the',
-                    'new shape.',
+                    'Etiketin dikey pozisyon çapası',
+                    'Bu çapa, belirtilen `metinPozisyonu`nu etiket metninin *üst*, *orta*',
+                    'veya *alt* kısmına bağlar.',
+                    'Örneğin, `metinPozisyonu` *top right* olarak ayarlanmışsa ve',
+                    '`yCapa` *top* olarak ayarlanmışsa, etiket metninin',
+                    'üst kenarı yeni şeklin üst kenarıyla hizalanır.'
                 ].join(' ')
             },
-            padding: {
+            dolgu: {
                 valType: 'number',
                 dflt: 3,
                 min: 0,
-                description: 'Sets padding (in px) between edge of label and edge of new shape.'
+                description: 'Etiketin kenarı ile yeni şeklin kenarı arasındaki dolgu (px olarak) ayarlanır.'
             }
         }
     },
 
-    activeshape: {
-        fillcolor: {
+    aktifSekil: {
+        dolguRengi: {
             valType: 'color',
             dflt: 'rgb(255,0,255)',
-            description: 'Sets the color filling the active shape\' interior.'
+            description: 'Aktif şeklin içini dolduran rengi ayarlar.'
         },
-        opacity: {
+        opaklık: {
             valType: 'number',
             min: 0,
             max: 1,
             dflt: 0.5,
-            description: 'Sets the opacity of the active shape.'
+            description: 'Aktif şeklin opaklığını ayarlar.'
         }
     }
 }, 'none', 'from-root');

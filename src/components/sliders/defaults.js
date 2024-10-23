@@ -6,100 +6,99 @@ var handleArrayContainerDefaults = require('../../plots/array_container_defaults
 var attributes = require('./attributes');
 var constants = require('./constants');
 
-var name = constants.name;
-var stepAttrs = attributes.steps;
+var isim = constants.name;
+var adımÖzellikleri = attributes.steps;
 
-
-module.exports = function slidersDefaults(layoutIn, layoutOut) {
+module.exports = function kaydırıcıVarsayılanları(layoutIn, layoutOut) {
     handleArrayContainerDefaults(layoutIn, layoutOut, {
-        name: name,
-        handleItemDefaults: sliderDefaults
+        name: isim,
+        handleItemDefaults: kaydırıcıVarsayılanları
     });
 };
 
-function sliderDefaults(sliderIn, sliderOut, layoutOut) {
-    function coerce(attr, dflt) {
-        return Lib.coerce(sliderIn, sliderOut, attributes, attr, dflt);
+function kaydırıcıVarsayılanları(kaydırıcıIn, kaydırıcıOut, layoutOut) {
+    function zorla(attr, varsayılan) {
+        return Lib.coerce(kaydırıcıIn, kaydırıcıOut, attributes, attr, varsayılan);
     }
 
-    var steps = handleArrayContainerDefaults(sliderIn, sliderOut, {
+    var adımlar = handleArrayContainerDefaults(kaydırıcıIn, kaydırıcıOut, {
         name: 'steps',
-        handleItemDefaults: stepDefaults
+        handleItemDefaults: adımVarsayılanları
     });
 
-    var stepCount = 0;
-    for(var i = 0; i < steps.length; i++) {
-        if(steps[i].visible) stepCount++;
+    var adımSayısı = 0;
+    for(var i = 0; i < adımlar.length; i++) {
+        if(adımlar[i].visible) adımSayısı++;
     }
 
-    var visible;
-    // If it has fewer than two options, it's not really a slider
-    if(stepCount < 2) visible = sliderOut.visible = false;
-    else visible = coerce('visible');
-    if(!visible) return;
+    var görünür;
+    // İki seçenekten azsa, gerçekten bir kaydırıcı değildir
+    if(adımSayısı < 2) görünür = kaydırıcıOut.visible = false;
+    else görünür = zorla('visible');
+    if(!görünür) return;
 
-    sliderOut._stepCount = stepCount;
-    var visSteps = sliderOut._visibleSteps = Lib.filterVisible(steps);
+    kaydırıcıOut._adımSayısı = adımSayısı;
+    var görünürAdımlar = kaydırıcıOut._görünürAdımlar = Lib.filterVisible(adımlar);
 
-    var active = coerce('active');
-    if(!(steps[active] || {}).visible) sliderOut.active = visSteps[0]._index;
+    var aktif = zorla('active');
+    if(!(adımlar[aktif] || {}).visible) kaydırıcıOut.active = görünürAdımlar[0]._index;
 
-    coerce('x');
-    coerce('y');
-    Lib.noneOrAll(sliderIn, sliderOut, ['x', 'y']);
+    zorla('x');
+    zorla('y');
+    Lib.noneOrAll(kaydırıcıIn, kaydırıcıOut, ['x', 'y']);
 
-    coerce('xanchor');
-    coerce('yanchor');
+    zorla('xanchor');
+    zorla('yanchor');
 
-    coerce('len');
-    coerce('lenmode');
+    zorla('len');
+    zorla('lenmode');
 
-    coerce('pad.t');
-    coerce('pad.r');
-    coerce('pad.b');
-    coerce('pad.l');
+    zorla('pad.t');
+    zorla('pad.r');
+    zorla('pad.b');
+    zorla('pad.l');
 
-    Lib.coerceFont(coerce, 'font', layoutOut.font);
+    Lib.coerceFont(zorla, 'font', layoutOut.font);
 
-    var currentValueIsVisible = coerce('currentvalue.visible');
+    var mevcutDeğerGörünür = zorla('currentvalue.visible');
 
-    if(currentValueIsVisible) {
-        coerce('currentvalue.xanchor');
-        coerce('currentvalue.prefix');
-        coerce('currentvalue.suffix');
-        coerce('currentvalue.offset');
+    if(mevcutDeğerGörünür) {
+        zorla('currentvalue.xanchor');
+        zorla('currentvalue.prefix');
+        zorla('currentvalue.suffix');
+        zorla('currentvalue.offset');
 
-        Lib.coerceFont(coerce, 'currentvalue.font', sliderOut.font);
+        Lib.coerceFont(zorla, 'currentvalue.font', kaydırıcıOut.font);
     }
 
-    coerce('transition.duration');
-    coerce('transition.easing');
+    zorla('transition.duration');
+    zorla('transition.easing');
 
-    coerce('bgcolor');
-    coerce('activebgcolor');
-    coerce('bordercolor');
-    coerce('borderwidth');
-    coerce('ticklen');
-    coerce('tickwidth');
-    coerce('tickcolor');
-    coerce('minorticklen');
+    zorla('bgcolor');
+    zorla('activebgcolor');
+    zorla('bordercolor');
+    zorla('borderwidth');
+    zorla('ticklen');
+    zorla('tickwidth');
+    zorla('tickcolor');
+    zorla('minorticklen');
 }
 
-function stepDefaults(valueIn, valueOut) {
-    function coerce(attr, dflt) {
-        return Lib.coerce(valueIn, valueOut, stepAttrs, attr, dflt);
+function adımVarsayılanları(değerIn, değerOut) {
+    function zorla(attr, varsayılan) {
+        return Lib.coerce(değerIn, değerOut, adımÖzellikleri, attr, varsayılan);
     }
 
-    var visible;
-    if(valueIn.method !== 'skip' && !Array.isArray(valueIn.args)) {
-        visible = valueOut.visible = false;
-    } else visible = coerce('visible');
+    var görünür;
+    if(değerIn.method !== 'skip' && !Array.isArray(değerIn.args)) {
+        görünür = değerOut.visible = false;
+    } else görünür = zorla('visible');
 
-    if(visible) {
-        coerce('method');
-        coerce('args');
-        var label = coerce('label', 'step-' + valueOut._index);
-        coerce('value', label);
-        coerce('execute');
+    if(görünür) {
+        zorla('method');
+        zorla('args');
+        var etiket = zorla('label', 'adım-' + değerOut._index);
+        zorla('value', etiket);
+        zorla('execute');
     }
 }

@@ -2,12 +2,10 @@
 
 var isArrayOrTypedArray = require('../../lib').isArrayOrTypedArray;
 
-/* This function retrns a set of control points that define a curve aligned along
- * either the a or b axis. Exactly one of a or b must be an array defining the range
- * spanned.
+/* Bu fonksiyon, a veya b ekseni boyunca hizalanmış bir eğriyi tanımlayan bir kontrol noktaları seti döndürür.
+ * a veya b'den tam olarak biri, kapsanan aralığı tanımlayan bir dizi olmalıdır.
  *
- * Honestly this is the most complicated function I've implemente here so far because
- * of the way it handles knot insertion and direction/axis-agnostic slices.
+ * Dürüst olmak gerekirse, bu, burada şimdiye kadar uyguladığım en karmaşık fonksiyon çünkü düğüm ekleme ve yön/eksen-agnostik dilimleri ele alma şekli nedeniyle.
  */
 module.exports = function(carpet, carpetcd, a, b) {
     var idx, tangent, tanIsoIdx, tanIsoPar, segment, refidx;
@@ -42,10 +40,9 @@ module.exports = function(carpet, carpetcd, a, b) {
     var vstart = toIdx(pt[0]);
     var vend = toIdx(pt[1]);
 
-    // So that we can make this work in two directions, flip all of the
-    // math functions if the direction is from higher to lower indices:
+    // Bu iki yönde çalışmasını sağlamak için, yön daha yüksekten daha düşük indekslere doğruysa tüm matematik fonksiyonlarını ters çevirin:
     //
-    // Note that the tolerance is directional!
+    // Toleransın yönlü olduğunu unutmayın!
     var dir = vstart < vend ? 1 : -1;
     var tol = (vend - vstart) * 1e-8;
     var dirfloor = dir > 0 ? Math.floor : Math.ceil;
@@ -65,10 +62,7 @@ module.exports = function(carpet, carpetcd, a, b) {
         end = dirmin(vend, idx + dir);
         range = end - start;
 
-        // In order to figure out which cell we're in for the derivative (remember,
-        // the derivatives are *not* constant across grid lines), let's just average
-        // the start and end points. This cuts out just a tiny bit of logic and
-        // there's really no computational difference:
+        // Türev için hangi hücrede olduğumuzu anlamak için (unutmayın, türevler ızgara çizgileri boyunca sabit değildir), başlangıç ve bitiş noktalarını ortalayalım. Bu, sadece çok az bir mantığı keser ve gerçekten hesaplama açısından bir fark yaratmaz:
         refidx = Math.max(0, Math.min(n - 2, Math.floor(0.5 * (start + end))));
 
         p1 = xy(end);

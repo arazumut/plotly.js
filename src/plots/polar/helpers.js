@@ -9,14 +9,13 @@ var angleDelta = Lib.angleDelta;
 var angleDist = Lib.angleDist;
 
 /**
- * is pt (r,a) inside polygon made up vertices at angles 'vangles'
- * inside a given polar sector
+ * Nokta (r,a) verilen bir polar sektördeki açılardan oluşan bir poligonun içinde mi?
  *
- * @param {number} r : pt's radial coordinate
- * @param {number} a : pt's angular coordinate in *radians*
- * @param {2-item array} rBnds : sector's radial bounds
- * @param {2-item array} aBnds : sector's angular bounds *radians*
- * @param {array} vangles : angles of polygon vertices in *radians*
+ * @param {number} r : Noktanın radyal koordinatı
+ * @param {number} a : Noktanın açısal koordinatı (radyan cinsinden)
+ * @param {2-item array} rBnds : Sektörün radyal sınırları
+ * @param {2-item array} aBnds : Sektörün açısal sınırları (radyan cinsinden)
+ * @param {array} vangles : Poligonun köşe açıları (radyan cinsinden)
  * @return {boolean}
  */
 function isPtInsidePolygon(r, a, rBnds, aBnds, vangles) {
@@ -38,10 +37,9 @@ function isPtInsidePolygon(r, a, rBnds, aBnds, vangles) {
     return polygonOut.contains(xy) && !polygonIn.contains(xy);
 }
 
-// find intersection of 'v0' <-> 'v1' edge with a ray at angle 'a'
-// (i.e. a line that starts from the origin at angle 'a')
-// given an (xp,yp) pair on the 'v0' <-> 'v1' line
-// (N.B. 'v0' and 'v1' are angles in radians)
+// 'v0' <-> 'v1' kenarının 'a' açısındaki bir ışınla kesişim noktasını bulur
+// (yani, 'a' açısında orijinden başlayan bir doğru)
+// 'v0' ve 'v1' radyan cinsinden açılardır
 function findIntersectionXY(v0, v1, a, xpyp) {
     var xstar, ystar;
 
@@ -56,23 +54,16 @@ function findIntersectionXY(v0, v1, a, xpyp) {
 
     if(cotanA) {
         if(dsin && dcos) {
-            // given
-            //  g(x) := v0 -> v1 line = m*x + b
-            //  h(x) := ray at angle 'a' = m*x = tanA*x
-            // solve g(xstar) = h(xstar)
             xstar = b / (tanA - m);
             ystar = tanA * xstar;
         } else if(dcos) {
-            // horizontal v0 -> v1
             xstar = yp * cotanA;
             ystar = yp;
         } else {
-            // vertical v0 -> v1
             xstar = xp;
             ystar = xp * tanA;
         }
     } else {
-        // vertical ray
         if(dsin && dcos) {
             xstar = 0;
             ystar = b;
@@ -80,7 +71,6 @@ function findIntersectionXY(v0, v1, a, xpyp) {
             xstar = 0;
             ystar = yp;
         } else {
-            // does this case exists?
             xstar = ystar = NaN;
         }
     }
@@ -88,11 +78,8 @@ function findIntersectionXY(v0, v1, a, xpyp) {
     return [xstar, ystar];
 }
 
-// solves l^2 = (f(x)^2 - yp)^2 + (x - xp)^2
-// rearranged into 0 = a*x^2 + b * x + c
-//
-// where f(x) = m*x + t + yp
-// and   (x0, x1) = (-b +/- del) / (2*a)
+// l^2 = (f(x)^2 - yp)^2 + (x - xp)^2 denklemini çözer
+// 0 = a*x^2 + b * x + c şeklinde yeniden düzenlenmiştir
 function findXYatLength(l, m, xp, yp) {
     var t = -m * xp;
     var a = m * m + 1;
@@ -140,23 +127,18 @@ function makeClippedPolygon(r, a0, a1, vangles) {
         return isAngleInsideSector(v, [a0, a1]);
     }
 
-    // find index in sector closest to a0
-    // use it to find intersection of v[i0] <-> v[i0-1] edge with sector radius
     var i0 = findIndexOfMin(vangles, function(v) {
         return isInside(v) ? angleDist(v, a0) : Infinity;
     });
     var xy0 = findXY(vangles[i0], vangles[cycleIndex(i0 - 1)], a0);
     vertices.push(xy0);
 
-    // fill in in-sector vertices
     for(i = i0, j = 0; j < len; i++, j++) {
         var va = vangles[cycleIndex(i)];
         if(!isInside(va)) break;
         vertices.push(a2xy(va));
     }
 
-    // find index in sector closest to a1,
-    // use it to find intersection of v[iN] <-> v[iN+1] edge with sector radius
     var iN = findIndexOfMin(vangles, function(v) {
         return isInside(v) ? angleDist(v, a1) : Infinity;
     });
@@ -189,10 +171,10 @@ function findPolygonOffset(r, a0, a1, vangles) {
 }
 
 /**
- * find vertex angles (in 'vangles') the enclose angle 'a'
+ * 'a' açısını kapsayan köşe açılarını (vangles) bulur
  *
- * @param {number} a : angle in *radians*
- * @param {array} vangles : angles of polygon vertices in *radians*
+ * @param {number} a : Açı (radyan cinsinden)
+ * @param {array} vangles : Poligonun köşe açıları (radyan cinsinden)
  * @return {2-item array}
  */
 function findEnclosingVertexAngles(a, vangles) {
@@ -205,7 +187,7 @@ function findEnclosingVertexAngles(a, vangles) {
     return [vangles[i0], vangles[i1]];
 }
 
-// to more easily catch 'almost zero' numbers in if-else blocks
+// 'nereye' bloklarında 'neredeyse sıfır' sayıları daha kolay yakalamak için
 function clampTiny(v) {
     return Math.abs(v) > 1e-10 ? v : 0;
 }
@@ -225,15 +207,15 @@ function transformForSVG(pts0, cx, cy) {
 }
 
 /**
- * path polygon
+ * Poligon yolu
  *
- * @param {number} r : polygon 'radius'
- * @param {number} a0 : first angular coordinate in *radians*
- * @param {number} a1 : second angular coordinate in *radians*
- * @param {array} vangles : angles of polygon vertices in *radians*
- * @param {number (optional)} cx : x coordinate of center
- * @param {number (optional)} cy : y coordinate of center
- * @return {string} svg path
+ * @param {number} r : Poligonun 'yarıçapı'
+ * @param {number} a0 : İlk açısal koordinat (radyan cinsinden)
+ * @param {number} a1 : İkinci açısal koordinat (radyan cinsinden)
+ * @param {array} vangles : Poligonun köşe açıları (radyan cinsinden)
+ * @param {number (optional)} cx : Merkezin x koordinatı
+ * @param {number (optional)} cy : Merkezin y koordinatı
+ * @return {string} svg yolu
  *
  */
 function pathPolygon(r, a0, a1, vangles, cx, cy) {
@@ -242,19 +224,19 @@ function pathPolygon(r, a0, a1, vangles, cx, cy) {
 }
 
 /**
- * path a polygon 'annulus'
- * i.e. a polygon with a concentric hole
+ * Poligon 'halka' yolu
+ * Yani, eşmerkezli bir deliği olan bir poligon
  *
- * N.B. this routine uses the evenodd SVG rule
+ * Bu rutin evenodd SVG kuralını kullanır
  *
- * @param {number} r0 : first radial coordinate
- * @param {number} r1 : second radial coordinate
- * @param {number} a0 : first angular coordinate in *radians*
- * @param {number} a1 : second angular coordinate in *radians*
- * @param {array} vangles : angles of polygon vertices in *radians*
- * @param {number (optional)} cx : x coordinate of center
- * @param {number (optional)} cy : y coordinate of center
- * @return {string} svg path
+ * @param {number} r0 : İlk radyal koordinat
+ * @param {number} r1 : İkinci radyal koordinat
+ * @param {number} a0 : İlk açısal koordinat (radyan cinsinden)
+ * @param {number} a1 : İkinci açısal koordinat (radyan cinsinden)
+ * @param {array} vangles : Poligonun köşe açıları (radyan cinsinden)
+ * @param {number (optional)} cx : Merkezin x koordinatı
+ * @param {number (optional)} cy : Merkezin y koordinatı
+ * @return {string} svg yolu
  *
  */
 function pathPolygonAnnulus(r0, r1, a0, a1, vangles, cx, cy) {

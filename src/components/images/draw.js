@@ -6,84 +6,82 @@ var Axes = require('../../plots/cartesian/axes');
 var axisIds = require('../../plots/cartesian/axis_ids');
 var xmlnsNamespaces = require('../../constants/xmlns_namespaces');
 
-module.exports = function draw(gd) {
-    var fullLayout = gd._fullLayout;
-    var imageDataAbove = [];
-    var imageDataSubplot = {};
-    var imageDataBelow = [];
-    var subplot;
+module.exports = function çiz(gd) {
+    var tamYerleşim = gd._fullLayout;
+    var üsttekiGörseller = [];
+    var altGörsellerAltGrafik = {};
+    var alttakiGörseller = [];
+    var altGrafik;
     var i;
 
-    // Sort into top, subplot, and bottom layers
-    for(i = 0; i < fullLayout.images.length; i++) {
-        var img = fullLayout.images[i];
+    // Üst, alt grafik ve alt katmanlara göre sıralama
+    for(i = 0; i < tamYerleşim.images.length; i++) {
+        var img = tamYerleşim.images[i];
 
         if(img.visible) {
             if(img.layer === 'below' && img.xref !== 'paper' && img.yref !== 'paper') {
-                subplot = axisIds.ref2id(img.xref) + axisIds.ref2id(img.yref);
+                altGrafik = axisIds.ref2id(img.xref) + axisIds.ref2id(img.yref);
 
-                var plotinfo = fullLayout._plots[subplot];
+                var plotinfo = tamYerleşim._plots[altGrafik];
 
                 if(!plotinfo) {
-                    // Fall back to _imageLowerLayer in case the requested subplot doesn't exist.
-                    // This can happen if you reference the image to an x / y axis combination
-                    // that doesn't have any data on it (and layer is below)
-                    imageDataBelow.push(img);
+                    // İstenen alt grafik mevcut değilse _imageLowerLayer'a geri dön.
+                    // Bu, görüntüyü x / y ekseni kombinasyonuna referans verirseniz
+                    // ve katman aşağıdaysa olabilir.
+                    alttakiGörseller.push(img);
                     continue;
                 }
 
                 if(plotinfo.mainplot) {
-                    subplot = plotinfo.mainplot.id;
+                    altGrafik = plotinfo.mainplot.id;
                 }
 
-                if(!imageDataSubplot[subplot]) {
-                    imageDataSubplot[subplot] = [];
+                if(!altGörsellerAltGrafik[altGrafik]) {
+                    altGörsellerAltGrafik[altGrafik] = [];
                 }
-                imageDataSubplot[subplot].push(img);
+                altGörsellerAltGrafik[altGrafik].push(img);
             } else if(img.layer === 'above') {
-                imageDataAbove.push(img);
+                üsttekiGörseller.push(img);
             } else {
-                imageDataBelow.push(img);
+                alttakiGörseller.push(img);
             }
         }
     }
 
-
-    var anchors = {
+    var sabitleyiciler = {
         x: {
-            left: { sizing: 'xMin', offset: 0 },
-            center: { sizing: 'xMid', offset: -1 / 2 },
-            right: { sizing: 'xMax', offset: -1 }
+            left: { boyutlandırma: 'xMin', ofset: 0 },
+            center: { boyutlandırma: 'xMid', ofset: -1 / 2 },
+            right: { boyutlandırma: 'xMax', ofset: -1 }
         },
         y: {
-            top: { sizing: 'YMin', offset: 0 },
-            middle: { sizing: 'YMid', offset: -1 / 2 },
-            bottom: { sizing: 'YMax', offset: -1 }
+            top: { boyutlandırma: 'YMin', ofset: 0 },
+            middle: { boyutlandırma: 'YMid', ofset: -1 / 2 },
+            bottom: { boyutlandırma: 'YMax', ofset: -1 }
         }
     };
 
-
-    // Images must be converted to dataURL's for exporting.
-    function setImage(d) {
-        var thisImage = d3.select(this);
+    // Görseller dışa aktarım için dataURL'lere dönüştürülmelidir.
+    function görselAyarla(d) {
+        var buGörsel = d3.select(this);
 
         if(this._imgSrc === d.source) {
             return;
         }
 
-        thisImage.attr('xmlns', xmlnsNamespaces.svg);
+        buGörsel.attr('xmlns', xmlnsNamespaces.svg);
 
         if(!gd._context.staticPlot || (d.source && d.source.slice(0, 5) === 'data:')) {
-            thisImage.attr('xlink:href', d.source);
+            buGörsel.attr('xlink:href', d.source);
             this._imgSrc = d.source;
         } else {
-            var imagePromise = new Promise(function(resolve) {
+            var görselVaadi = new Promise(function(resolve) {
                 var img = new Image();
                 this.img = img;
 
-                // If not set, a `tainted canvas` error is thrown
+                // Ayarlanmazsa, `tainted canvas` hatası atılır
                 img.setAttribute('crossOrigin', 'anonymous');
-                img.onerror = errorHandler;
+                img.onerror = hataYöneticisi;
                 img.onload = function() {
                     var canvas = document.createElement('canvas');
                     canvas.width = this.width;
@@ -94,154 +92,152 @@ module.exports = function draw(gd) {
 
                     var dataURL = canvas.toDataURL('image/png');
 
-                    thisImage.attr('xlink:href', dataURL);
+                    buGörsel.attr('xlink:href', dataURL);
 
-                    // resolve promise in onload handler instead of on 'load' to support IE11
-                    // see https://github.com/plotly/plotly.js/issues/1685
-                    // for more details
+                    // IE11'i desteklemek için onload işleyicisinde vaadi çöz
+                    // daha fazla ayrıntı için https://github.com/plotly/plotly.js/issues/1685
                     resolve();
                 };
 
-                thisImage.on('error', errorHandler);
+                buGörsel.on('error', hataYöneticisi);
 
                 img.src = d.source;
                 this._imgSrc = d.source;
 
-                function errorHandler() {
-                    thisImage.remove();
+                function hataYöneticisi() {
+                    buGörsel.remove();
                     resolve();
                 }
             }.bind(this));
 
-            gd._promises.push(imagePromise);
+            gd._promises.push(görselVaadi);
         }
     }
 
-    function applyAttributes(d) {
-        var thisImage = d3.select(this);
+    function öznitelikleriUygula(d) {
+        var buGörsel = d3.select(this);
 
-        // Axes if specified
+        // Belirtilmiş eksenler
         var xa = Axes.getFromId(gd, d.xref);
         var ya = Axes.getFromId(gd, d.yref);
-        var xIsDomain = Axes.getRefType(d.xref) === 'domain';
-        var yIsDomain = Axes.getRefType(d.yref) === 'domain';
+        var xAlanı = Axes.getRefType(d.xref) === 'domain';
+        var yAlanı = Axes.getRefType(d.yref) === 'domain';
 
-        var size = fullLayout._size;
-        var width, height;
+        var boyut = tamYerleşim._size;
+        var genişlik, yükseklik;
         if(xa !== undefined) {
-            width = ((typeof(d.xref) === 'string') && xIsDomain) ?
+            genişlik = ((typeof(d.xref) === 'string') && xAlanı) ?
                 xa._length * d.sizex :
                 Math.abs(xa.l2p(d.sizex) - xa.l2p(0));
         } else {
-            width = d.sizex * size.w;
+            genişlik = d.sizex * boyut.w;
         }
         if(ya !== undefined) {
-            height = ((typeof(d.yref) === 'string') && yIsDomain) ?
+            yükseklik = ((typeof(d.yref) === 'string') && yAlanı) ?
                 ya._length * d.sizey :
                 Math.abs(ya.l2p(d.sizey) - ya.l2p(0));
         } else {
-            height = d.sizey * size.h;
+            yükseklik = d.sizey * boyut.h;
         }
 
-        // Offsets for anchor positioning
-        var xOffset = width * anchors.x[d.xanchor].offset;
-        var yOffset = height * anchors.y[d.yanchor].offset;
+        // Sabitleyici konumlandırma için ofsetler
+        var xOfset = genişlik * sabitleyiciler.x[d.xanchor].ofset;
+        var yOfset = yükseklik * sabitleyiciler.y[d.yanchor].ofset;
 
-        var sizing = anchors.x[d.xanchor].sizing + anchors.y[d.yanchor].sizing;
+        var boyutlandırma = sabitleyiciler.x[d.xanchor].boyutlandırma + sabitleyiciler.y[d.yanchor].boyutlandırma;
 
-        // Final positions
+        // Nihai pozisyonlar
         var xPos, yPos;
         if(xa !== undefined) {
-            xPos = ((typeof(d.xref) === 'string') && xIsDomain) ?
+            xPos = ((typeof(d.xref) === 'string') && xAlanı) ?
                 xa._length * d.x + xa._offset :
                 xa.r2p(d.x) + xa._offset;
         } else {
-            xPos = d.x * size.w + size.l;
+            xPos = d.x * boyut.w + boyut.l;
         }
-        xPos += xOffset;
+        xPos += xOfset;
         if(ya !== undefined) {
-            yPos = ((typeof(d.yref) === 'string') && yIsDomain) ?
-                // consistent with "paper" yref value, where positive values
-                // move up the page
+            yPos = ((typeof(d.yref) === 'string') && yAlanı) ?
+                // "paper" yref değeri ile tutarlı, burada pozitif değerler
+                // sayfanın yukarısına hareket eder
                 ya._length * (1 - d.y) + ya._offset :
                 ya.r2p(d.y) + ya._offset;
         } else {
-            yPos = size.h - d.y * size.h + size.t;
+            yPos = boyut.h - d.y * boyut.h + boyut.t;
         }
-        yPos += yOffset;
+        yPos += yOfset;
 
-        // Construct the proper aspectRatio attribute
+        // Uygun aspectRatio özniteliğini oluştur
         switch(d.sizing) {
             case 'fill':
-                sizing += ' slice';
+                boyutlandırma += ' slice';
                 break;
 
             case 'stretch':
-                sizing = 'none';
+                boyutlandırma = 'none';
                 break;
         }
 
-        thisImage.attr({
+        buGörsel.attr({
             x: xPos,
             y: yPos,
-            width: width,
-            height: height,
-            preserveAspectRatio: sizing,
+            width: genişlik,
+            height: yükseklik,
+            preserveAspectRatio: boyutlandırma,
             opacity: d.opacity
         });
 
-
-        // Set proper clipping on images
+        // Görsellerde uygun kırpma ayarla
         var xId = xa && (Axes.getRefType(d.xref) !== 'domain') ? xa._id : '';
         var yId = ya && (Axes.getRefType(d.yref) !== 'domain') ? ya._id : '';
-        var clipAxes = xId + yId;
+        var kırpEksenleri = xId + yId;
 
         Drawing.setClipUrl(
-            thisImage,
-            clipAxes ? ('clip' + fullLayout._uid + clipAxes) : null,
+            buGörsel,
+            kırpEksenleri ? ('clip' + tamYerleşim._uid + kırpEksenleri) : null,
             gd
         );
     }
 
-    var imagesBelow = fullLayout._imageLowerLayer.selectAll('image')
-        .data(imageDataBelow);
-    var imagesAbove = fullLayout._imageUpperLayer.selectAll('image')
-        .data(imageDataAbove);
+    var altGörseller = tamYerleşim._imageLowerLayer.selectAll('image')
+        .data(alttakiGörseller);
+    var üstGörseller = tamYerleşim._imageUpperLayer.selectAll('image')
+        .data(üsttekiGörseller);
 
-    imagesBelow.enter().append('image');
-    imagesAbove.enter().append('image');
+    altGörseller.enter().append('image');
+    üstGörseller.enter().append('image');
 
-    imagesBelow.exit().remove();
-    imagesAbove.exit().remove();
+    altGörseller.exit().remove();
+    üstGörseller.exit().remove();
 
-    imagesBelow.each(function(d) {
-        setImage.bind(this)(d);
-        applyAttributes.bind(this)(d);
+    altGörseller.each(function(d) {
+        görselAyarla.bind(this)(d);
+        öznitelikleriUygula.bind(this)(d);
     });
-    imagesAbove.each(function(d) {
-        setImage.bind(this)(d);
-        applyAttributes.bind(this)(d);
+    üstGörseller.each(function(d) {
+        görselAyarla.bind(this)(d);
+        öznitelikleriUygula.bind(this)(d);
     });
 
-    var allSubplots = Object.keys(fullLayout._plots);
-    for(i = 0; i < allSubplots.length; i++) {
-        subplot = allSubplots[i];
-        var subplotObj = fullLayout._plots[subplot];
+    var tümAltGrafikler = Object.keys(tamYerleşim._plots);
+    for(i = 0; i < tümAltGrafikler.length; i++) {
+        altGrafik = tümAltGrafikler[i];
+        var altGrafikObj = tamYerleşim._plots[altGrafik];
 
-        // filter out overlaid plots (which have their images on the main plot)
-        if(!subplotObj.imagelayer) continue;
+        // üst üste binen grafikleri filtrele (görseller ana grafikte)
+        if(!altGrafikObj.imagelayer) continue;
 
-        var imagesOnSubplot = subplotObj.imagelayer.selectAll('image')
-            // even if there are no images on this subplot, we need to run
-            // enter and exit in case there were previously
-            .data(imageDataSubplot[subplot] || []);
+        var altGrafiktekiGörseller = altGrafikObj.imagelayer.selectAll('image')
+            // bu alt grafikte görsel olmasa bile, enter ve exit'i çalıştırmamız gerekiyor
+            // önceki görseller varsa
+            .data(altGörsellerAltGrafik[altGrafik] || []);
 
-        imagesOnSubplot.enter().append('image');
-        imagesOnSubplot.exit().remove();
+        altGrafiktekiGörseller.enter().append('image');
+        altGrafiktekiGörseller.exit().remove();
 
-        imagesOnSubplot.each(function(d) {
-            setImage.bind(this)(d);
-            applyAttributes.bind(this)(d);
+        altGrafiktekiGörseller.each(function(d) {
+            görselAyarla.bind(this)(d);
+            öznitelikleriUygula.bind(this)(d);
         });
     }
 };

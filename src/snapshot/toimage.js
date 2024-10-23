@@ -11,55 +11,54 @@ var toSVG = require('./tosvg');
 var svgToImg = require('./svgtoimg');
 
 /**
- * @param {object} gd figure Object
- * @param {object} opts option object
+ * @param {object} gd Grafik nesnesi
+ * @param {object} opts Seçenek nesnesi
  * @param opts.format 'jpeg' | 'png' | 'webp' | 'svg'
  */
 function toImage(gd, opts) {
-    // first clone the GD so we can operate in a clean environment
+    // İlk olarak GD'yi klonlayarak temiz bir ortamda çalışalım
     var ev = new EventEmitter();
 
     var clone = clonePlot(gd, {format: 'png'});
-    var clonedGd = clone.gd;
+    var klonlanmışGd = clone.gd;
 
-    // put the cloned div somewhere off screen before attaching to DOM
-    clonedGd.style.position = 'absolute';
-    clonedGd.style.left = '-5000px';
-    document.body.appendChild(clonedGd);
+    // Klonlanmış div'i DOM'a eklemeden önce ekran dışında bir yere koy
+    klonlanmışGd.style.position = 'absolute';
+    klonlanmışGd.style.left = '-5000px';
+    document.body.appendChild(klonlanmışGd);
 
-    function wait() {
-        var delay = helpers.getDelay(clonedGd._fullLayout);
+    function bekle() {
+        var gecikme = helpers.getDelay(klonlanmışGd._fullLayout);
 
         setTimeout(function() {
-            var svg = toSVG(clonedGd);
+            var svg = toSVG(klonlanmışGd);
 
             var canvas = document.createElement('canvas');
             canvas.id = Lib.randstr();
 
             ev = svgToImg({
                 format: opts.format,
-                width: clonedGd._fullLayout.width,
-                height: clonedGd._fullLayout.height,
+                width: klonlanmışGd._fullLayout.width,
+                height: klonlanmışGd._fullLayout.height,
                 canvas: canvas,
                 emitter: ev,
                 svg: svg
             });
 
             ev.clean = function() {
-                if(clonedGd) document.body.removeChild(clonedGd);
+                if(klonlanmışGd) document.body.removeChild(klonlanmışGd);
             };
-        }, delay);
+        }, gecikme);
     }
 
-    var redrawFunc = helpers.getRedrawFunc(clonedGd);
+    var yenidenÇizimFonksiyonu = helpers.getRedrawFunc(klonlanmışGd);
 
-    Registry.call('_doPlot', clonedGd, clone.data, clone.layout, clone.config)
-        .then(redrawFunc)
-        .then(wait)
-        .catch(function(err) {
-            ev.emit('error', err);
+    Registry.call('_doPlot', klonlanmışGd, clone.data, clone.layout, clone.config)
+        .then(yenidenÇizimFonksiyonu)
+        .then(bekle)
+        .catch(function(hata) {
+            ev.emit('error', hata);
         });
-
 
     return ev;
 }

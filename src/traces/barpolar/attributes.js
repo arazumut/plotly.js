@@ -1,11 +1,12 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var hovertemplateAttrs = require('../../plots/template_attributes').hovertemplateAttrs;
 var extendFlat = require('../../lib/extend').extendFlat;
 var scatterPolarAttrs = require('../scatterpolar/attributes');
 var barAttrs = require('../bar/attributes');
 
-
+// Modülü dışa aktar
 module.exports = {
     r: scatterPolarAttrs.r,
     theta: scatterPolarAttrs.theta,
@@ -19,39 +20,38 @@ module.exports = {
     //     valType: 'enumerated',
     //     values: ['radial', 'angular'],
     //     editType: 'calc+clearAxisTypes',
-    //     description: 'Sets the orientation of the bars.'
+    //     description: 'Çubukların yönünü ayarlar.'
     // },
 
     base: extendFlat({}, barAttrs.base, {
         description: [
-            'Sets where the bar base is drawn (in radial axis units).',
-            'In *stack* barmode,',
-            'traces that set *base* will be excluded',
-            'and drawn in *overlay* mode instead.'
+            'Çubuğun tabanının çizileceği yeri ayarlar (radyal eksen birimlerinde).',
+            '*stack* çubuk modunda,',
+            '*base* ayarlayan izler hariç tutulur',
+            've bunun yerine *overlay* modunda çizilir.'
         ].join(' ')
     }),
     offset: extendFlat({}, barAttrs.offset, {
         description: [
-            'Shifts the angular position where the bar is drawn',
-            '(in *thetatunit* units).'
+            'Çubuğun çizileceği açısal pozisyonu kaydırır',
+            '( *thetaunit* birimlerinde).'
         ].join(' ')
     }),
     width: extendFlat({}, barAttrs.width, {
         description: [
-            'Sets the bar angular width (in *thetaunit* units).'
+            'Çubuğun açısal genişliğini ayarlar ( *thetaunit* birimlerinde).'
         ].join(' ')
     }),
 
     text: extendFlat({}, barAttrs.text, {
         description: [
-            'Sets hover text elements associated with each bar.',
-            'If a single string, the same string appears over all bars.',
-            'If an array of string, the items are mapped in order to the',
-            'this trace\'s coordinates.'
+            'Her çubukla ilişkili hover metin öğelerini ayarlar.',
+            'Tek bir string ise, tüm çubukların üzerinde aynı string görünür.',
+            'Bir dizi string ise, öğeler sırayla bu iz koordinatlarına eşlenir.'
         ].join(' ')
     }),
     hovertext: extendFlat({}, barAttrs.hovertext, {
-        description: 'Same as `text`.'
+        description: ' `text` ile aynı.'
     }),
 
     // textposition: {},
@@ -73,6 +73,7 @@ module.exports = {
     // error_y
 };
 
+// barPolarMarker fonksiyonu
 function barPolarMarker() {
     var marker = extendFlat({}, barAttrs.marker);
     delete marker.cornerradius;

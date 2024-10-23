@@ -5,36 +5,36 @@ var layoutAttributes = require('./layout_attributes');
 var handleHoverModeDefaults = require('./hovermode_defaults');
 var handleHoverLabelDefaults = require('./hoverlabel_defaults');
 
-module.exports = function supplyLayoutDefaults(layoutIn, layoutOut) {
-    function coerce(attr, dflt) {
-        return Lib.coerce(layoutIn, layoutOut, layoutAttributes, attr, dflt);
+module.exports = function düzenYerleşimVarsayılanları(layoutGirdi, layoutÇıktı) {
+    function zorla(attr, varsayılan) {
+        return Lib.zorla(layoutGirdi, layoutÇıktı, layoutAttributes, attr, varsayılan);
     }
 
-    var hoverMode = handleHoverModeDefaults(layoutIn, layoutOut);
-    if(hoverMode) {
-        coerce('hoverdistance');
-        coerce('spikedistance');
+    var hoverModu = handleHoverModeDefaults(layoutGirdi, layoutÇıktı);
+    if(hoverModu) {
+        zorla('hoverdistance');
+        zorla('spikedistance');
     }
 
-    var dragMode = coerce('dragmode');
-    if(dragMode === 'select') coerce('selectdirection');
+    var sürüklemeModu = zorla('dragmode');
+    if(sürüklemeModu === 'select') zorla('selectdirection');
 
-    // if only mapbox, map or geo subplots is present on graph,
-    // reset 'zoom' dragmode to 'pan' until 'zoom' is implemented,
-    // so that the correct modebar button is active
-    var hasMapbox = layoutOut._has('mapbox');
-    var hasMap = layoutOut._has('map');
-    var hasGeo = layoutOut._has('geo');
-    var len = layoutOut._basePlotModules.length;
+    // sadece mapbox, harita veya geo alt grafikler grafikte mevcutsa,
+    // 'zoom' sürükleme modunu 'pan' olarak sıfırla, 'zoom' uygulanana kadar,
+    // böylece doğru mod çubuğu düğmesi aktif olur
+    var mapboxVarMı = layoutÇıktı._has('mapbox');
+    var haritaVarMı = layoutÇıktı._has('map');
+    var geoVarMı = layoutÇıktı._has('geo');
+    var uzunluk = layoutÇıktı._basePlotModules.length;
 
-    if(layoutOut.dragmode === 'zoom' && (
-        ((hasMapbox || hasMap || hasGeo) && len === 1) ||
-        ((hasMapbox || hasMap) && hasGeo && len === 2)
+    if(layoutÇıktı.dragmode === 'zoom' && (
+        ((mapboxVarMı || haritaVarMı || geoVarMı) && uzunluk === 1) ||
+        ((mapboxVarMı || haritaVarMı) && geoVarMı && uzunluk === 2)
     )) {
-        layoutOut.dragmode = 'pan';
+        layoutÇıktı.dragmode = 'pan';
     }
 
-    handleHoverLabelDefaults(layoutIn, layoutOut, coerce);
+    handleHoverLabelDefaults(layoutGirdi, layoutÇıktı, zorla);
 
-    Lib.coerceFont(coerce, 'hoverlabel.grouptitlefont', layoutOut.hoverlabel.font);
+    Lib.zorlaFont(zorla, 'hoverlabel.grouptitlefont', layoutÇıktı.hoverlabel.font);
 };

@@ -4,90 +4,90 @@ var isNumeric = require('fast-isnumeric');
 var tinycolor = require('tinycolor2');
 var rgba = require('color-normalize');
 
-var Colorscale = require('../components/colorscale');
-var colorDflt = require('../components/color/attributes').defaultLine;
-var isArrayOrTypedArray = require('./array').isArrayOrTypedArray;
+var RenkSkalası = require('../components/colorscale');
+var varsayılanRenk = require('../components/color/attributes').defaultLine;
+var diziVeyaTipliDiziMi = require('./array').isArrayOrTypedArray;
 
-var colorDfltRgba = rgba(colorDflt);
-var opacityDflt = 1;
+var varsayılanRenkRgba = rgba(varsayılanRenk);
+var varsayılanOpaklık = 1;
 
-function calculateColor(colorIn, opacityIn) {
-    var colorOut = colorIn;
-    colorOut[3] *= opacityIn;
-    return colorOut;
+function renkHesapla(girdiRenk, girdiOpaklık) {
+    var çıktıRenk = girdiRenk;
+    çıktıRenk[3] *= girdiOpaklık;
+    return çıktıRenk;
 }
 
-function validateColor(colorIn) {
-    if(isNumeric(colorIn)) return colorDfltRgba;
+function renkDoğrula(girdiRenk) {
+    if(isNumeric(girdiRenk)) return varsayılanRenkRgba;
 
-    var colorOut = rgba(colorIn);
+    var çıktıRenk = rgba(girdiRenk);
 
-    return colorOut.length ? colorOut : colorDfltRgba;
+    return çıktıRenk.length ? çıktıRenk : varsayılanRenkRgba;
 }
 
-function validateOpacity(opacityIn) {
-    return isNumeric(opacityIn) ? opacityIn : opacityDflt;
+function opaklıkDoğrula(girdiOpaklık) {
+    return isNumeric(girdiOpaklık) ? girdiOpaklık : varsayılanOpaklık;
 }
 
-function formatColor(containerIn, opacityIn, len) {
-    var colorIn = containerIn.color;
-    if(colorIn && colorIn._inputArray) colorIn = colorIn._inputArray;
+function renkFormatla(girdiKonteyner, girdiOpaklık, uzunluk) {
+    var girdiRenk = girdiKonteyner.color;
+    if(girdiRenk && girdiRenk._inputArray) girdiRenk = girdiRenk._inputArray;
 
-    var isArrayColorIn = isArrayOrTypedArray(colorIn);
-    var isArrayOpacityIn = isArrayOrTypedArray(opacityIn);
-    var cOpts = Colorscale.extractOpts(containerIn);
-    var colorOut = [];
+    var renkDiziMi = diziVeyaTipliDiziMi(girdiRenk);
+    var opaklıkDiziMi = diziVeyaTipliDiziMi(girdiOpaklık);
+    var renkSeçenekleri = RenkSkalası.extractOpts(girdiKonteyner);
+    var çıktıRenk = [];
 
-    var sclFunc, getColor, getOpacity, colori, opacityi;
+    var skalaFonksiyonu, renkAl, opaklıkAl, renk, opaklık;
 
-    if(cOpts.colorscale !== undefined) {
-        sclFunc = Colorscale.makeColorScaleFuncFromTrace(containerIn);
+    if(renkSeçenekleri.colorscale !== undefined) {
+        skalaFonksiyonu = RenkSkalası.makeColorScaleFuncFromTrace(girdiKonteyner);
     } else {
-        sclFunc = validateColor;
+        skalaFonksiyonu = renkDoğrula;
     }
 
-    if(isArrayColorIn) {
-        getColor = function(c, i) {
-            // FIXME: there is double work, considering that sclFunc does the opposite
-            return c[i] === undefined ? colorDfltRgba : rgba(sclFunc(c[i]));
+    if(renkDiziMi) {
+        renkAl = function(c, i) {
+            // FIXME: skalaFonksiyonu tersini yaptığı için burada çift iş var
+            return c[i] === undefined ? varsayılanRenkRgba : rgba(skalaFonksiyonu(c[i]));
         };
-    } else getColor = validateColor;
+    } else renkAl = renkDoğrula;
 
-    if(isArrayOpacityIn) {
-        getOpacity = function(o, i) {
-            return o[i] === undefined ? opacityDflt : validateOpacity(o[i]);
+    if(opaklıkDiziMi) {
+        opaklıkAl = function(o, i) {
+            return o[i] === undefined ? varsayılanOpaklık : opaklıkDoğrula(o[i]);
         };
-    } else getOpacity = validateOpacity;
+    } else opaklıkAl = opaklıkDoğrula;
 
-    if(isArrayColorIn || isArrayOpacityIn) {
-        for(var i = 0; i < len; i++) {
-            colori = getColor(colorIn, i);
-            opacityi = getOpacity(opacityIn, i);
-            colorOut[i] = calculateColor(colori, opacityi);
+    if(renkDiziMi || opaklıkDiziMi) {
+        for(var i = 0; i < uzunluk; i++) {
+            renk = renkAl(girdiRenk, i);
+            opaklık = opaklıkAl(girdiOpaklık, i);
+            çıktıRenk[i] = renkHesapla(renk, opaklık);
         }
-    } else colorOut = calculateColor(rgba(colorIn), opacityIn);
+    } else çıktıRenk = renkHesapla(rgba(girdiRenk), girdiOpaklık);
 
-    return colorOut;
+    return çıktıRenk;
 }
 
-function parseColorScale(cont) {
-    var cOpts = Colorscale.extractOpts(cont);
+function renkSkalasınıÇöz(container) {
+    var renkSeçenekleri = RenkSkalası.extractOpts(container);
 
-    var colorscale = cOpts.colorscale;
-    if(cOpts.reversescale) colorscale = Colorscale.flipScale(cOpts.colorscale);
+    var renkSkalası = renkSeçenekleri.colorscale;
+    if(renkSeçenekleri.reversescale) renkSkalası = RenkSkalası.flipScale(renkSeçenekleri.colorscale);
 
-    return colorscale.map(function(elem) {
-        var index = elem[0];
-        var color = tinycolor(elem[1]);
-        var rgb = color.toRgb();
+    return renkSkalası.map(function(elem) {
+        var indeks = elem[0];
+        var renk = tinycolor(elem[1]);
+        var rgb = renk.toRgb();
         return {
-            index: index,
+            indeks: indeks,
             rgb: [rgb.r, rgb.g, rgb.b, rgb.a]
         };
     });
 }
 
 module.exports = {
-    formatColor: formatColor,
-    parseColorScale: parseColorScale
+    renkFormatla: renkFormatla,
+    renkSkalasınıÇöz: renkSkalasınıÇöz
 };

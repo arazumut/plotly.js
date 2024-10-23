@@ -1,21 +1,22 @@
-$color-brand-primary: #447adb;
-$color-brand-accent: #1d3b84;
+// Renk Değişkenleri
+$renk-marka-birincil: #447adb;
+$renk-marka-vurgu: #1d3b84;
 
-$color-bg-base: #f3f3f3;
-$color-bg-light: #fff;
-$color-bg-darker: #e0e2e5;
-$color-brand-tint: #a9b3c7;
-$color-bg-hint: #edf1f8;
-$color-bg-pay-attention: #fee186;
+$renk-arka-plan-temel: #f3f3f3;
+$renk-arka-plan-açık: #fff;
+$renk-arka-plan-daha-koyu: #e0e2e5;
+$renk-marka-tint: #a9b3c7;
+$renk-arka-plan-ipucu: #edf1f8;
+$renk-arka-plan-dikkat: #fee186;
 
+$renk-tıklama: #69738a;
+$renk-çizgiler: #ccc;
+$renk-inline-kod: #db44a5;
+$renk-sönük-metin: #777;
 
-$color-click: #69738a;
-$color-lines: #ccc;
-$color-inline-code: #db44a5;
-$color-muted-text: #777;
+// Statik URL
+$statik-url: "/static";
+$font-url: "#{$statik-url}/plotlyjs/src/fonts";
 
-
-$static-url: "/static";
-$font-url: "#{$static-url}/plotlyjs/src/fonts";
-
+// Z-Index
 $zIndex: 1001;

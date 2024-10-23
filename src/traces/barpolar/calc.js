@@ -1,103 +1,103 @@
 'use strict';
 
-var hasColorscale = require('../../components/colorscale/helpers').hasColorscale;
-var colorscaleCalc = require('../../components/colorscale/calc');
-var isArrayOrTypedArray = require('../../lib').isArrayOrTypedArray;
-var arraysToCalcdata = require('../bar/arrays_to_calcdata');
-var setGroupPositions = require('../bar/cross_trace_calc').setGroupPositions;
-var calcSelection = require('../scatter/calc_selection');
-var traceIs = require('../../registry').traceIs;
-var extendFlat = require('../../lib').extendFlat;
+var renkSkalasıVarMı = require('../../components/colorscale/helpers').hasColorscale;
+var renkSkalasıHesapla = require('../../components/colorscale/calc');
+var diziVeyaTipliDiziMi = require('../../lib').isArrayOrTypedArray;
+var dizileriHesapVerisineDönüştür = require('../bar/arrays_to_calcdata');
+var grupPozisyonlarınıAyarla = require('../bar/cross_trace_calc').setGroupPositions;
+var seçimHesapla = require('../scatter/calc_selection');
+var izMi = require('../../registry').traceIs;
+var düzVeGenişlet = require('../../lib').extendFlat;
 
-function calc(gd, trace) {
-    var fullLayout = gd._fullLayout;
-    var subplotId = trace.subplot;
-    var radialAxis = fullLayout[subplotId].radialaxis;
-    var angularAxis = fullLayout[subplotId].angularaxis;
-    var rArray = radialAxis.makeCalcdata(trace, 'r');
-    var thetaArray = angularAxis.makeCalcdata(trace, 'theta');
-    var len = trace._length;
-    var cd = new Array(len);
+function hesapla(gd, iz) {
+    var tamYerleşim = gd._fullLayout;
+    var altGrafikId = iz.subplot;
+    var radyalEksen = tamYerleşim[altGrafikId].radialaxis;
+    var açısalEksen = tamYerleşim[altGrafikId].angularaxis;
+    var rDizisi = radyalEksen.makeCalcdata(iz, 'r');
+    var thetaDizisi = açısalEksen.makeCalcdata(iz, 'theta');
+    var uzunluk = iz._length;
+    var hesapVerisi = new Array(uzunluk);
 
-    // 'size' axis variables
-    var sArray = rArray;
-    // 'pos' axis variables
-    var pArray = thetaArray;
+    // 'boyut' ekseni değişkenleri
+    var sDizisi = rDizisi;
+    // 'pozisyon' ekseni değişkenleri
+    var pDizisi = thetaDizisi;
 
-    for(var i = 0; i < len; i++) {
-        cd[i] = {p: pArray[i], s: sArray[i]};
+    for(var i = 0; i < uzunluk; i++) {
+        hesapVerisi[i] = {p: pDizisi[i], s: sDizisi[i]};
     }
 
-    // convert width and offset in 'c' coordinate,
-    // set 'c' value(s) in trace._width and trace._offset,
-    // to make Bar.crossTraceCalc "just work"
+    // genişlik ve ofseti 'c' koordinatında dönüştür,
+    // 'c' değer(ler)ini iz._width ve iz._offset içine ayarla,
+    // Bar.crossTraceCalc'in "sadece çalışması" için
     function d2c(attr) {
-        var val = trace[attr];
-        if(val !== undefined) {
-            trace['_' + attr] = isArrayOrTypedArray(val) ?
-                angularAxis.makeCalcdata(trace, attr) :
-                angularAxis.d2c(val, trace.thetaunit);
+        var değer = iz[attr];
+        if(değer !== undefined) {
+            iz['_' + attr] = diziVeyaTipliDiziMi(değer) ?
+                açısalEksen.makeCalcdata(iz, attr) :
+                açısalEksen.d2c(değer, iz.thetaunit);
         }
     }
 
-    if(angularAxis.type === 'linear') {
+    if(açısalEksen.type === 'linear') {
         d2c('width');
         d2c('offset');
     }
 
-    if(hasColorscale(trace, 'marker')) {
-        colorscaleCalc(gd, trace, {
-            vals: trace.marker.color,
+    if(renkSkalasıVarMı(iz, 'marker')) {
+        renkSkalasıHesapla(gd, iz, {
+            vals: iz.marker.color,
             containerStr: 'marker',
             cLetter: 'c'
         });
     }
-    if(hasColorscale(trace, 'marker.line')) {
-        colorscaleCalc(gd, trace, {
-            vals: trace.marker.line.color,
+    if(renkSkalasıVarMı(iz, 'marker.line')) {
+        renkSkalasıHesapla(gd, iz, {
+            vals: iz.marker.line.color,
             containerStr: 'marker.line',
             cLetter: 'c'
         });
     }
 
-    arraysToCalcdata(cd, trace);
-    calcSelection(cd, trace);
+    dizileriHesapVerisineDönüştür(hesapVerisi, iz);
+    seçimHesapla(hesapVerisi, iz);
 
-    return cd;
+    return hesapVerisi;
 }
 
-function crossTraceCalc(gd, polarLayout, subplotId) {
-    var calcdata = gd.calcdata;
-    var barPolarCd = [];
+function çaprazİzHesapla(gd, polarYerleşim, altGrafikId) {
+    var hesapVerisi = gd.calcdata;
+    var barPolarHesapVerisi = [];
 
-    for(var i = 0; i < calcdata.length; i++) {
-        var cdi = calcdata[i];
-        var trace = cdi[0].trace;
+    for(var i = 0; i < hesapVerisi.length; i++) {
+        var cdi = hesapVerisi[i];
+        var iz = cdi[0].trace;
 
-        if(trace.visible === true && traceIs(trace, 'bar') &&
-            trace.subplot === subplotId
+        if(iz.visible === true && izMi(iz, 'bar') &&
+            iz.subplot === altGrafikId
         ) {
-            barPolarCd.push(cdi);
+            barPolarHesapVerisi.push(cdi);
         }
     }
 
-    // to make _extremes is filled in correctly so that
-    // polar._subplot.radialAxis can get auotrange'd
-    // TODO clean up!
-    // I think we want to call getAutorange on polar.radialaxis
-    // NOT on polar._subplot.radialAxis
-    var rAxis = extendFlat({}, polarLayout.radialaxis, {_id: 'x'});
-    var aAxis = polarLayout.angularaxis;
+    // _extremes'in doğru şekilde doldurulması için
+    // polar._subplot.radialAxis'in otomatik aralığa sahip olabilmesi için
+    // TODO temizle!
+    // Sanırım polar.radialaxis üzerinde getAutorange çağırmak istiyoruz
+    // polar._subplot.radialAxis üzerinde değil
+    var rEksen = düzVeGenişlet({}, polarYerleşim.radialaxis, {_id: 'x'});
+    var aEksen = polarYerleşim.angularaxis;
 
-    setGroupPositions(gd, aAxis, rAxis, barPolarCd, {
-        mode: polarLayout.barmode,
-        norm: polarLayout.barnorm,
-        gap: polarLayout.bargap,
-        groupgap: polarLayout.bargroupgap
+    grupPozisyonlarınıAyarla(gd, aEksen, rEksen, barPolarHesapVerisi, {
+        mode: polarYerleşim.barmode,
+        norm: polarYerleşim.barnorm,
+        gap: polarYerleşim.bargap,
+        groupgap: polarYerleşim.bargroupgap
     });
 }
 
 module.exports = {
-    calc: calc,
-    crossTraceCalc: crossTraceCalc
+    hesapla: hesapla,
+    çaprazİzHesapla: çaprazİzHesapla
 };

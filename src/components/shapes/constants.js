@@ -1,17 +1,15 @@
 'use strict';
 
-
 module.exports = {
     segmentRE: /[MLHVQCTSZ][^MLHVQCTSZ]*/g,
     paramRE: /[^\s,]+/g,
 
-    // which numbers in each path segment are x (or y) values
-    // drawn is which param is a drawn point, as opposed to a
-    // control point (which doesn't count toward autorange.
-    // TODO: this means curved paths could extend beyond the
-    // autorange bounds. This is a bit tricky to get right
-    // unless we revert to bounding boxes, but perhaps there's
-    // a calculation we could do...)
+    // Her yol segmentindeki hangi sayılar x (veya y) değerleridir
+    // drawn, hangi parametrenin çizilmiş bir nokta olduğunu belirtir,
+    // kontrol noktası (autorange sınırlarına dahil olmayan) değil.
+    // TODO: Bu, eğri yolların autorange sınırlarının ötesine geçebileceği
+    // anlamına gelir. Bunu doğru yapmak biraz zor, bounding box'lara
+    // dönmedikçe, ancak belki yapabileceğimiz bir hesaplama vardır...
     paramIsX: {
         M: {0: true, drawn: 0},
         L: {0: true, drawn: 0},
@@ -33,7 +31,7 @@ module.exports = {
         Q: {1: true, 3: true, drawn: 3},
         C: {1: true, 3: true, 5: true, drawn: 5},
         T: {1: true, drawn: 1},
-        S: {1: true, 3: true, drawn: 5},
+        S: {1: true, 3: true, drawn: 3},
         // A: {1: true, 6: true},
         Z: {}
     },

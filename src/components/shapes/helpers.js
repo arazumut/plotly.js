@@ -1,196 +1,194 @@
 'use strict';
 
-var constants = require('./constants');
+var sabitler = require('./constants');
 
 var Lib = require('../../lib');
-var Axes = require('../../plots/cartesian/axes');
+var Eksenler = require('../../plots/cartesian/axes');
 
-// special position conversion functions... category axis positions can't be
-// specified by their data values, because they don't make a continuous mapping.
-// so these have to be specified in terms of the category serial numbers,
-// but can take fractional values. Other axis types we specify position based on
-// the actual data values.
-// TODO: in V3.0 (when log axis ranges are in data units) range and shape position
-// will be identical, so rangeToShapePosition and shapePositionToRange can be
-// removed entirely.
+// Özel pozisyon dönüştürme fonksiyonları... kategori ekseni pozisyonları
+// veri değerleriyle belirtilemez, çünkü sürekli bir haritalama yapmazlar.
+// Bu yüzden kategori seri numaralarıyla belirtilmelidirler, ancak kesirli
+// değerler alabilirler. Diğer eksen türlerinde pozisyonu gerçek veri
+// değerlerine göre belirtiriz.
+// TODO: V3.0'da (log ekseni aralıkları veri birimlerinde olduğunda) aralık ve
+// şekil pozisyonu aynı olacak, bu yüzden rangeToShapePosition ve
+// shapePositionToRange tamamen kaldırılabilir.
 
-exports.rangeToShapePosition = function(ax) {
-    return (ax.type === 'log') ? ax.r2d : function(v) { return v; };
+exports.araligiSekilPozisyonunaDonustur = function(eksen) {
+    return (eksen.tipi === 'log') ? eksen.r2d : function(v) { return v; };
 };
 
-exports.shapePositionToRange = function(ax) {
-    return (ax.type === 'log') ? ax.d2r : function(v) { return v; };
+exports.sekilPozisyonunuAraligaDonustur = function(eksen) {
+    return (eksen.tipi === 'log') ? eksen.d2r : function(v) { return v; };
 };
 
-exports.decodeDate = function(convertToPx) {
+exports.tarihiCoz = function(pxDonustur) {
     return function(v) {
         if(v.replace) v = v.replace('_', ' ');
-        return convertToPx(v);
+        return pxDonustur(v);
     };
 };
 
-exports.encodeDate = function(convertToDate) {
-    return function(v) { return convertToDate(v).replace(' ', '_'); };
+exports.tarihiKodla = function(tariheDonustur) {
+    return function(v) { return tariheDonustur(v).replace(' ', '_'); };
 };
 
-exports.extractPathCoords = function(path, paramsToUse, isRaw) {
-    var extractedCoordinates = [];
+exports.yolKoordinatlariniCikar = function(yol, kullanilacakParametreler, ham) {
+    var cikarilanKoordinatlar = [];
 
-    var segments = path.match(constants.segmentRE);
-    segments.forEach(function(segment) {
-        var relevantParamIdx = paramsToUse[segment.charAt(0)].drawn;
-        if(relevantParamIdx === undefined) return;
+    var segmentler = yol.match(sabitler.segmentRE);
+    segmentler.forEach(function(segment) {
+        var ilgiliParamIdx = kullanilacakParametreler[segment.charAt(0)].cizilen;
+        if(ilgiliParamIdx === undefined) return;
 
-        var params = segment.substr(1).match(constants.paramRE);
-        if(!params || params.length < relevantParamIdx) return;
+        var parametreler = segment.substr(1).match(sabitler.paramRE);
+        if(!parametreler || parametreler.length < ilgiliParamIdx) return;
 
-        var str = params[relevantParamIdx];
-        var pos = isRaw ? str : Lib.cleanNumber(str);
+        var str = parametreler[ilgiliParamIdx];
+        var pos = ham ? str : Lib.cleanNumber(str);
 
-        extractedCoordinates.push(pos);
+        cikarilanKoordinatlar.push(pos);
     });
 
-    return extractedCoordinates;
+    return cikarilanKoordinatlar;
 };
 
-exports.getDataToPixel = function(gd, axis, shift, isVertical, refType) {
+exports.veriyiPikseleDonustur = function(gd, eksen, kaydirma, dikeyMi, refTipi) {
     var gs = gd._fullLayout._size;
-    var dataToPixel;
+    var veriPiksele;
 
-    if(axis) {
-        if(refType === 'domain') {
-            dataToPixel = function(v) {
-                return axis._length * (isVertical ? (1 - v) : v) + axis._offset;
+    if(eksen) {
+        if(refTipi === 'domain') {
+            veriPiksele = function(v) {
+                return eksen._uzunluk * (dikeyMi ? (1 - v) : v) + eksen._offset;
             };
         } else {
-            var d2r = exports.shapePositionToRange(axis);
+            var d2r = exports.sekilPozisyonunuAraligaDonustur(eksen);
 
-            dataToPixel = function(v) {
-                var shiftPixels = getPixelShift(axis, shift);
-                return axis._offset + axis.r2p(d2r(v, true)) + shiftPixels;
+            veriPiksele = function(v) {
+                var kaydirmaPiksel = pikselKaydirma(eksen, kaydirma);
+                return eksen._offset + eksen.r2p(d2r(v, true)) + kaydirmaPiksel;
             };
 
-            if(axis.type === 'date') dataToPixel = exports.decodeDate(dataToPixel);
+            if(eksen.tipi === 'date') veriPiksele = exports.tarihiCoz(veriPiksele);
         }
-    } else if(isVertical) {
-        dataToPixel = function(v) { return gs.t + gs.h * (1 - v); };
+    } else if(dikeyMi) {
+        veriPiksele = function(v) { return gs.t + gs.h * (1 - v); };
     } else {
-        dataToPixel = function(v) { return gs.l + gs.w * v; };
+        veriPiksele = function(v) { return gs.l + gs.w * v; };
     }
 
-    return dataToPixel;
+    return veriPiksele;
 };
 
-exports.getPixelToData = function(gd, axis, isVertical, opt) {
+exports.pikseliVeriyeDonustur = function(gd, eksen, dikeyMi, opt) {
     var gs = gd._fullLayout._size;
-    var pixelToData;
+    var pikselVeriye;
 
-    if(axis) {
+    if(eksen) {
         if(opt === 'domain') {
-            pixelToData = function(p) {
-                var q = (p - axis._offset) / axis._length;
-                return isVertical ? 1 - q : q;
+            pikselVeriye = function(p) {
+                var q = (p - eksen._offset) / eksen._uzunluk;
+                return dikeyMi ? 1 - q : q;
             };
         } else {
-            var r2d = exports.rangeToShapePosition(axis);
-            pixelToData = function(p) { return r2d(axis.p2r(p - axis._offset)); };
+            var r2d = exports.araligiSekilPozisyonunaDonustur(eksen);
+            pikselVeriye = function(p) { return r2d(eksen.p2r(p - eksen._offset)); };
         }
-    } else if(isVertical) {
-        pixelToData = function(p) { return 1 - (p - gs.t) / gs.h; };
+    } else if(dikeyMi) {
+        pikselVeriye = function(p) { return 1 - (p - gs.t) / gs.h; };
     } else {
-        pixelToData = function(p) { return (p - gs.l) / gs.w; };
+        pikselVeriye = function(p) { return (p - gs.l) / gs.w; };
     }
 
-    return pixelToData;
+    return pikselVeriye;
 };
 
 /**
- * Based on the given stroke width, rounds the passed
- * position value to represent either a full or half pixel.
+ * Verilen çizgi genişliğine göre, geçen pozisyon değerini tam veya yarım piksel
+ * olarak yuvarlar.
  *
- * In case of an odd stroke width (e.g. 1), this measure ensures
- * that a stroke positioned at the returned position isn't rendered
- * blurry due to anti-aliasing.
+ * Tek sayı çizgi genişliği durumunda (örneğin 1), bu ölçü, çizginin belirtilen
+ * pozisyonda bulanık olmadan render edilmesini sağlar.
  *
- * In case of an even stroke width (e.g. 2), this measure ensures
- * that the position value is transformed to a full pixel value
- * so that anti-aliasing doesn't take effect either.
+ * Çift sayı çizgi genişliği durumunda (örneğin 2), bu ölçü, pozisyon değerinin
+ * tam piksel değerine dönüştürülmesini sağlar, böylece anti-aliasing etkisi
+ * oluşmaz.
  *
- * @param {number} pos The raw position value to be transformed
- * @param {number} strokeWidth The stroke width
- * @returns {number} either an integer or a .5 decimal number
+ * @param {number} pos Dönüştürülecek ham pozisyon değeri
+ * @param {number} strokeWidth Çizgi genişliği
+ * @returns {number} Tam sayı veya .5 ondalık sayı
  */
-exports.roundPositionForSharpStrokeRendering = function(pos, strokeWidth) {
-    var strokeWidthIsOdd = Math.round(strokeWidth % 2) === 1;
-    var posValAsInt = Math.round(pos);
+exports.keskinCizgiCizimiIcinPozisyonuYuvarla = function(pos, strokeWidth) {
+    var strokeWidthTekMi = Math.round(strokeWidth % 2) === 1;
+    var posDegeriTamSayi = Math.round(pos);
 
-    return strokeWidthIsOdd ? posValAsInt + 0.5 : posValAsInt;
+    return strokeWidthTekMi ? posDegeriTamSayi + 0.5 : posDegeriTamSayi;
 };
 
-exports.makeShapesOptionsAndPlotinfo = function(gd, index) {
-    var options = gd._fullLayout.shapes[index] || {};
+exports.sekillerIcinSeceneklerVeCizimBilgisiOlustur = function(gd, index) {
+    var secenekler = gd._fullLayout.shapes[index] || {};
 
-    var plotinfo = gd._fullLayout._plots[options.xref + options.yref];
-    var hasPlotinfo = !!plotinfo;
-    if(hasPlotinfo) {
-        plotinfo._hadPlotinfo = true;
+    var cizimBilgisi = gd._fullLayout._plots[secenekler.xref + secenekler.yref];
+    var cizimBilgisiVarMi = !!cizimBilgisi;
+    if(cizimBilgisiVarMi) {
+        cizimBilgisi._hadPlotinfo = true;
     } else {
-        plotinfo = {};
-        if(options.xref && options.xref !== 'paper') plotinfo.xaxis = gd._fullLayout[options.xref + 'axis'];
-        if(options.yref && options.yref !== 'paper') plotinfo.yaxis = gd._fullLayout[options.yref + 'axis'];
+        cizimBilgisi = {};
+        if(secenekler.xref && secenekler.xref !== 'paper') cizimBilgisi.xaxis = gd._fullLayout[secenekler.xref + 'axis'];
+        if(secenekler.yref && secenekler.yref !== 'paper') cizimBilgisi.yaxis = gd._fullLayout[secenekler.yref + 'axis'];
     }
 
-    plotinfo.xsizemode = options.xsizemode;
-    plotinfo.ysizemode = options.ysizemode;
-    plotinfo.xanchor = options.xanchor;
-    plotinfo.yanchor = options.yanchor;
+    cizimBilgisi.xsizemode = secenekler.xsizemode;
+    cizimBilgisi.ysizemode = secenekler.ysizemode;
+    cizimBilgisi.xanchor = secenekler.xanchor;
+    cizimBilgisi.yanchor = secenekler.yanchor;
 
     return {
-        options: options,
-        plotinfo: plotinfo
+        secenekler: secenekler,
+        cizimBilgisi: cizimBilgisi
     };
 };
 
-// TODO: move to selections helpers?
-exports.makeSelectionsOptionsAndPlotinfo = function(gd, index) {
-    var options = gd._fullLayout.selections[index] || {};
+// TODO: seçim yardımcılarına taşı?
+exports.secmelerIcinSeceneklerVeCizimBilgisiOlustur = function(gd, index) {
+    var secenekler = gd._fullLayout.selections[index] || {};
 
-    var plotinfo = gd._fullLayout._plots[options.xref + options.yref];
-    var hasPlotinfo = !!plotinfo;
-    if(hasPlotinfo) {
-        plotinfo._hadPlotinfo = true;
+    var cizimBilgisi = gd._fullLayout._plots[secenekler.xref + secenekler.yref];
+    var cizimBilgisiVarMi = !!cizimBilgisi;
+    if(cizimBilgisiVarMi) {
+        cizimBilgisi._hadPlotinfo = true;
     } else {
-        plotinfo = {};
-        if(options.xref) plotinfo.xaxis = gd._fullLayout[options.xref + 'axis'];
-        if(options.yref) plotinfo.yaxis = gd._fullLayout[options.yref + 'axis'];
+        cizimBilgisi = {};
+        if(secenekler.xref) cizimBilgisi.xaxis = gd._fullLayout[secenekler.xref + 'axis'];
+        if(secenekler.yref) cizimBilgisi.yaxis = gd._fullLayout[secenekler.yref + 'axis'];
     }
 
     return {
-        options: options,
-        plotinfo: plotinfo
+        secenekler: secenekler,
+        cizimBilgisi: cizimBilgisi
     };
 };
 
-
-exports.getPathString = function(gd, options) {
-    var type = options.type;
-    var xRefType = Axes.getRefType(options.xref);
-    var yRefType = Axes.getRefType(options.yref);
-    var xa = Axes.getFromId(gd, options.xref);
-    var ya = Axes.getFromId(gd, options.yref);
+exports.yolDizesiAl = function(gd, secenekler) {
+    var tip = secenekler.tip;
+    var xRefTipi = Eksenler.getRefType(secenekler.xref);
+    var yRefTipi = Eksenler.getRefType(secenekler.yref);
+    var xa = Eksenler.getFromId(gd, secenekler.xref);
+    var ya = Eksenler.getFromId(gd, secenekler.yref);
     var gs = gd._fullLayout._size;
     var x2r, x2p, y2r, y2p;
-    var xShiftStart = getPixelShift(xa, options.x0shift);
-    var xShiftEnd = getPixelShift(xa, options.x1shift);
-    var yShiftStart = getPixelShift(ya, options.y0shift);
-    var yShiftEnd = getPixelShift(ya, options.y1shift);
+    var xKaydirmaBaslangic = pikselKaydirma(xa, secenekler.x0shift);
+    var xKaydirmaBitis = pikselKaydirma(xa, secenekler.x1shift);
+    var yKaydirmaBaslangic = pikselKaydirma(ya, secenekler.y0shift);
+    var yKaydirmaBitis = pikselKaydirma(ya, secenekler.y1shift);
     var x0, x1, y0, y1;
 
     if(xa) {
-        if(xRefType === 'domain') {
-            x2p = function(v) { return xa._offset + xa._length * v; };
+        if(xRefTipi === 'domain') {
+            x2p = function(v) { return xa._offset + xa._uzunluk * v; };
         } else {
-            x2r = exports.shapePositionToRange(xa);
+            x2r = exports.sekilPozisyonunuAraligaDonustur(xa);
             x2p = function(v) { return xa._offset + xa.r2p(x2r(v, true)); };
         }
     } else {
@@ -198,97 +196,96 @@ exports.getPathString = function(gd, options) {
     }
 
     if(ya) {
-        if(yRefType === 'domain') {
-            y2p = function(v) { return ya._offset + ya._length * (1 - v); };
+        if(yRefTipi === 'domain') {
+            y2p = function(v) { return ya._offset + ya._uzunluk * (1 - v); };
         } else {
-            y2r = exports.shapePositionToRange(ya);
+            y2r = exports.sekilPozisyonunuAraligaDonustur(ya);
             y2p = function(v) { return ya._offset + ya.r2p(y2r(v, true)); };
         }
     } else {
         y2p = function(v) { return gs.t + gs.h * (1 - v); };
     }
 
-    if(type === 'path') {
-        if(xa && xa.type === 'date') x2p = exports.decodeDate(x2p);
-        if(ya && ya.type === 'date') y2p = exports.decodeDate(y2p);
-        return convertPath(options, x2p, y2p);
+    if(tip === 'path') {
+        if(xa && xa.tipi === 'date') x2p = exports.tarihiCoz(x2p);
+        if(ya && ya.tipi === 'date') y2p = exports.tarihiCoz(y2p);
+        return yoluDonustur(secenekler, x2p, y2p);
     }
-    if(options.xsizemode === 'pixel') {
-        var xAnchorPos = x2p(options.xanchor);
-        x0 = xAnchorPos + options.x0 + xShiftStart;
-        x1 = xAnchorPos + options.x1 + xShiftEnd;
+    if(secenekler.xsizemode === 'pixel') {
+        var xAnchorPos = x2p(secenekler.xanchor);
+        x0 = xAnchorPos + secenekler.x0 + xKaydirmaBaslangic;
+        x1 = xAnchorPos + secenekler.x1 + xKaydirmaBitis;
     } else {
-        x0 = x2p(options.x0) + xShiftStart;
-        x1 = x2p(options.x1) + xShiftEnd;
+        x0 = x2p(secenekler.x0) + xKaydirmaBaslangic;
+        x1 = x2p(secenekler.x1) + xKaydirmaBitis;
     }
 
-    if(options.ysizemode === 'pixel') {
-        var yAnchorPos = y2p(options.yanchor);
-        y0 = yAnchorPos - options.y0 + yShiftStart;
-        y1 = yAnchorPos - options.y1 + yShiftEnd;
+    if(secenekler.ysizemode === 'pixel') {
+        var yAnchorPos = y2p(secenekler.yanchor);
+        y0 = yAnchorPos - secenekler.y0 + yKaydirmaBaslangic;
+        y1 = yAnchorPos - secenekler.y1 + yKaydirmaBitis;
     } else {
-        y0 = y2p(options.y0) + yShiftStart;
-        y1 = y2p(options.y1) + yShiftEnd;
+        y0 = y2p(secenekler.y0) + yKaydirmaBaslangic;
+        y1 = y2p(secenekler.y1) + yKaydirmaBitis;
     }
 
-    if(type === 'line') return 'M' + x0 + ',' + y0 + 'L' + x1 + ',' + y1;
-    if(type === 'rect') return 'M' + x0 + ',' + y0 + 'H' + x1 + 'V' + y1 + 'H' + x0 + 'Z';
+    if(tip === 'line') return 'M' + x0 + ',' + y0 + 'L' + x1 + ',' + y1;
+    if(tip === 'rect') return 'M' + x0 + ',' + y0 + 'H' + x1 + 'V' + y1 + 'H' + x0 + 'Z';
 
-    // circle
+    // daire
     var cx = (x0 + x1) / 2;
     var cy = (y0 + y1) / 2;
     var rx = Math.abs(cx - x0);
     var ry = Math.abs(cy - y0);
     var rArc = 'A' + rx + ',' + ry;
-    var rightPt = (cx + rx) + ',' + cy;
-    var topPt = cx + ',' + (cy - ry);
-    return 'M' + rightPt + rArc + ' 0 1,1 ' + topPt +
-        rArc + ' 0 0,1 ' + rightPt + 'Z';
+    var sagNokta = (cx + rx) + ',' + cy;
+    var ustNokta = cx + ',' + (cy - ry);
+    return 'M' + sagNokta + rArc + ' 0 1,1 ' + ustNokta +
+        rArc + ' 0 0,1 ' + sagNokta + 'Z';
 };
 
+function yoluDonustur(secenekler, x2p, y2p) {
+    var yolIn = secenekler.path;
+    var xSizemode = secenekler.xsizemode;
+    var ySizemode = secenekler.ysizemode;
+    var xAnchor = secenekler.xanchor;
+    var yAnchor = secenekler.yanchor;
 
-function convertPath(options, x2p, y2p) {
-    var pathIn = options.path;
-    var xSizemode = options.xsizemode;
-    var ySizemode = options.ysizemode;
-    var xAnchor = options.xanchor;
-    var yAnchor = options.yanchor;
+    return yolIn.replace(sabitler.segmentRE, function(segment) {
+        var parametreNumarasi = 0;
+        var segmentTipi = segment.charAt(0);
+        var xParametreler = sabitler.paramIsX[segmentTipi];
+        var yParametreler = sabitler.paramIsY[segmentTipi];
+        var nParametreler = sabitler.numParams[segmentTipi];
 
-    return pathIn.replace(constants.segmentRE, function(segment) {
-        var paramNumber = 0;
-        var segmentType = segment.charAt(0);
-        var xParams = constants.paramIsX[segmentType];
-        var yParams = constants.paramIsY[segmentType];
-        var nParams = constants.numParams[segmentType];
-
-        var paramString = segment.substr(1).replace(constants.paramRE, function(param) {
-            if(xParams[paramNumber]) {
+        var parametreDizesi = segment.substr(1).replace(sabitler.paramRE, function(param) {
+            if(xParametreler[parametreNumarasi]) {
                 if(xSizemode === 'pixel') param = x2p(xAnchor) + Number(param);
                 else param = x2p(param);
-            } else if(yParams[paramNumber]) {
+            } else if(yParametreler[parametreNumarasi]) {
                 if(ySizemode === 'pixel') param = y2p(yAnchor) - Number(param);
                 else param = y2p(param);
             }
-            paramNumber++;
+            parametreNumarasi++;
 
-            if(paramNumber > nParams) param = 'X';
+            if(parametreNumarasi > nParametreler) param = 'X';
             return param;
         });
 
-        if(paramNumber > nParams) {
-            paramString = paramString.replace(/[\s,]*X.*/, '');
-            Lib.log('Ignoring extra params in segment ' + segment);
+        if(parametreNumarasi > nParametreler) {
+            parametreDizesi = parametreDizesi.replace(/[\s,]*X.*/, '');
+            Lib.log('Segment ' + segment + ' içindeki ekstra parametreler göz ardı ediliyor');
         }
 
-        return segmentType + paramString;
+        return segmentTipi + parametreDizesi;
     });
 }
 
-function getPixelShift(axis, shift) {
-    shift = shift || 0;
-    var shiftPixels = 0;
-    if(shift && axis && (axis.type === 'category' || axis.type === 'multicategory')) {
-        shiftPixels = (axis.r2p(1) - axis.r2p(0)) * shift;
+function pikselKaydirma(eksen, kaydirma) {
+    kaydirma = kaydirma || 0;
+    var kaydirmaPiksel = 0;
+    if(kaydirma && eksen && (eksen.tipi === 'category' || eksen.tipi === 'multicategory')) {
+        kaydirmaPiksel = (eksen.r2p(1) - eksen.r2p(0)) * kaydirma;
     }
-    return shiftPixels;
+    return kaydirmaPiksel;
 }

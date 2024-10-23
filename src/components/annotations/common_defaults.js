@@ -1,70 +1,72 @@
 'use strict';
 
+// Gerekli kütüphaneleri dahil et
 var Lib = require('../../lib');
 var Color = require('../color');
 
-// defaults common to 'annotations' and 'annotations3d'
+// 'annotations' ve 'annotations3d' için ortak varsayılan ayarları ele al
 module.exports = function handleAnnotationCommonDefaults(annIn, annOut, fullLayout, coerce) {
+    // Opaklık değerini zorla
     coerce('opacity');
-    var bgColor = coerce('bgcolor');
+    var arkaPlanRengi = coerce('bgcolor');
 
-    var borderColor = coerce('bordercolor');
-    var borderOpacity = Color.opacity(borderColor);
+    var kenarRengi = coerce('bordercolor');
+    var kenarOpaklığı = Color.opacity(kenarRengi);
 
     coerce('borderpad');
 
-    var borderWidth = coerce('borderwidth');
-    var showArrow = coerce('showarrow');
+    var kenarKalınlığı = coerce('borderwidth');
+    var okGöster = coerce('showarrow');
 
-    coerce('text', showArrow ? ' ' : fullLayout._dfltTitle.annotation);
+    coerce('text', okGöster ? ' ' : fullLayout._dfltTitle.annotation);
     coerce('textangle');
     Lib.coerceFont(coerce, 'font', fullLayout.font);
 
     coerce('width');
     coerce('align');
 
-    var h = coerce('height');
-    if(h) coerce('valign');
+    var yükseklik = coerce('height');
+    if (yükseklik) coerce('valign');
 
-    if(showArrow) {
-        var arrowside = coerce('arrowside');
-        var arrowhead;
-        var arrowsize;
+    if (okGöster) {
+        var okTarafı = coerce('arrowside');
+        var okBaşı;
+        var okBoyutu;
 
-        if(arrowside.indexOf('end') !== -1) {
-            arrowhead = coerce('arrowhead');
-            arrowsize = coerce('arrowsize');
+        if (okTarafı.indexOf('end') !== -1) {
+            okBaşı = coerce('arrowhead');
+            okBoyutu = coerce('arrowsize');
         }
 
-        if(arrowside.indexOf('start') !== -1) {
-            coerce('startarrowhead', arrowhead);
-            coerce('startarrowsize', arrowsize);
+        if (okTarafı.indexOf('start') !== -1) {
+            coerce('startarrowhead', okBaşı);
+            coerce('startarrowsize', okBoyutu);
         }
-        coerce('arrowcolor', borderOpacity ? annOut.bordercolor : Color.defaultLine);
-        coerce('arrowwidth', ((borderOpacity && borderWidth) || 1) * 2);
+        coerce('arrowcolor', kenarOpaklığı ? annOut.bordercolor : Color.defaultLine);
+        coerce('arrowwidth', ((kenarOpaklığı && kenarKalınlığı) || 1) * 2);
         coerce('standoff');
         coerce('startstandoff');
     }
 
-    var hoverText = coerce('hovertext');
-    var globalHoverLabel = fullLayout.hoverlabel || {};
+    var hoverMetni = coerce('hovertext');
+    var genelHoverEtiketi = fullLayout.hoverlabel || {};
 
-    if(hoverText) {
-        var hoverBG = coerce('hoverlabel.bgcolor', globalHoverLabel.bgcolor ||
-            (Color.opacity(bgColor) ? Color.rgb(bgColor) : Color.defaultLine)
+    if (hoverMetni) {
+        var hoverArkaPlan = coerce('hoverlabel.bgcolor', genelHoverEtiketi.bgcolor ||
+            (Color.opacity(arkaPlanRengi) ? Color.rgb(arkaPlanRengi) : Color.defaultLine)
         );
 
-        var hoverBorder = coerce('hoverlabel.bordercolor', globalHoverLabel.bordercolor ||
-            Color.contrast(hoverBG)
+        var hoverKenar = coerce('hoverlabel.bordercolor', genelHoverEtiketi.bordercolor ||
+            Color.contrast(hoverArkaPlan)
         );
 
-        var fontDflt = Lib.extendFlat({}, globalHoverLabel.font);
-        if(!fontDflt.color) {
-            fontDflt.color = hoverBorder;
+        var fontVarsayılan = Lib.extendFlat({}, genelHoverEtiketi.font);
+        if (!fontVarsayılan.color) {
+            fontVarsayılan.color = hoverKenar;
         }
 
-        Lib.coerceFont(coerce, 'hoverlabel.font', fontDflt);
+        Lib.coerceFont(coerce, 'hoverlabel.font', fontVarsayılan);
     }
 
-    coerce('captureevents', !!hoverText);
+    coerce('captureevents', !!hoverMetni);
 };

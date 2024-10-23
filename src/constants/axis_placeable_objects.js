@@ -3,19 +3,17 @@
 module.exports = {
     axisRefDescription: function(axisname, lower, upper) {
         return [
-            'If set to a', axisname, 'axis id (e.g. *' + axisname + '* or',
-            '*' + axisname + '2*), the `' + axisname + '` position refers to a',
-            axisname, 'coordinate. If set to *paper*, the `' + axisname + '`',
-            'position refers to the distance from the', lower, 'of the plotting',
-            'area in normalized coordinates where *0* (*1*) corresponds to the',
-            lower, '(' + upper + '). If set to a', axisname, 'axis ID followed by',
-            '*domain* (separated by a space), the position behaves like for',
-            '*paper*, but refers to the distance in fractions of the domain',
-            'length from the', lower, 'of the domain of that axis: e.g.,',
-            '*' + axisname + '2 domain* refers to the domain of the second',
-            axisname, ' axis and a', axisname, 'position of 0.5 refers to the',
-            'point between the', lower, 'and the', upper, 'of the domain of the',
-            'second', axisname, 'axis.',
+            'Eğer bir', axisname, 'ekseni kimliği (örneğin *' + axisname + '* veya',
+            '*' + axisname + '2*) olarak ayarlanırsa, `' + axisname + '` pozisyonu bir',
+            axisname, 'koordinatına atıfta bulunur. Eğer *paper* olarak ayarlanırsa, `' + axisname + '`',
+            'pozisyonu, çizim alanının', lower, 'kısmından normalize edilmiş koordinatlarda',
+            'uzaklığı ifade eder, burada *0* (*1*)', lower, '(' + upper + ') ile',
+            'eşleşir. Eğer bir', axisname, 'ekseni kimliği ve ardından *domain* (boşluk ile ayrılmış)',
+            'olarak ayarlanırsa, pozisyon *paper* gibi davranır, ancak o eksenin',
+            'domain uzunluğunun kesirleri cinsinden', lower, 'kısmından uzaklığı ifade eder:',
+            'örneğin, *' + axisname + '2 domain* ikinci', axisname, 'ekseninin domainine atıfta bulunur ve',
+            '0.5 pozisyonu, o eksenin domaininin', lower, 've', upper, 'arasında kalan',
+            'noktayı ifade eder.',
         ].join(' ');
     }
 };

@@ -1,13 +1,13 @@
 'use strict';
 
 /**
- * Clear responsive handlers (if any).
+ * Duyarlı (responsive) işleyicileri temizle (varsa).
  *
- * @param {DOM node or object} gd : graph div object
+ * @param {DOM düğümü veya nesne} gd : grafik div nesnesi
  */
-module.exports = function clearResponsive(gd) {
-    if(gd._responsiveChartHandler) {
-        window.removeEventListener('resize', gd._responsiveChartHandler);
-        delete gd._responsiveChartHandler;
+module.exports = function duyarlılığıTemizle(gd) {
+    if(gd._duyarlıGrafikİşleyici) {
+        window.removeEventListener('resize', gd._duyarlıGrafikİşleyici);
+        delete gd._duyarlıGrafikİşleyici;
     }
 };

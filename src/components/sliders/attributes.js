@@ -8,27 +8,27 @@ var animationAttrs = require('../../plots/animation_attributes');
 var templatedArray = require('../../plot_api/plot_template').templatedArray;
 var constants = require('./constants');
 
-var stepsAttrs = templatedArray('step', {
-    visible: {
+var adimOzellikleri = templatedArray('adim', {
+    gorunur: {
         valType: 'boolean',
         dflt: true,
         description: [
-            'Determines whether or not this step is included in the slider.'
+            'Bu adımın kaydırıcıya dahil edilip edilmediğini belirler.'
         ].join(' ')
     },
-    method: {
+    metod: {
         valType: 'enumerated',
         values: ['restyle', 'relayout', 'animate', 'update', 'skip'],
         dflt: 'restyle',
         description: [
-            'Sets the Plotly method to be called when the slider value is changed.',
-            'If the `skip` method is used, the API slider will function as normal',
-            'but will perform no API calls and will not bind automatically to state',
-            'updates. This may be used to create a component interface and attach to',
-            'slider events manually via JavaScript.'
+            'Kaydırıcı değeri değiştirildiğinde çağrılacak Plotly metodunu ayarlar.',
+            '`skip` metodu kullanılırsa, API kaydırıcısı normal çalışır',
+            'ancak API çağrıları yapmaz ve duruma otomatik olarak bağlanmaz.',
+            'Bu, bir bileşen arayüzü oluşturmak ve kaydırıcı olaylarına manuel olarak',
+            'JavaScript ile bağlanmak için kullanılabilir.'
         ].join(' ')
     },
-    args: {
+    argumanlar: {
         valType: 'info_array',
         freeLength: true,
         items: [
@@ -37,74 +37,70 @@ var stepsAttrs = templatedArray('step', {
             { valType: 'any' }
         ],
         description: [
-            'Sets the arguments values to be passed to the Plotly',
-            'method set in `method` on slide.'
+            'Kaydırıcıda belirlenen `metod`a geçilecek argüman değerlerini ayarlar.'
         ].join(' ')
     },
-    label: {
+    etiket: {
         valType: 'string',
-        description: 'Sets the text label to appear on the slider'
+        description: 'Kaydırıcıda görünecek metin etiketini ayarlar'
     },
-    value: {
+    deger: {
         valType: 'string',
         description: [
-            'Sets the value of the slider step, used to refer to the step programatically.',
-            'Defaults to the slider label if not provided.'
+            'Kaydırıcı adımının değerini ayarlar, programatik olarak adı geçer.',
+            'Sağlanmazsa, kaydırıcı etiketi varsayılan olarak kullanılır.'
         ].join(' ')
     },
-    execute: {
+    calistir: {
         valType: 'boolean',
         dflt: true,
         description: [
-            'When true, the API method is executed. When false, all other behaviors are the same',
-            'and command execution is skipped. This may be useful when hooking into, for example,',
-            'the `plotly_sliderchange` method and executing the API command manually without losing',
-            'the benefit of the slider automatically binding to the state of the plot through the',
-            'specification of `method` and `args`.'
+            'Doğru olduğunda, API metodu çalıştırılır. Yanlış olduğunda, diğer tüm davranışlar aynı kalır',
+            've komut yürütme atlanır. Bu, örneğin `plotly_sliderchange` metoduna bağlanırken ve',
+            'API komutunu manuel olarak çalıştırırken kaydırıcının duruma otomatik olarak bağlanma',
+            'faydasını kaybetmeden kullanılabilir.'
         ].join(' ')
     }
 });
 
-module.exports = overrideAll(templatedArray('slider', {
-    visible: {
+module.exports = overrideAll(templatedArray('kaydirici', {
+    gorunur: {
         valType: 'boolean',
         dflt: true,
         description: [
-            'Determines whether or not the slider is visible.'
+            'Kaydırıcının görünür olup olmadığını belirler.'
         ].join(' ')
     },
 
-    active: {
+    aktif: {
         valType: 'number',
         min: 0,
         dflt: 0,
         description: [
-            'Determines which button (by index starting from 0) is',
-            'considered active.'
+            'Hangi düğmenin (0\'dan başlayarak indeks ile) aktif olarak kabul edildiğini belirler.'
         ].join(' ')
     },
 
-    steps: stepsAttrs,
+    adimlar: adimOzellikleri,
 
-    lenmode: {
+    uzunlukModu: {
         valType: 'enumerated',
         values: ['fraction', 'pixels'],
         dflt: 'fraction',
         description: [
-            'Determines whether this slider length',
-            'is set in units of plot *fraction* or in *pixels.',
-            'Use `len` to set the value.'
+            'Bu kaydırıcı uzunluğunun',
+            'grafik *kesir* birimlerinde mi yoksa *piksel* birimlerinde mi ayarlandığını belirler.',
+            'Değeri ayarlamak için `uzunluk` kullanın.'
         ].join(' ')
     },
-    len: {
+    uzunluk: {
         valType: 'number',
         min: 0,
         dflt: 1,
         description: [
-            'Sets the length of the slider',
-            'This measure excludes the padding of both ends.',
-            'That is, the slider\'s length is this length minus the',
-            'padding on both ends.'
+            'Kaydırıcının uzunluğunu ayarlar.',
+            'Bu ölçüm, her iki ucun dolgusunu hariç tutar.',
+            'Yani, kaydırıcının uzunluğu bu uzunluktan her iki ucun dolgusunun çıkarılmasıyla elde edilir.'
         ].join(' ')
     },
     x: {
@@ -112,19 +108,19 @@ module.exports = overrideAll(templatedArray('slider', {
         min: -2,
         max: 3,
         dflt: 0,
-        description: 'Sets the x position (in normalized coordinates) of the slider.'
+        description: 'Kaydırıcının x pozisyonunu (normalize edilmiş koordinatlarda) ayarlar.'
     },
-    pad: extendDeepAll(padAttrs({editType: 'arraydraw'}), {
-        description: 'Set the padding of the slider component along each side.'
+    dolgu: extendDeepAll(padAttrs({editType: 'arraydraw'}), {
+        description: 'Kaydırıcı bileşeninin her bir kenarındaki dolgu miktarını ayarlar.'
     }, {t: {dflt: 20}}),
-    xanchor: {
+    xankoru: {
         valType: 'enumerated',
         values: ['auto', 'left', 'center', 'right'],
         dflt: 'left',
         description: [
-            'Sets the slider\'s horizontal position anchor.',
-            'This anchor binds the `x` position to the *left*, *center*',
-            'or *right* of the range selector.'
+            'Kaydırıcının yatay pozisyon ankrajını ayarlar.',
+            'Bu ankraj, `x` pozisyonunu *sol*, *orta*',
+            'veya *sağ* ile bağlar.'
         ].join(' ')
     },
     y: {
@@ -132,125 +128,124 @@ module.exports = overrideAll(templatedArray('slider', {
         min: -2,
         max: 3,
         dflt: 0,
-        description: 'Sets the y position (in normalized coordinates) of the slider.'
+        description: 'Kaydırıcının y pozisyonunu (normalize edilmiş koordinatlarda) ayarlar.'
     },
-    yanchor: {
+    yankoru: {
         valType: 'enumerated',
         values: ['auto', 'top', 'middle', 'bottom'],
         dflt: 'top',
         description: [
-            'Sets the slider\'s vertical position anchor',
-            'This anchor binds the `y` position to the *top*, *middle*',
-            'or *bottom* of the range selector.'
+            'Kaydırıcının dikey pozisyon ankrajını ayarlar.',
+            'Bu ankraj, `y` pozisyonunu *üst*, *orta*',
+            'veya *alt* ile bağlar.'
         ].join(' ')
     },
 
-    transition: {
-        duration: {
+    gecis: {
+        sure: {
             valType: 'number',
             min: 0,
             dflt: 150,
-            description: 'Sets the duration of the slider transition'
+            description: 'Kaydırıcı geçişinin süresini ayarlar'
         },
-        easing: {
+        yumuşatma: {
             valType: 'enumerated',
             values: animationAttrs.transition.easing.values,
             dflt: 'cubic-in-out',
-            description: 'Sets the easing function of the slider transition'
+            description: 'Kaydırıcı geçişinin yumuşatma fonksiyonunu ayarlar'
         }
     },
 
-    currentvalue: {
-        visible: {
+    mevcutDeger: {
+        gorunur: {
             valType: 'boolean',
             dflt: true,
             description: [
-                'Shows the currently-selected value above the slider.'
+                'Kaydırıcının üzerinde şu anda seçili olan değeri gösterir.'
             ].join(' ')
         },
 
-        xanchor: {
+        xankoru: {
             valType: 'enumerated',
             values: ['left', 'center', 'right'],
             dflt: 'left',
             description: [
-                'The alignment of the value readout relative to the length of the slider.'
+                'Değer okumasının kaydırıcının uzunluğuna göre hizalanmasını ayarlar.'
             ].join(' ')
         },
 
-        offset: {
+        ofset: {
             valType: 'number',
             dflt: 10,
             description: [
-                'The amount of space, in pixels, between the current value label',
-                'and the slider.'
+                'Mevcut değer etiketi ile kaydırıcı arasındaki boşluk miktarını (piksel cinsinden) ayarlar.'
             ].join(' ')
         },
 
-        prefix: {
+        onek: {
             valType: 'string',
-            description: 'When currentvalue.visible is true, this sets the prefix of the label.'
+            description: 'Mevcut değer görünür olduğunda, bu etiketi önek olarak ayarlar.'
         },
 
-        suffix: {
+        sonek: {
             valType: 'string',
-            description: 'When currentvalue.visible is true, this sets the suffix of the label.'
+            description: 'Mevcut değer görünür olduğunda, bu etiketi sonek olarak ayarlar.'
         },
 
         font: fontAttrs({
-            description: 'Sets the font of the current value label text.'
+            description: 'Mevcut değer etiketi metninin yazı tipini ayarlar.'
         })
     },
 
     font: fontAttrs({
-        description: 'Sets the font of the slider step labels.'
+        description: 'Kaydırıcı adım etiketlerinin yazı tipini ayarlar.'
     }),
 
-    activebgcolor: {
+    aktifArkaPlanRengi: {
         valType: 'color',
         dflt: constants.gripBgActiveColor,
         description: [
-            'Sets the background color of the slider grip',
-            'while dragging.'
+            'Kaydırıcı tutamacının arka plan rengini ayarlar',
+            'sürüklerken.'
         ].join(' ')
     },
-    bgcolor: {
+    arkaPlanRengi: {
         valType: 'color',
         dflt: constants.railBgColor,
-        description: 'Sets the background color of the slider.'
+        description: 'Kaydırıcının arka plan rengini ayarlar.'
     },
-    bordercolor: {
+    kenarRengi: {
         valType: 'color',
         dflt: constants.railBorderColor,
-        description: 'Sets the color of the border enclosing the slider.'
+        description: 'Kaydırıcıyı çevreleyen kenarın rengini ayarlar.'
     },
-    borderwidth: {
+    kenarGenisligi: {
         valType: 'number',
         min: 0,
         dflt: constants.railBorderWidth,
-        description: 'Sets the width (in px) of the border enclosing the slider.'
+        description: 'Kaydırıcıyı çevreleyen kenarın genişliğini (px cinsinden) ayarlar.'
     },
-    ticklen: {
+    cizgiUzunlugu: {
         valType: 'number',
         min: 0,
         dflt: constants.tickLength,
-        description: 'Sets the length in pixels of step tick marks'
+        description: 'Adım işaretlerinin uzunluğunu piksel cinsinden ayarlar'
     },
-    tickcolor: {
+    cizgiRengi: {
         valType: 'color',
         dflt: constants.tickColor,
-        description: 'Sets the color of the border enclosing the slider.'
+        description: 'Kaydırıcıyı çevreleyen kenarın rengini ayarlar.'
     },
-    tickwidth: {
+    cizgiGenisligi: {
         valType: 'number',
         min: 0,
         dflt: 1,
-        description: 'Sets the tick width (in px).'
+        description: 'Çizgi genişliğini (px cinsinden) ayarlar.'
     },
-    minorticklen: {
+    kucukCizgiUzunlugu: {
         valType: 'number',
         min: 0,
         dflt: constants.minorTickLength,
-        description: 'Sets the length in pixels of minor step tick marks'
+        description: 'Küçük adım işaretlerinin uzunluğunu piksel cinsinden ayarlar'
     }
 }), 'arraydraw', 'from-root');

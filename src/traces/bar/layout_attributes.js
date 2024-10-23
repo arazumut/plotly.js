@@ -1,6 +1,5 @@
 'use strict';
 
-
 module.exports = {
     barmode: {
         valType: 'enumerated',
@@ -8,15 +7,15 @@ module.exports = {
         dflt: 'group',
         editType: 'calc',
         description: [
-            'Determines how bars at the same location coordinate',
-            'are displayed on the graph.',
-            'With *stack*, the bars are stacked on top of one another',
-            'With *relative*, the bars are stacked on top of one another,',
-            'with negative values below the axis, positive values above',
-            'With *group*, the bars are plotted next to one another',
-            'centered around the shared location.',
-            'With *overlay*, the bars are plotted over one another,',
-            'you might need to reduce *opacity* to see multiple bars.'
+            'Aynı konum koordinatındaki çubukların',
+            'grafikte nasıl görüntüleneceğini belirler.',
+            '*stack* ile çubuklar üst üste yığılır.',
+            '*relative* ile çubuklar üst üste yığılır,',
+            'negatif değerler eksenin altında, pozitif değerler üstünde olur.',
+            '*group* ile çubuklar yan yana çizilir,',
+            'paylaşılan konum etrafında ortalanır.',
+            '*overlay* ile çubuklar üst üste çizilir,',
+            'birden fazla çubuğu görmek için *opacity* değerini azaltmanız gerekebilir.'
         ].join(' ')
     },
     barnorm: {
@@ -25,10 +24,10 @@ module.exports = {
         dflt: '',
         editType: 'calc',
         description: [
-            'Sets the normalization for bar traces on the graph.',
-            'With *fraction*, the value of each bar is divided by the sum of all',
-            'values at that location coordinate.',
-            '*percent* is the same but multiplied by 100 to show percentages.'
+            'Grafikteki çubuk izleri için normalizasyonu ayarlar.',
+            '*fraction* ile her çubuğun değeri,',
+            'o konum koordinatındaki tüm değerlerin toplamına bölünür.',
+            '*percent* aynı işlemi yapar ancak yüzde olarak gösterir.'
         ].join(' ')
     },
     bargap: {
@@ -37,8 +36,8 @@ module.exports = {
         max: 1,
         editType: 'calc',
         description: [
-            'Sets the gap (in plot fraction) between bars of',
-            'adjacent location coordinates.'
+            'Bitişik konum koordinatlarındaki çubuklar arasındaki',
+            'boşluğu (grafik kesirinde) ayarlar.'
         ].join(' ')
     },
     bargroupgap: {
@@ -48,16 +47,16 @@ module.exports = {
         dflt: 0,
         editType: 'calc',
         description: [
-            'Sets the gap (in plot fraction) between bars of',
-            'the same location coordinate.'
+            'Aynı konum koordinatındaki çubuklar arasındaki',
+            'boşluğu (grafik kesirinde) ayarlar.'
         ].join(' ')
     },
     barcornerradius: {
         valType: 'any',
         editType: 'calc',
         description: [
-            'Sets the rounding of bar corners. May be an integer number of pixels,',
-            'or a percentage of bar width (as a string ending in %).'
+            'Çubuk köşelerinin yuvarlatılmasını ayarlar. Piksel cinsinden bir tam sayı,',
+            'veya çubuk genişliğinin yüzdesi (sonunda % işareti olan bir string) olabilir.'
         ].join(' ')
     },
 };

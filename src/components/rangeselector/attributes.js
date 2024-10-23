@@ -9,16 +9,14 @@ var buttonAttrs = templatedArray('button', {
         valType: 'boolean',
         dflt: true,
         editType: 'plot',
-        description: 'Determines whether or not this button is visible.'
+        description: 'Bu düğmenin görünür olup olmadığını belirler.'
     },
     step: {
         valType: 'enumerated',
         values: ['month', 'year', 'day', 'hour', 'minute', 'second', 'all'],
         dflt: 'month',
         editType: 'plot',
-        description: [
-            'The unit of measurement that the `count` value will set the range by.'
-        ].join(' ')
+        description: 'Aralığı belirlemek için `count` değerinin ayarlanacağı ölçü birimi.'
     },
     stepmode: {
         valType: 'enumerated',
@@ -26,17 +24,16 @@ var buttonAttrs = templatedArray('button', {
         dflt: 'backward',
         editType: 'plot',
         description: [
-            'Sets the range update mode.',
-            'If *backward*, the range update shifts the start of range',
-            'back *count* times *step* milliseconds.',
-            'If *todate*, the range update shifts the start of range',
-            'back to the first timestamp from *count* times',
-            '*step* milliseconds back.',
-            'For example, with `step` set to *year* and `count` set to *1*',
-            'the range update shifts the start of the range back to',
-            'January 01 of the current year.',
-            'Month and year *todate* are currently available only',
-            'for the built-in (Gregorian) calendar.'
+            'Aralık güncelleme modunu ayarlar.',
+            '*backward* ise, aralık güncellemesi aralığın başlangıcını',
+            '*count* kez *step* milisaniye geri kaydırır.',
+            '*todate* ise, aralık güncellemesi aralığın başlangıcını',
+            'ilk zaman damgasına geri kaydırır.',
+            'Örneğin, `step` *year* ve `count` *1* olarak ayarlandığında',
+            'aralık güncellemesi aralığın başlangıcını',
+            'mevcut yılın 01 Ocak tarihine geri kaydırır.',
+            'Ay ve yıl *todate* şu anda yalnızca',
+            'yerleşik (Gregoryen) takvim için kullanılabilir.'
         ].join(' ')
     },
     count: {
@@ -45,19 +42,19 @@ var buttonAttrs = templatedArray('button', {
         dflt: 1,
         editType: 'plot',
         description: [
-            'Sets the number of steps to take to update the range.',
-            'Use with `step` to specify the update interval.'
+            'Aralığı güncellemek için kaç adım atılacağını ayarlar.',
+            'Güncelleme aralığını belirtmek için `step` ile kullanın.'
         ].join(' ')
     },
     label: {
         valType: 'string',
         editType: 'plot',
-        description: 'Sets the text label to appear on the button.'
+        description: 'Düğmede görünecek metin etiketini ayarlar.'
     },
     editType: 'plot',
     description: [
-        'Sets the specifications for each buttons.',
-        'By default, a range selector comes with no buttons.'
+        'Her düğme için özellikleri ayarlar.',
+        'Varsayılan olarak, bir aralık seçici düğmesiz gelir.'
     ].join(' ')
 });
 
@@ -66,9 +63,9 @@ module.exports = {
         valType: 'boolean',
         editType: 'plot',
         description: [
-            'Determines whether or not this range selector is visible.',
-            'Note that range selectors are only available for x axes of',
-            '`type` set to or auto-typed to *date*.'
+            'Bu aralık seçicinin görünür olup olmadığını belirler.',
+            'Aralık seçicilerin yalnızca x eksenleri için mevcut olduğunu unutmayın,',
+            '`type` *date* olarak ayarlanmış veya otomatik olarak ayarlanmış.'
         ].join(' ')
     },
 
@@ -79,7 +76,7 @@ module.exports = {
         min: -2,
         max: 3,
         editType: 'plot',
-        description: 'Sets the x position (in normalized coordinates) of the range selector.'
+        description: 'Aralık seçicinin x konumunu (normalize edilmiş koordinatlarda) ayarlar.'
     },
     xanchor: {
         valType: 'enumerated',
@@ -87,9 +84,9 @@ module.exports = {
         dflt: 'left',
         editType: 'plot',
         description: [
-            'Sets the range selector\'s horizontal position anchor.',
-            'This anchor binds the `x` position to the *left*, *center*',
-            'or *right* of the range selector.'
+            'Aralık seçicinin yatay konum çapasını ayarlar.',
+            'Bu çapa, `x` konumunu aralık seçicinin *left*, *center*',
+            'veya *right* kısmına bağlar.'
         ].join(' ')
     },
     y: {
@@ -97,7 +94,7 @@ module.exports = {
         min: -2,
         max: 3,
         editType: 'plot',
-        description: 'Sets the y position (in normalized coordinates) of the range selector.'
+        description: 'Aralık seçicinin y konumunu (normalize edilmiş koordinatlarda) ayarlar.'
     },
     yanchor: {
         valType: 'enumerated',
@@ -105,40 +102,40 @@ module.exports = {
         dflt: 'bottom',
         editType: 'plot',
         description: [
-            'Sets the range selector\'s vertical position anchor',
-            'This anchor binds the `y` position to the *top*, *middle*',
-            'or *bottom* of the range selector.'
+            'Aralık seçicinin dikey konum çapasını ayarlar.',
+            'Bu çapa, `y` konumunu aralık seçicinin *top*, *middle*',
+            'veya *bottom* kısmına bağlar.'
         ].join(' ')
     },
 
     font: fontAttrs({
         editType: 'plot',
-        description: 'Sets the font of the range selector button text.'
+        description: 'Aralık seçici düğme metninin yazı tipini ayarlar.'
     }),
 
     bgcolor: {
         valType: 'color',
         dflt: colorAttrs.lightLine,
         editType: 'plot',
-        description: 'Sets the background color of the range selector buttons.'
+        description: 'Aralık seçici düğmelerinin arka plan rengini ayarlar.'
     },
     activecolor: {
         valType: 'color',
         editType: 'plot',
-        description: 'Sets the background color of the active range selector button.'
+        description: 'Aktif aralık seçici düğmesinin arka plan rengini ayarlar.'
     },
     bordercolor: {
         valType: 'color',
         dflt: colorAttrs.defaultLine,
         editType: 'plot',
-        description: 'Sets the color of the border enclosing the range selector.'
+        description: 'Aralık seçiciyi çevreleyen kenarlığın rengini ayarlar.'
     },
     borderwidth: {
         valType: 'number',
         min: 0,
         dflt: 0,
         editType: 'plot',
-        description: 'Sets the width (in px) of the border enclosing the range selector.'
+        description: 'Aralık seçiciyi çevreleyen kenarlığın genişliğini (px cinsinden) ayarlar.'
     },
     editType: 'plot'
 };

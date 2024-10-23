@@ -1,6 +1,6 @@
 'use strict';
 
-// Wrapper functions to handle paper-referenced shapes, which have no axis
+// Kağıda referanslı şekilleri işlemek için sarmalayıcı fonksiyonlar, ekseni olmayanlar
 
 function d2l(v, axis) {
     return axis ? axis.d2l(v) : v;
@@ -9,7 +9,6 @@ function d2l(v, axis) {
 function l2d(v, axis) {
     return axis ? axis.l2d(v) : v;
 }
-
 
 function x0Fn(shape) { return shape.x0; }
 function x1Fn(shape) { return shape.x1; }

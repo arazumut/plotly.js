@@ -2,8 +2,8 @@
 
 var strTranslate = require('../../lib').strTranslate;
 
-// in v3 (once log ranges are fixed),
-// we'll be able to p2r here for all axis types
+// v3'te (log aralıkları düzeltildiğinde),
+// burada tüm eksen türleri için p2r yapabileceğiz
 function p2r(ax, v) {
     switch(ax.type) {
         case 'log':
@@ -26,12 +26,12 @@ function r2p(ax, v) {
     }
 }
 
-function axValue(ax) {
+function eksenDegeri(ax) {
     var index = (ax._id.charAt(0) === 'y') ? 1 : 0;
     return function(v) { return p2r(ax, v[index]); };
 }
 
-function getTransform(plotinfo) {
+function donusumGetir(plotinfo) {
     return strTranslate(
         plotinfo.xaxis._offset,
         plotinfo.yaxis._offset
@@ -41,6 +41,6 @@ function getTransform(plotinfo) {
 module.exports = {
     p2r: p2r,
     r2p: r2p,
-    axValue: axValue,
-    getTransform: getTransform
+    eksenDegeri: eksenDegeri,
+    donusumGetir: donusumGetir
 };

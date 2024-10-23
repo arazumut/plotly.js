@@ -2,32 +2,32 @@
 
 var isTypedArraySpec = require('../../lib/array').isTypedArraySpec;
 
-function findCategories(ax, opts) {
-    var dataAttr = opts.dataAttr || ax._id.charAt(0);
+function kategorileriBul(ax, opts) {
+    var veriOzelligi = opts.veriOzelligi || ax._id.charAt(0);
     var lookup = {};
-    var axData;
+    var axVerisi;
     var i, j;
 
-    if(opts.axData) {
-        // non-x/y case
-        axData = opts.axData;
+    if(opts.axVerisi) {
+        // x/y olmayan durum
+        axVerisi = opts.axVerisi;
     } else {
-        // x/y case
-        axData = [];
-        for(i = 0; i < opts.data.length; i++) {
-            var trace = opts.data[i];
-            if(trace[dataAttr + 'axis'] === ax._id) {
-                axData.push(trace);
+        // x/y durumu
+        axVerisi = [];
+        for(i = 0; i < opts.veri.length; i++) {
+            var iz = opts.veri[i];
+            if(iz[veriOzelligi + 'axis'] === ax._id) {
+                axVerisi.push(iz);
             }
         }
     }
 
-    for(i = 0; i < axData.length; i++) {
-        var vals = axData[i][dataAttr];
-        for(j = 0; j < vals.length; j++) {
-            var v = vals[j];
-            if(v !== null && v !== undefined) {
-                lookup[v] = 1;
+    for(i = 0; i < axVerisi.length; i++) {
+        var degerler = axVerisi[i][veriOzelligi];
+        for(j = 0; j < degerler.length; j++) {
+            var deger = degerler[j];
+            if(deger !== null && deger !== undefined) {
+                lookup[deger] = 1;
             }
         }
     }
@@ -36,52 +36,52 @@ function findCategories(ax, opts) {
 }
 
 /**
- * Fills in category* default and initial categories.
+ * Kategori* varsayılan ve başlangıç kategorilerini doldurur.
  *
- * @param {object} containerIn : input axis object
- * @param {object} containerOut : full axis object
- * @param {function} coerce : Lib.coerce fn wrapper
+ * @param {object} containerIn : giriş eksen nesnesi
+ * @param {object} containerOut : tam eksen nesnesi
+ * @param {function} zorla : Lib.coerce fonksiyon sarmalayıcısı
  * @param {object} opts :
- *   - data {array} : (full) data trace
- * OR
- *   - axData {array} : (full) data associated with axis being coerced here
- *   - dataAttr {string} : attribute name corresponding to coordinate array
+ *   - veri {array} : (tam) veri izi
+ * VEYA
+ *   - axVerisi {array} : burada zorlanan eksenle ilişkili (tam) veri
+ *   - veriOzelligi {string} : koordinat dizisine karşılık gelen öznitelik adı
  */
-module.exports = function handleCategoryOrderDefaults(containerIn, containerOut, coerce, opts) {
+module.exports = function kategoriSiraVarsayilanlariniIsle(containerIn, containerOut, zorla, opts) {
     if(containerOut.type !== 'category') return;
 
-    var arrayIn = containerIn.categoryarray;
-    var isValidArray = (Array.isArray(arrayIn) && arrayIn.length > 0) ||
-        isTypedArraySpec(arrayIn);
+    var diziIn = containerIn.categoryarray;
+    var gecerliDizi = (Array.isArray(diziIn) && diziIn.length > 0) ||
+        isTypedArraySpec(diziIn);
 
-    // override default 'categoryorder' value when non-empty array is supplied
-    var orderDefault;
-    if(isValidArray) orderDefault = 'array';
+    // geçerli olmayan dizi ile 'categoryorder' 'array' olarak ayarlanamaz
+    var siraVarsayilan;
+    if(gecerliDizi) siraVarsayilan = 'array';
 
-    var order = coerce('categoryorder', orderDefault);
-    var array;
+    var sira = zorla('categoryorder', siraVarsayilan);
+    var dizi;
 
-    // coerce 'categoryarray' only in array order case
-    if(order === 'array') {
-        array = coerce('categoryarray');
+    // 'categoryarray' sadece dizi sırası durumunda zorlanır
+    if(sira === 'array') {
+        dizi = zorla('categoryarray');
     }
 
-    // cannot set 'categoryorder' to 'array' with an invalid 'categoryarray'
-    if(!isValidArray && order === 'array') {
-        order = containerOut.categoryorder = 'trace';
+    // geçersiz 'categoryarray' ile 'categoryorder' 'array' olarak ayarlanamaz
+    if(!gecerliDizi && sira === 'array') {
+        sira = containerOut.categoryorder = 'trace';
     }
 
-    // set up things for makeCalcdata
-    if(order === 'trace') {
+    // makeCalcdata için şeyleri ayarla
+    if(sira === 'trace') {
         containerOut._initialCategories = [];
-    } else if(order === 'array') {
-        containerOut._initialCategories = array.slice();
+    } else if(sira === 'array') {
+        containerOut._initialCategories = dizi.slice();
     } else {
-        array = findCategories(containerOut, opts).sort();
-        if(order === 'category ascending') {
-            containerOut._initialCategories = array;
-        } else if(order === 'category descending') {
-            containerOut._initialCategories = array.reverse();
+        dizi = kategorileriBul(containerOut, opts).sort();
+        if(sira === 'category ascending') {
+            containerOut._initialCategories = dizi;
+        } else if(sira === 'category descending') {
+            containerOut._initialCategories = dizi.reverse();
         }
     }
 };

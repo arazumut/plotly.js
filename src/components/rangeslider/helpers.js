@@ -1,17 +1,20 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var axisIDs = require('../../plots/cartesian/axis_ids');
 var svgTextUtils = require('../../lib/svg_text_utils');
 var constants = require('./constants');
 var LINE_SPACING = require('../../constants/alignment').LINE_SPACING;
 var name = constants.name;
 
+// Eksenin görünür olup olmadığını kontrol eden fonksiyon
 function isVisible(ax) {
     var rangeSlider = ax && ax[name];
     return rangeSlider && rangeSlider.visible;
 }
 exports.isVisible = isVisible;
 
+// Range slider verilerini oluşturan fonksiyon
 exports.makeData = function(fullLayout) {
     var axes = axisIDs.list({ _fullLayout: fullLayout }, 'x', true);
     var margin = fullLayout.margin;
@@ -33,6 +36,7 @@ exports.makeData = function(fullLayout) {
     fullLayout._rangeSliderData = rangeSliderData;
 };
 
+// Otomatik kenar boşluğu seçeneklerini döndüren fonksiyon
 exports.autoMarginOpts = function(gd, ax) {
     var fullLayout = gd._fullLayout;
     var opts = ax[name];
@@ -43,9 +47,9 @@ exports.autoMarginOpts = function(gd, ax) {
     if(ax.side === 'bottom') {
         bottomDepth = ax._depth;
         if(ax.title.text !== fullLayout._dfltTitle[axLetter]) {
-            // as in rangeslider/draw.js
+            // rangeslider/draw.js'deki gibi
             titleHeight = 1.5 * ax.title.font.size + 10 + opts._offsetShift;
-            // multi-line extra bump
+            // Çok satırlı ekstra boşluk
             var extraLines = (ax.title.text.match(svgTextUtils.BR_TAG_ALL) || []).length;
             titleHeight += extraLines * ax.title.font.size * LINE_SPACING;
         }

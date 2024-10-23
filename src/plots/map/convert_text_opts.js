@@ -3,59 +3,59 @@
 var Lib = require('../../lib');
 
 /**
- * Convert plotly.js 'textposition' to map-gl 'anchor' and 'offset'
- * (with the help of the icon size).
+ * plotly.js 'textposition' değerini map-gl 'anchor' ve 'offset' değerlerine dönüştür.
+ * (ikon boyutu yardımıyla).
  *
- * @param {string} textpostion : plotly.js textposition value
- * @param {number} iconSize : plotly.js icon size (e.g. marker.size for traces)
+ * @param {string} textposition : plotly.js textposition değeri
+ * @param {number} iconSize : plotly.js ikon boyutu (örneğin, izler için marker.size)
  *
  * @return {object}
  *      - anchor
  *      - offset
  */
-module.exports = function convertTextOpts(textposition, iconSize) {
-    var parts = textposition.split(' ');
-    var vPos = parts[0];
-    var hPos = parts[1];
+module.exports = function metinSeçenekleriniDönüştür(textposition, iconSize) {
+    var parçalar = textposition.split(' ');
+    var dikeyPozisyon = parçalar[0];
+    var yatayPozisyon = parçalar[1];
 
-    // ballpack values
-    var factor = Lib.isArrayOrTypedArray(iconSize) ? Lib.mean(iconSize) : iconSize;
-    var xInc = 0.5 + (factor / 100);
-    var yInc = 1.5 + (factor / 100);
+    // yaklaşık değerler
+    var faktör = Lib.isArrayOrTypedArray(iconSize) ? Lib.mean(iconSize) : iconSize;
+    var xArtış = 0.5 + (faktör / 100);
+    var yArtış = 1.5 + (faktör / 100);
 
-    var anchorVals = ['', ''];
+    var anchorDeğerleri = ['', ''];
     var offset = [0, 0];
 
-    switch(vPos) {
+    switch(dikeyPozisyon) {
         case 'top':
-            anchorVals[0] = 'top';
-            offset[1] = -yInc;
+            anchorDeğerleri[0] = 'top';
+            offset[1] = -yArtış;
             break;
         case 'bottom':
-            anchorVals[0] = 'bottom';
-            offset[1] = yInc;
+            anchorDeğerleri[0] = 'bottom';
+            offset[1] = yArtış;
             break;
     }
 
-    switch(hPos) {
+    switch(yatayPozisyon) {
         case 'left':
-            anchorVals[1] = 'right';
-            offset[0] = -xInc;
+            anchorDeğerleri[1] = 'right';
+            offset[0] = -xArtış;
             break;
         case 'right':
-            anchorVals[1] = 'left';
-            offset[0] = xInc;
+            anchorDeğerleri[1] = 'left';
+            offset[0] = xArtış;
             break;
     }
 
-    // Map text-anchor must be one of:
+    // Harita metin-çapası şu değerlerden biri olmalıdır:
     //  center, left, right, top, bottom,
     //  top-left, top-right, bottom-left, bottom-right
 
     var anchor;
-    if(anchorVals[0] && anchorVals[1]) anchor = anchorVals.join('-');
-    else if(anchorVals[0]) anchor = anchorVals[0];
-    else if(anchorVals[1]) anchor = anchorVals[1];
+    if(anchorDeğerleri[0] && anchorDeğerleri[1]) anchor = anchorDeğerleri.join('-');
+    else if(anchorDeğerleri[0]) anchor = anchorDeğerleri[0];
+    else if(anchorDeğerleri[1]) anchor = anchorDeğerleri[1];
     else anchor = 'center';
 
     return { anchor: anchor, offset: offset };

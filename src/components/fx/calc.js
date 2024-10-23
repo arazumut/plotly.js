@@ -3,50 +3,50 @@
 var Lib = require('../../lib');
 var Registry = require('../../registry');
 
-module.exports = function calc(gd) {
-    var calcdata = gd.calcdata;
-    var fullLayout = gd._fullLayout;
+module.exports = function hesapla(gd) {
+    var hesapVerisi = gd.hesapVerisi;
+    var tamYerleşim = gd._tamYerleşim;
 
-    function makeCoerceHoverInfo(trace) {
-        return function(val) {
-            return Lib.coerceHoverinfo({hoverinfo: val}, {_module: trace._module}, fullLayout);
+    function hoverBilgisiZorlaOluştur(iz) {
+        return function(değer) {
+            return Lib.hoverBilgisiZorla({hoverinfo: değer}, {_module: iz._module}, tamYerleşim);
         };
     }
 
-    for(var i = 0; i < calcdata.length; i++) {
-        var cd = calcdata[i];
-        var trace = cd[0].trace;
+    for(var i = 0; i < hesapVerisi.length; i++) {
+        var hv = hesapVerisi[i];
+        var iz = hv[0].iz;
 
-        // don't include hover calc fields for pie traces
-        // as calcdata items might be sorted by value and
-        // won't match the data array order.
-        if(Registry.traceIs(trace, 'pie-like')) continue;
+        // pasta grafik izleri için hover hesaplama alanlarını dahil etmeyin
+        // çünkü hesapVerisi öğeleri değere göre sıralanabilir ve
+        // veri dizisi sırasıyla eşleşmeyebilir.
+        if(Registry.izMi(iz, 'pasta-benzeri')) continue;
 
-        var fillFn = Registry.traceIs(trace, '2dMap') ? paste : Lib.fillArray;
+        var doldurFn = Registry.izMi(iz, '2dHarita') ? yapıştır : Lib.diziDoldur;
 
-        fillFn(trace.hoverinfo, cd, 'hi', makeCoerceHoverInfo(trace));
+        doldurFn(iz.hoverinfo, hv, 'hi', hoverBilgisiZorlaOluştur(iz));
 
-        if(trace.hovertemplate) fillFn(trace.hovertemplate, cd, 'ht');
+        if(iz.hovertemplate) doldurFn(iz.hovertemplate, hv, 'ht');
 
-        if(!trace.hoverlabel) continue;
+        if(!iz.hoverlabel) continue;
 
-        fillFn(trace.hoverlabel.bgcolor, cd, 'hbg');
-        fillFn(trace.hoverlabel.bordercolor, cd, 'hbc');
-        fillFn(trace.hoverlabel.font.size, cd, 'hts');
-        fillFn(trace.hoverlabel.font.color, cd, 'htc');
-        fillFn(trace.hoverlabel.font.family, cd, 'htf');
-        fillFn(trace.hoverlabel.font.weight, cd, 'htw');
-        fillFn(trace.hoverlabel.font.style, cd, 'hty');
-        fillFn(trace.hoverlabel.font.variant, cd, 'htv');
-        fillFn(trace.hoverlabel.namelength, cd, 'hnl');
-        fillFn(trace.hoverlabel.align, cd, 'hta');
+        doldurFn(iz.hoverlabel.bgcolor, hv, 'hbg');
+        doldurFn(iz.hoverlabel.bordercolor, hv, 'hbc');
+        doldurFn(iz.hoverlabel.font.size, hv, 'hts');
+        doldurFn(iz.hoverlabel.font.color, hv, 'htc');
+        doldurFn(iz.hoverlabel.font.family, hv, 'htf');
+        doldurFn(iz.hoverlabel.font.weight, hv, 'htw');
+        doldurFn(iz.hoverlabel.font.style, hv, 'hty');
+        doldurFn(iz.hoverlabel.font.variant, hv, 'htv');
+        doldurFn(iz.hoverlabel.namelength, hv, 'hnl');
+        doldurFn(iz.hoverlabel.align, hv, 'hta');
     }
 };
 
-function paste(traceAttr, cd, cdAttr, fn) {
-    fn = fn || Lib.identity;
+function yapıştır(izÖzelliği, hv, hvÖzelliği, fn) {
+    fn = fn || Lib.kimlik;
 
-    if(Array.isArray(traceAttr)) {
-        cd[0][cdAttr] = fn(traceAttr);
+    if(Array.isArray(izÖzelliği)) {
+        hv[0][hvÖzelliği] = fn(izÖzelliği);
     }
 }

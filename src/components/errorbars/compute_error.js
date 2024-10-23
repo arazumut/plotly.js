@@ -1,61 +1,59 @@
 'use strict';
 
-
 /**
- * Error bar computing function generator
+ * Hata çubuğu hesaplama fonksiyonu oluşturucu
  *
- * N.B. The generated function does not clean the dataPt entries. Non-numeric
- * entries result in undefined error magnitudes.
+ * Not: Oluşturulan fonksiyon veri noktası girişlerini temizlemez. Sayısal olmayan
+ * girişler tanımsız hata büyüklüklerine neden olur.
  *
- * @param {object} opts error bar attributes
+ * @param {object} seçenekler hata çubuğu özellikleri
  *
  * @return {function} :
- *      @param {numeric} dataPt data point from where to compute the error magnitude
- *      @param {number} index index of dataPt in its corresponding data array
+ *      @param {numeric} veriNoktası hata büyüklüğünü hesaplamak için kullanılan veri noktası
+ *      @param {number} indeks veriNoktası'nın ilgili veri dizisindeki indeksi
  *      @return {array}
- *        - error[0] : error magnitude in the negative direction
- *        - error[1] : " " " " positive "
+ *        - hata[0] : negatif yöndeki hata büyüklüğü
+ *        - hata[1] : pozitif yöndeki hata büyüklüğü
  */
-module.exports = function makeComputeError(opts) {
-    var type = opts.type;
-    var symmetric = opts.symmetric;
+module.exports = function hataHesaplaOlustur(seçenekler) {
+    var tür = seçenekler.tür;
+    var simetrik = seçenekler.simetrik;
 
-    if(type === 'data') {
-        var array = opts.array || [];
+    if(tür === 'veri') {
+        var dizi = seçenekler.dizi || [];
 
-        if(symmetric) {
-            return function computeError(dataPt, index) {
-                var val = +(array[index]);
-                return [val, val];
+        if(simetrik) {
+            return function hataHesapla(veriNoktası, indeks) {
+                var değer = +(dizi[indeks]);
+                return [değer, değer];
             };
         } else {
-            var arrayminus = opts.arrayminus || [];
-            return function computeError(dataPt, index) {
-                var val = +array[index];
-                var valMinus = +arrayminus[index];
-                // in case one is present and the other is missing, fill in 0
-                // so we still see the present one. Mostly useful during manual
-                // data entry.
-                if(!isNaN(val) || !isNaN(valMinus)) {
-                    return [valMinus || 0, val || 0];
+            var diziEksi = seçenekler.diziEksi || [];
+            return function hataHesapla(veriNoktası, indeks) {
+                var değer = +dizi[indeks];
+                var değerEksi = +diziEksi[indeks];
+                // biri mevcut ve diğeri eksikse, mevcut olanı yine de görmek için 0 ile doldurun.
+                // Özellikle manuel veri girişi sırasında kullanışlıdır.
+                if(!isNaN(değer) || !isNaN(değerEksi)) {
+                    return [değerEksi || 0, değer || 0];
                 }
                 return [NaN, NaN];
             };
         }
     } else {
-        var computeErrorValue = makeComputeErrorValue(type, opts.value);
-        var computeErrorValueMinus = makeComputeErrorValue(type, opts.valueminus);
+        var hataDeğeriHesapla = hataDeğeriHesaplaOlustur(tür, seçenekler.değer);
+        var hataDeğeriEksiHesapla = hataDeğeriHesaplaOlustur(tür, seçenekler.değerEksi);
 
-        if(symmetric || opts.valueminus === undefined) {
-            return function computeError(dataPt) {
-                var val = computeErrorValue(dataPt);
-                return [val, val];
+        if(simetrik || seçenekler.değerEksi === undefined) {
+            return function hataHesapla(veriNoktası) {
+                var değer = hataDeğeriHesapla(veriNoktası);
+                return [değer, değer];
             };
         } else {
-            return function computeError(dataPt) {
+            return function hataHesapla(veriNoktası) {
                 return [
-                    computeErrorValueMinus(dataPt),
-                    computeErrorValue(dataPt)
+                    hataDeğeriEksiHesapla(veriNoktası),
+                    hataDeğeriHesapla(veriNoktası)
                 ];
             };
         }
@@ -63,28 +61,28 @@ module.exports = function makeComputeError(opts) {
 };
 
 /**
- * Compute error bar magnitude (for all types except data)
+ * Hata çubuğu büyüklüğünü hesapla (veri türü hariç tüm türler için)
  *
- * @param {string} type error bar type
- * @param {numeric} value error bar value
+ * @param {string} tür hata çubuğu türü
+ * @param {numeric} değer hata çubuğu değeri
  *
  * @return {function} :
- *      @param {numeric} dataPt
+ *      @param {numeric} veriNoktası
  */
-function makeComputeErrorValue(type, value) {
-    if(type === 'percent') {
-        return function(dataPt) {
-            return Math.abs(dataPt * value / 100);
+function hataDeğeriHesaplaOlustur(tür, değer) {
+    if(tür === 'yüzde') {
+        return function(veriNoktası) {
+            return Math.abs(veriNoktası * değer / 100);
         };
     }
-    if(type === 'constant') {
+    if(tür === 'sabit') {
         return function() {
-            return Math.abs(value);
+            return Math.abs(değer);
         };
     }
-    if(type === 'sqrt') {
-        return function(dataPt) {
-            return Math.sqrt(Math.abs(dataPt));
+    if(tür === 'karekök') {
+        return function(veriNoktası) {
+            return Math.sqrt(Math.abs(veriNoktası));
         };
     }
 }

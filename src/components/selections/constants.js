@@ -1,15 +1,15 @@
 'use strict';
 
 module.exports = {
-    // max pixels off straight before a lasso select line counts as bent
+    // bir lasso seçim çizgisi bükülmüş sayılmadan önce izin verilen maksimum piksel sapması
     BENDPX: 1.5,
 
-    // smallest dimension allowed for a select box
+    // bir seçim kutusu için izin verilen en küçük boyut
     MINSELECT: 12,
 
-    // throttling limit (ms) for selectPoints calls
+    // selectPoints çağrıları için gecikme sınırı (ms)
     SELECTDELAY: 100,
 
-    // cache ID suffix for throttle
+    // throttle için önbellek ID eki
     SELECTID: '-select',
 };

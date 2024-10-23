@@ -1,20 +1,26 @@
 'use strict';
 
+// Renk özelliklerini içe aktar
 var colorAttrs = require('../../components/color/attributes');
+// Alan özelliklerini içe aktar
 var domainAttrs = require('../domain').attributes;
+// Eksen özelliklerini içe aktar
 var axesAttrs = require('../cartesian/layout_attributes');
 
+// Tüm düzenleme türlerini geçersiz kıl
 var overrideAll = require('../../plot_api/edit_types').overrideAll;
+// Düz genişletme fonksiyonunu içe aktar
 var extendFlat = require('../../lib/extend').extendFlat;
 
+// Üçgen eksen özellikleri
 var ternaryAxesAttrs = {
     title: {
         text: axesAttrs.title.text,
         font: axesAttrs.title.font
-        // TODO does standoff here make sense?
+        // TODO burada standoff mantıklı mı?
     },
     color: axesAttrs.color,
-    // ticks
+    // işaretler
     tickmode: axesAttrs.minor.tickmode,
     nticks: extendFlat({}, axesAttrs.nticks, {dflt: 6, min: 1}),
     tick0: axesAttrs.tick0,
@@ -41,7 +47,7 @@ var ternaryAxesAttrs = {
     tickformat: axesAttrs.tickformat,
     tickformatstops: axesAttrs.tickformatstops,
     hoverformat: axesAttrs.hoverformat,
-    // lines and grids
+    // çizgiler ve ızgaralar
     showline: extendFlat({}, axesAttrs.showline, {dflt: true}),
     linecolor: axesAttrs.linecolor,
     linewidth: axesAttrs.linewidth,
@@ -50,35 +56,35 @@ var ternaryAxesAttrs = {
     gridwidth: axesAttrs.gridwidth,
     griddash: axesAttrs.griddash,
     layer: axesAttrs.layer,
-    // range
+    // aralık
     min: {
         valType: 'number',
         dflt: 0,
         min: 0,
         description: [
-            'The minimum value visible on this axis.',
-            'The maximum is determined by the sum minus the minimum',
-            'values of the other two axes. The full view corresponds to',
-            'all the minima set to zero.'
+            'Bu eksende görünen minimum değer.',
+            'Maksimum, diğer iki eksenin minimum değerlerinin toplamı ile belirlenir.',
+            'Tam görünüm, tüm minimumların sıfıra ayarlandığı duruma karşılık gelir.'
         ].join(' ')
     },
 };
 
+// Özellikleri geçersiz kıl ve dışa aktar
 var attrs = module.exports = overrideAll({
     domain: domainAttrs({name: 'ternary'}),
 
     bgcolor: {
         valType: 'color',
         dflt: colorAttrs.background,
-        description: 'Set the background color of the subplot'
+        description: 'Alt grafik alanının arka plan rengini ayarlayın'
     },
     sum: {
         valType: 'number',
         dflt: 1,
         min: 0,
         description: [
-            'The number each triplet should sum to,',
-            'and the maximum range of each axis'
+            'Her üçlünün toplamı olması gereken sayı,',
+            've her eksenin maksimum aralığı'
         ].join(' ')
     },
     aaxis: ternaryAxesAttrs,
@@ -86,14 +92,14 @@ var attrs = module.exports = overrideAll({
     caxis: ternaryAxesAttrs
 }, 'plot', 'from-root');
 
-// set uirevisions outside of `overrideAll` so we can get `editType: none`
+// `overrideAll` dışında uirevisions ayarla, böylece `editType: none` olabilir
 attrs.uirevision = {
     valType: 'any',
     editType: 'none',
     description: [
-        'Controls persistence of user-driven changes in axis `min` and `title`,',
-        'if not overridden in the individual axes.',
-        'Defaults to `layout.uirevision`.'
+        'Kullanıcı tarafından yapılan eksen `min` ve `title` değişikliklerinin kalıcılığını kontrol eder,',
+        'bireysel eksenlerde geçersiz kılınmadıkça.',
+        'Varsayılan olarak `layout.uirevision`.'
     ].join(' ')
 };
 
@@ -101,8 +107,8 @@ attrs.aaxis.uirevision = attrs.baxis.uirevision = attrs.caxis.uirevision = {
     valType: 'any',
     editType: 'none',
     description: [
-        'Controls persistence of user-driven changes in axis `min`,',
-        'and `title` if in `editable: true` configuration.',
-        'Defaults to `ternary<N>.uirevision`.'
+        'Kullanıcı tarafından yapılan eksen `min` ve `title` değişikliklerinin kalıcılığını kontrol eder,',
+        '`editable: true` yapılandırmasında.',
+        'Varsayılan olarak `ternary<N>.uirevision`.'
     ].join(' ')
 };

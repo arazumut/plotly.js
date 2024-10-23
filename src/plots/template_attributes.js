@@ -8,35 +8,35 @@ function templateFormatStringDescription(opts) {
     var supportOther = opts && opts.supportOther;
 
     return [
-        'Variables are inserted using %{variable},',
-        'for example "y: %{y}"' + (
-            supportOther ?
-                ' as well as %{xother}, {%_xother}, {%_xother_}, {%xother_}. When showing info for several points, *xother* will be added to those with different x positions from the first point. An underscore before or after *(x|y)other* will add a space on that side, only when this field is shown.' :
+        'Değişkenler %{variable} kullanılarak eklenir,',
+        'örneğin "y: %{y}"' + (
+            supportOther ? 
+                ' ve ayrıca %{xother}, {%_xother}, {%_xother_}, {%xother_} kullanılarak. Birden fazla nokta için bilgi gösterilirken, *xother* ilk noktadan farklı x pozisyonlarına sahip olanlara eklenir. *(x|y)other* öncesinde veya sonrasında bir alt çizgi, bu alan gösterildiğinde yalnızca o tarafta bir boşluk ekler.' :
                 '.'
         ),
-        'Numbers are formatted using d3-format\'s syntax %{variable:d3-format}, for example "Price: %{y:$.2f}".',
+        'Sayılar d3-format\'ın sözdizimi %{variable:d3-format} kullanılarak biçimlendirilir, örneğin "Fiyat: %{y:$.2f}".',
         FORMAT_LINK,
-        'for details on the formatting syntax.',
-        'Dates are formatted using d3-time-format\'s syntax %{variable|d3-time-format}, for example "Day: %{2019-01-01|%A}".',
+        'biçimlendirme sözdizimi hakkında detaylar için.',
+        'Tarihler d3-time-format\'ın sözdizimi %{variable|d3-time-format} kullanılarak biçimlendirilir, örneğin "Gün: %{2019-01-01|%A}".',
         DATE_FORMAT_LINK,
-        'for details on the date formatting syntax.'
+        'tarih biçimlendirme sözdizimi hakkında detaylar için.'
     ].join(' ');
 }
 
 function shapeTemplateFormatStringDescription() {
     return [
-        'Variables are inserted using %{variable},',
-        'for example "x0: %{x0}".',
-        'Numbers are formatted using d3-format\'s syntax %{variable:d3-format}, for example "Price: %{x0:$.2f}". See',
+        'Değişkenler %{variable} kullanılarak eklenir,',
+        'örneğin "x0: %{x0}".',
+        'Sayılar d3-format\'ın sözdizimi %{variable:d3-format} kullanılarak biçimlendirilir, örneğin "Fiyat: %{x0:$.2f}". Detaylar için bkz.',
         FORMAT_LINK,
-        'for details on the formatting syntax.',
-        'Dates are formatted using d3-time-format\'s syntax %{variable|d3-time-format}, for example "Day: %{x0|%m %b %Y}". See',
+        'biçimlendirme sözdizimi hakkında.',
+        'Tarihler d3-time-format\'ın sözdizimi %{variable|d3-time-format} kullanılarak biçimlendirilir, örneğin "Gün: %{x0|%m %b %Y}". Detaylar için bkz.',
         DATE_FORMAT_LINK,
-        'for details on the date formatting syntax.',
-        'A single multiplication or division operation may be applied to numeric variables, and combined with',
-        'd3 number formatting, for example "Length in cm: %{x0*2.54}", "%{slope*60:.1f} meters per second."',
-        'For log axes, variable values are given in log units.',
-        'For date axes, x/y coordinate variables and center variables use datetimes, while all other variable values use values in ms.',
+        'tarih biçimlendirme sözdizimi hakkında.',
+        'Tek bir çarpma veya bölme işlemi sayısal değişkenlere uygulanabilir ve',
+        'd3 sayı biçimlendirme ile birleştirilebilir, örneğin "Uzunluk cm cinsinden: %{x0*2.54}", "%{slope*60:.1f} saniyede metre."',
+        'Log eksenleri için, değişken değerleri log birimlerinde verilir.',
+        'Tarih eksenleri için, x/y koordinat değişkenleri ve merkez değişkenleri tarih saatleri kullanır, diğer tüm değişken değerleri ms cinsinden değerler kullanır.'
     ].join(' ');
 }
 
@@ -48,11 +48,11 @@ function describeVariables(extra) {
         for(var i = 0; i < keys.length; i++) {
             quotedKeys[i] = '`' + keys[i] + '`';
         }
-        descPart = descPart + 'Finally, the template string has access to ';
+        descPart = descPart + 'Son olarak, şablon dizesi şu değişkenlere erişime sahiptir: ';
         if(keys.length === 1) {
-            descPart = descPart + 'variable ' + quotedKeys[0];
+            descPart = descPart + 'değişken ' + quotedKeys[0];
         } else {
-            descPart = descPart + 'variables ' + quotedKeys.slice(0, -1).join(', ') + ' and ' + quotedKeys.slice(-1) + '.';
+            descPart = descPart + 'değişkenler ' + quotedKeys.slice(0, -1).join(', ') + ' ve ' + quotedKeys.slice(-1) + '.';
         }
     }
     return descPart;
@@ -69,14 +69,14 @@ exports.hovertemplateAttrs = function(opts, extra) {
         dflt: '',
         editType: opts.editType || 'none',
         description: [
-            'Template string used for rendering the information that appear on hover box.',
-            'Note that this will override `hoverinfo`.',
+            'Hover kutusunda görünen bilgileri render etmek için kullanılan şablon dizesi.',
+            'Bu, `hoverinfo`yu geçersiz kılacaktır.',
             templateFormatStringDescription({supportOther: true}),
-            'The variables available in `hovertemplate` are the ones emitted as event data described at this link https://plotly.com/javascript/plotlyjs-events/#event-data.',
-            'Additionally, every attributes that can be specified per-point (the ones that are `arrayOk: true`) are available.',
+            '`hovertemplate` içinde kullanılabilir değişkenler, şu bağlantıda açıklanan olay verileri olarak yayımlananlardır: https://plotly.com/javascript/plotlyjs-events/#event-data.',
+            'Ek olarak, nokta başına belirtilebilen her öznitelik (arrayOk: true olanlar) kullanılabilir.',
             descPart,
-            'Anything contained in tag `<extra>` is displayed in the secondary box, for example "<extra>{fullData.name}</extra>".',
-            'To hide the secondary box completely, use an empty tag `<extra></extra>`.'
+            'Tag `<extra>` içinde bulunan her şey ikincil kutuda gösterilir, örneğin "<extra>{fullData.name}</extra>".',
+            'İkincil kutuyu tamamen gizlemek için, boş bir tag `<extra></extra>` kullanın.'
         ].join(' ')
     };
 
@@ -98,10 +98,10 @@ exports.texttemplateAttrs = function(opts, extra) {
         dflt: '',
         editType: opts.editType || 'calc',
         description: [
-            'Template string used for rendering the information text that appear on points.',
-            'Note that this will override `textinfo`.',
+            'Noktalarda görünen bilgi metnini render etmek için kullanılan şablon dizesi.',
+            'Bu, `textinfo`yu geçersiz kılacaktır.',
             templateFormatStringDescription(),
-            'Every attributes that can be specified per-point (the ones that are `arrayOk: true`) are available.',
+            'Nokta başına belirtilebilen her öznitelik (arrayOk: true olanlar) kullanılabilir.',
             descPart
         ].join(' ')
     };
@@ -112,12 +112,11 @@ exports.texttemplateAttrs = function(opts, extra) {
     return texttemplate;
 };
 
-
 exports.shapeTexttemplateAttrs = function(opts, extra) {
     opts = opts || {};
     extra = extra || {};
 
-    var newStr = opts.newshape ? 'new ' : '';
+    var newStr = opts.newshape ? 'yeni ' : '';
 
     var descPart = describeVariables(extra);
 
@@ -126,8 +125,8 @@ exports.shapeTexttemplateAttrs = function(opts, extra) {
         dflt: '',
         editType: opts.editType || 'arraydraw',
         description: [
-            'Template string used for rendering the ' + newStr + 'shape\'s label.',
-            'Note that this will override `text`.',
+            newStr + 'şeklin etiketini render etmek için kullanılan şablon dizesi.',
+            'Bu, `text`i geçersiz kılacaktır.',
             shapeTemplateFormatStringDescription(),
             descPart,
         ].join(' ')

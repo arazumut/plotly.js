@@ -2,9 +2,9 @@
 
 /* global Plotly:false */
 
-var mocks = require('../../build/test_dashboard_mocks.json');
-var reglTraces = require('../../build/regl_traces.json');
-var Lib = require('../../src/lib');
+import mocks from '../../build/test_dashboard_mocks.json';
+import reglTraces from '../../build/regl_traces.json';
+import Lib from '../../src/lib';
 
 // Our gracious testing object
 var Tabs = {
@@ -80,7 +80,7 @@ setInterval(function() {
 
 var mocksList = document.getElementById('mocks-list');
 
-function handleOnLoad() {
+async function handleOnLoad() {
     var mocksByReglTrace = {};
 
     reglTraces.forEach(function(trace) {
@@ -112,51 +112,39 @@ function handleOnLoad() {
     });
 
     // visit the mocks one by one.
-    return Object.keys(mocksByReglTrace).reduce(function(p, trace) {
-        return p.then(function() {
-            var thisMocks = mocksByReglTrace[trace];
-            var generated = {};
-
-            return thisMocks.reduce(function(p, mock) {
-                return p.then(function() {
-                    return Tabs.plotMock(mock.name).then(function(gd) {
-                        var fullLayout = gd._fullLayout;
-                        fullLayout._glcanvas.each(function(d) {
-                            if(d.regl) {
-                                console.log('found regl', d.regl);
-                                var cachedCode = d.regl.getCachedCode();
-                                Object.entries(cachedCode).forEach(function(kv) {
-                                    generated[kv[0]] = kv[1].toString();
-                                });
-                                console.log('merging entries', Object.keys(cachedCode));
-                            }
+    for (const trace of Object.keys(mocksByReglTrace)) {
+            const thisMocks = mocksByReglTrace[trace];
+            const generated = {};
+            for (const mock of thisMocks) {
+                const gd = await Tabs.plotMock(mock.name);
+                const fullLayout = gd._fullLayout;
+                fullLayout._glcanvas.each(function(d) {
+                    if (d.regl) {
+                        console.log('found regl', d.regl);
+                        const cachedCode = d.regl.getCachedCode();
+                        Object.entries(cachedCode).forEach(function(kv) {
+                            generated[kv[0]] = kv[1].toString();
                         });
-                    });
+                        console.log('merging entries', Object.keys(cachedCode));
+                    }
                 });
-            }, Promise.resolve())
-            .then(function() {
-                console.log(window.__regl_codegen_cache);
-                var body = JSON.stringify({
-                    generated: generated,
-                    trace: trace
-                });
-                window.__regl_codegen_cache = {};
-                return fetch('/api/submit-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: body
-                });
+            }
+            console.log(window.__regl_codegen_cache);
+            const body = JSON.stringify({
+                generated: generated,
+                trace: trace
             });
-        });
-    }, Promise.resolve())
-    .then(function() {
-        return fetch('/api/codegen-done');
-    })
-    .then(function() {
-        window.close();
-    });
+            window.__regl_codegen_cache = {};
+            await fetch('/api/submit-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: body
+            });
+    }
+    await fetch('/api/codegen-done');
+    window.close();
 }
 
 module.exports = Tabs;

@@ -1,47 +1,47 @@
 'use strict';
 
-var docs = require('../../constants/docs');
-var FORMAT_LINK = docs.FORMAT_LINK;
-var DATE_FORMAT_LINK = docs.DATE_FORMAT_LINK;
+var dokumanlar = require('../../constants/docs');
+var FORMAT_LINK = dokumanlar.FORMAT_LINK;
+var DATE_FORMAT_LINK = dokumanlar.DATE_FORMAT_LINK;
 
-function axisHoverFormat(x, noDates) {
+function eksenHoverFormat(x, tarihYok) {
     return {
         valType: 'string',
         dflt: '',
         editType: 'none',
         description: (
-            noDates ? descriptionOnlyNumbers : descriptionWithDates
-        )('hover text', x) + [
-            'By default the values are formatted using ' + (
-                noDates ?
-                    'generic number format' :
-                    ('`' + x + 'axis.hoverformat`')
-            ) + '.',
+            tarihYok ? sadeceSayiAciklamasi : tarihliAciklama
+        )('hover metni', x) + [
+            'Varsayılan olarak değerler ' + (
+                tarihYok ?
+                    'genel sayı formatı' :
+                    ('`' + x + 'ekseni.hoverformat`')
+            ) + ' kullanılarak formatlanır.',
         ].join(' ')
     };
 }
 
-function descriptionOnlyNumbers(label, x) {
+function sadeceSayiAciklamasi(etiket, x) {
     return [
-        'Sets the ' + label + ' formatting rule' + (x ? 'for `' + x + '` ' : ''),
-        'using d3 formatting mini-languages',
-        'which are very similar to those in Python. For numbers, see: ' + FORMAT_LINK + '.'
+        'Sets the ' + etiket + ' formatlama kuralı' + (x ? 'için `' + x + '` ' : ''),
+        'd3 formatlama mini-dillerini kullanarak',
+        'Python\'dakilere çok benzerdir. Sayılar için bkz: ' + FORMAT_LINK + '.'
     ].join(' ');
 }
 
-function descriptionWithDates(label, x) {
-    return descriptionOnlyNumbers(label, x) + [
-        ' And for dates see: ' + DATE_FORMAT_LINK + '.',
-        'We add two items to d3\'s date formatter:',
-        '*%h* for half of the year as a decimal number as well as',
-        '*%{n}f* for fractional seconds',
-        'with n digits. For example, *2016-10-13 09:15:23.456* with tickformat',
-        '*%H~%M~%S.%2f* would display *09~15~23.46*'
+function tarihliAciklama(etiket, x) {
+    return sadeceSayiAciklamasi(etiket, x) + [
+        ' Ve tarihler için bkz: ' + DATE_FORMAT_LINK + '.',
+        'd3\'ün tarih formatlayıcısına iki öğe ekliyoruz:',
+        '*%h* yılın yarısı için ondalık sayı olarak ve',
+        '*%{n}f* kesirli saniyeler',
+        'n basamaklı. Örneğin, *2016-10-13 09:15:23.456* ile tickformat',
+        '*%H~%M~%S.%2f* *09~15~23.46* olarak görüntülenir'
     ].join(' ');
 }
 
 module.exports = {
-    axisHoverFormat: axisHoverFormat,
-    descriptionOnlyNumbers: descriptionOnlyNumbers,
-    descriptionWithDates: descriptionWithDates
+    eksenHoverFormat: eksenHoverFormat,
+    sadeceSayiAciklamasi: sadeceSayiAciklamasi,
+    tarihliAciklama: tarihliAciklama
 };

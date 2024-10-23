@@ -5,61 +5,61 @@ var Lib = require('../../lib');
 var axisIds = require('./axis_ids');
 
 /**
- * Factory function for checking component arrays for subplot references.
+ * Alt grafik referansları için bileşen dizilerini kontrol eden fabrika fonksiyonu.
  *
- * @param {string} containerArrayName: the top-level array in gd.layout to check
- *   If an item in this container is found that references a cartesian x and/or y axis,
- *   ensure cartesian is marked as a base plot module and record the axes (and subplot
- *   if both refs are axes) in gd._fullLayout
+ * @param {string} containerArrayName: gd.layout içindeki üst düzey diziyi kontrol eder
+ *   Eğer bu konteynerde kartesyen x ve/veya y eksenine referans veren bir öğe bulunursa,
+ *   kartesyenin bir temel grafik modülü olarak işaretlendiğinden emin olur ve eksenleri (ve
+ *   her iki referans da eksen ise alt grafiği) gd._fullLayout içinde kaydeder.
  *
- * @return {function}: with args layoutIn (gd.layout) and layoutOut (gd._fullLayout)
- * as expected of a component includeBasePlot method
+ * @return {function}: layoutIn (gd.layout) ve layoutOut (gd._fullLayout) argümanlarıyla
+ * beklenen bir bileşen includeBasePlot yöntemi döner.
  */
-module.exports = function makeIncludeComponents(containerArrayName) {
-    return function includeComponents(layoutIn, layoutOut) {
-        var array = layoutIn[containerArrayName];
-        if(!Array.isArray(array)) return;
+module.exports = function bileşenleriDahilEtYapıcı(containerArrayName) {
+    return function bileşenleriDahilEt(layoutIn, layoutOut) {
+        var dizi = layoutIn[containerArrayName];
+        if(!Array.isArray(dizi)) return;
 
         var Cartesian = Registry.subplotsRegistry.cartesian;
         var idRegex = Cartesian.idRegex;
-        var subplots = layoutOut._subplots;
-        var xaList = subplots.xaxis;
-        var yaList = subplots.yaxis;
-        var cartesianList = subplots.cartesian;
-        var hasCartesian = layoutOut._has('cartesian');
+        var altGrafikler = layoutOut._subplots;
+        var xaList = altGrafikler.xaxis;
+        var yaList = altGrafikler.yaxis;
+        var kartesyenListesi = altGrafikler.cartesian;
+        var kartesyenVar = layoutOut._has('cartesian');
 
-        for(var i = 0; i < array.length; i++) {
-            var itemi = array[i];
-            if(!Lib.isPlainObject(itemi)) continue;
+        for(var i = 0; i < dizi.length; i++) {
+            var öğei = dizi[i];
+            if(!Lib.isPlainObject(öğei)) continue;
 
-            // call cleanId because if xref, or yref has something appended
-            // (e.g., ' domain') this will get removed.
-            var xref = axisIds.cleanId(itemi.xref, 'x', false);
-            var yref = axisIds.cleanId(itemi.yref, 'y', false);
+            // cleanId çağrısı yap çünkü xref veya yref bir şey eklenmişse
+            // (örneğin, ' domain') bu kaldırılacaktır.
+            var xref = axisIds.cleanId(öğei.xref, 'x', false);
+            var yref = axisIds.cleanId(öğei.yref, 'y', false);
 
-            var hasXref = idRegex.x.test(xref);
-            var hasYref = idRegex.y.test(yref);
-            if(hasXref || hasYref) {
-                if(!hasCartesian) Lib.pushUnique(layoutOut._basePlotModules, Cartesian);
+            var xrefVar = idRegex.x.test(xref);
+            var yrefVar = idRegex.y.test(yref);
+            if(xrefVar || yrefVar) {
+                if(!kartesyenVar) Lib.pushUnique(layoutOut._basePlotModules, Cartesian);
 
-                var newAxis = false;
-                if(hasXref && xaList.indexOf(xref) === -1) {
+                var yeniEksen = false;
+                if(xrefVar && xaList.indexOf(xref) === -1) {
                     xaList.push(xref);
-                    newAxis = true;
+                    yeniEksen = true;
                 }
-                if(hasYref && yaList.indexOf(yref) === -1) {
+                if(yrefVar && yaList.indexOf(yref) === -1) {
                     yaList.push(yref);
-                    newAxis = true;
+                    yeniEksen = true;
                 }
 
                 /*
-                 * Notice the logic here: only add a subplot for a component if
-                 * it's referencing both x and y axes AND it's creating a new axis
-                 * so for example if your plot already has xy and x2y2, an annotation
-                 * on x2y or xy2 will not create a new subplot.
+                 * Buradaki mantığa dikkat edin: yalnızca bir bileşen için alt grafik ekleyin
+                 * eğer hem x hem de y eksenlerine referans veriyorsa VE yeni bir eksen oluşturuyorsa
+                 * örneğin, grafiğinizde zaten xy ve x2y2 varsa, x2y veya xy2 üzerindeki bir açıklama
+                 * yeni bir alt grafik oluşturmaz.
                  */
-                if(newAxis && hasXref && hasYref) {
-                    cartesianList.push(xref + yref);
+                if(yeniEksen && xrefVar && yrefVar) {
+                    kartesyenListesi.push(xref + yref);
                 }
             }
         }

@@ -1,5 +1,37 @@
 # plotly.js Security Policy
 
+Açık kaynak plotly.js kütüphanesi "OLDUĞU GİBİ" sağlanmaktadır ve güvenlik garantisi verilmemektedir. Daha fazla bilgi için lütfen [lisans](https://raw.githubusercontent.com/plotly/plotly.js/master/LICENSE) sayfamıza bakın.
+
+plotly.js'in 1.x sürümlerinde, plotly.js tarafından grafiklenen güvenilmeyen verilerden kaynaklanan XSS saldırılarına (ve benzeri sorunlara) karşı koruma sağlamaya çalışıyoruz. Ancak, XSS veya diğer sorunlar hala mevcut olabilir.
+
+plotly.js'in tipik kullanım durumunun güvenilir kaynaklardan veri görselleştirmek olduğunu unutmayın. Örneğin, plotly.js'i sitenize bir gösterge tablosu eklemek için kullanıyorsanız ve plotly.js'ye gönderilen tüm giriş verilerini kontrol ediyorsanız, XSS koruması için plotly.js'ye bağımlı değilsiniz.
+
+Daha yüksek bir güvence derecesine ihtiyacınız varsa, lütfen [Plotly On-Premise](https://plotly.com/get-pricing/) ürünümüzü satın almayı veya daha fazla seçenek için [Plotly satış ekibi](mailto:sales@plotly.com) ile iletişime geçmeyi düşünün.
+
+## Raporlar
+
+Bir güvenlik açığını bildirmek için lütfen problemi yeniden oluşturma adımlarıyla birlikte security@plotly.com adresine e-posta gönderin. İlk yanıt için lütfen 24 saate kadar bekleyin.
+
+## Ödüller
+
+Bazı durumlarda, güvenlik açıklarının raporları için parasal tazminat (ödüller) sunuyoruz. Daha fazla bilgi için lütfen [Plotly Güvenlik Açığı Ödül Programı](https://plotly.com/chart-studio-help/security/) sayfasına bakın.
+
+## Yayın Süreci
+
+plotly.js güvenlik düzeltmeleri genellikle mevcut plotly.js sürümünün üzerine "yama" sürümleri olarak yayınlanır. Örneğin, mevcut plotly.js sürümü 1.14.0 ise ve bir güvenlik sorununu düzeltirsek, düzeltme ile 1.14.1'i yayınlarız. Alternatif olarak, güvenlik düzeltmeleri normal yayın döngümüzle çakışıyorsa, büyük veya küçük bir plotly.js sürümünün parçası olarak yapılabilir. Örneğin, mevcut plotly.js sürümü 1.14.0 ise, düzeltme ile 1.15.0 sürümünü yayınlayabiliriz.
+
+Güvenlik düzeltmeleri, ödeme yapan Plotly On-Premise veya Plotly Cloud müşterileri tarafından gerekli görüldüğünde eski plotly.js sürümlerine geri taşınır. Bu düzeltmeler "yama" sürümleri olarak yayınlanır ve etkilenen müşteriler yükselttikten sonra topluluğa sunulur. Ayrıca, topluluk üyeleri tarafından katkıda bulunulan eski sürümlere geri taşımaları kabul ediyoruz.
+
+Tipik plotly.js kullanım durumu güvenilir verileri içerdiğinden, eski, potansiyel olarak savunmasız sürümleri GitHub deposundan veya CDN'mizden kaldırmıyoruz.
+
+## Danışmanlıklar
+
+1 Ağustos 2016'dan sonra yayınlanan tüm plotly.js güvenlik danışmanlıkları [Plotly Güvenlik Danışmanlıkları](https://plotly.com/chart-studio-help/security-advisories/) sayfasında mevcuttur.
+
+
+
+# plotly.js Security Policy
+
 The open source plotly.js library is provided "AS IS", with no security guarantees.  Please see our
 [license](https://raw.githubusercontent.com/plotly/plotly.js/master/LICENSE) for more information.
 

@@ -4,13 +4,13 @@ var Registry = require('../registry');
 var SUBPLOT_PATTERN = require('./cartesian/constants').SUBPLOT_PATTERN;
 
 /**
- * Get calcdata trace(s) associated with a given subplot
+ * Belirli bir alt grafikle ilişkili calcdata izlerini al
  *
- * @param {array} calcData: as in gd.calcdata
- * @param {string} type: subplot type
- * @param {string} subplotId: subplot id to look for
+ * @param {array} calcData: gd.calcdata'daki gibi
+ * @param {string} type: alt grafik türü
+ * @param {string} subplotId: aranacak alt grafik kimliği
  *
- * @return {array} array of calcdata traces
+ * @return {array} calcdata izlerinin dizisi
  */
 exports.getSubplotCalcData = function(calcData, type, subplotId) {
     var basePlotModule = Registry.subplotsRegistry[type];
@@ -28,19 +28,19 @@ exports.getSubplotCalcData = function(calcData, type, subplotId) {
 
     return subplotCalcData;
 };
+
 /**
- * Get calcdata trace(s) that can be plotted with a given module
- * NOTE: this isn't necessarily just exactly matching trace type,
- * if multiple trace types use the same plotting routine, they will be
- * collected here.
- * In order to not plot the same thing multiple times, we return two arrays,
- * the calcdata we *will* plot with this module, and the ones we *won't*
+ * Belirli bir modülle çizilebilecek calcdata izlerini al
+ * NOT: Bu, mutlaka tam olarak eşleşen iz türü değildir,
+ * birden fazla iz türü aynı çizim rutinini kullanıyorsa, burada toplanacaktır.
+ * Aynı şeyi birden fazla kez çizmeyi önlemek için, iki dizi döndürürüz,
+ * bu modülle çizeceğimiz calcdata ve çizmeyeceğimiz calcdata.
  *
- * @param {array} calcdata: as in gd.calcdata
+ * @param {array} calcdata: gd.calcdata'daki gibi
  * @param {object|string|fn} arg1:
- *  the plotting module, or its name, or its plot method
- * @param {int} arg2: (optional) zorder to filter on
- * @return {array[array]} [foundCalcdata, remainingCalcdata]
+ *  çizim modülü, adı veya çizim yöntemi
+ * @param {int} arg2: (isteğe bağlı) zorder'a göre filtreleme
+ * @return {array[array]} [bulunanCalcdata, kalanCalcdata]
  */
 exports.getModuleCalcData = function(calcdata, arg1, arg2) {
     var moduleCalcData = [];
@@ -63,15 +63,15 @@ exports.getModuleCalcData = function(calcdata, arg1, arg2) {
         var cd = calcdata[i];
         var trace = cd[0].trace;
         var filterByZ = (trace.zorder !== undefined);
-        // N.B.
-        // - 'legendonly' traces do not make it past here
-        // - skip over 'visible' traces that got trimmed completely during calc transforms
+        // NOT:
+        // - 'legendonly' izleri buradan geçmez
+        // - hesap dönüşümleri sırasında tamamen kırpılan 'visible' izleri atla
         if(trace.visible !== true || trace._length === 0) continue;
 
-        // group calcdata trace not by 'module' (as the name of this function
-        // would suggest), but by 'module plot method' so that if some traces
-        // share the same module plot method (e.g. bar and histogram), we
-        // only call it one!
+        // calcdata izini 'modül' yerine (bu işlevin adı önerdiği gibi),
+        // 'modül çizim yöntemi' ile gruplandırın, böylece bazı izler
+        // aynı modül çizim yöntemini paylaşıyorsa (örneğin bar ve histogram),
+        // sadece bir kez çağırırız!
         if(trace._module && trace._module.plot === plotMethod && (!filterByZ || trace.zorder === zorder)) {
             moduleCalcData.push(cd);
         } else {
@@ -83,13 +83,13 @@ exports.getModuleCalcData = function(calcdata, arg1, arg2) {
 };
 
 /**
- * Get the data trace(s) associated with a given subplot.
+ * Belirli bir alt grafikle ilişkili veri izlerini al.
  *
- * @param {array} data  plotly full data array.
- * @param {string} type subplot type to look for.
- * @param {string} subplotId subplot id to look for.
+ * @param {array} data  plotly tam veri dizisi.
+ * @param {string} type aranacak alt grafik türü.
+ * @param {string} subplotId aranacak alt grafik kimliği.
  *
- * @return {array} list of trace objects.
+ * @return {array} iz nesnelerinin listesi.
  *
  */
 exports.getSubplotData = function getSubplotData(data, type, subplotId) {
@@ -97,7 +97,7 @@ exports.getSubplotData = function getSubplotData(data, type, subplotId) {
 
     var attr = Registry.subplotsRegistry[type].attr;
     var subplotData = [];
-    var trace, subplotX, subplotY;
+    var trace;
 
     for(var i = 0; i < data.length; i++) {
         trace = data[i];

@@ -2,21 +2,21 @@
 
 var showNoWebGlMsg = require('./show_no_webgl_msg');
 
-// Note that this module should be ONLY required into
-// files corresponding to regl trace modules
-// so that bundles with non-regl only don't include
-// regl and all its bytes.
+// Bu modülün SADECE regl izleme modüllerine karşılık gelen
+// dosyalara dahil edilmesi gerektiğini unutmayın
+// böylece sadece regl olmayan paketler
+// regl ve tüm baytlarını içermez.
 var createRegl = require('regl');
 
 /**
- * Idempotent version of createRegl. Create regl instances
- * in the correct canvases with the correct attributes and
- * options
+ * Idempotent createRegl versiyonu. Regl örneklerini
+ * doğru kanvaslarda doğru öznitelikler ve
+ * seçeneklerle oluşturur.
  *
- * @param {DOM node or object} gd : graph div object
- * @param {array} extensions : list of extension to pass to createRegl
+ * @param {DOM düğümü veya nesne} gd : grafik div nesnesi
+ * @param {dizi} extensions : createRegl'e geçilecek uzantı listesi
  *
- * @return {boolean} true if all createRegl calls succeeded, false otherwise
+ * @return {boolean} tüm createRegl çağrıları başarılı olduysa true, aksi takdirde false
  */
 module.exports = function prepareRegl(gd, extensions, reglPrecompiled) {
     var fullLayout = gd._fullLayout;
@@ -27,7 +27,7 @@ module.exports = function prepareRegl(gd, extensions, reglPrecompiled) {
             d.regl.preloadCachedCode(reglPrecompiled);
             return;
         }
-        // only parcoords needs pick layer
+        // sadece parcoords seçim katmanına ihtiyaç duyar
         if(d.pick && !fullLayout._has('parcoords')) return;
 
         try {

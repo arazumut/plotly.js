@@ -1,178 +1,177 @@
 'use strict';
 
-var Registry = require('../../registry');
-var helpers = require('./helpers');
+var KayıtDefteri = require('../../registry');
+var yardımcılar = require('./helpers');
 
-module.exports = function getLegendData(calcdata, opts, hasMultipleLegends) {
-    var inHover = opts._inHover;
-    var grouped = helpers.isGrouped(opts);
-    var reversed = helpers.isReversed(opts);
+module.exports = function efsaneVerileriniAl(hesapVerileri, seçenekler, birdenFazlaEfsaneVarMı) {
+    var hoverda = seçenekler._inHover;
+    var gruplandırılmış = yardımcılar.gruplandırılmışMı(seçenekler);
+    var tersineÇevrilmiş = yardımcılar.tersineÇevrilmişMı(seçenekler);
 
-    var lgroupToTraces = {};
-    var lgroups = [];
-    var hasOneNonBlankGroup = false;
-    var slicesShown = {};
-    var lgroupi = 0;
-    var maxNameLength = 0;
+    var grupİzlerineEfsane = {};
+    var gruplar = [];
+    var birBoşOlmayanGrupVar = false;
+    var dilimlerGösterildi = {};
+    var grupIndex = 0;
+    var maxİsimUzunluğu = 0;
     var i, j;
 
-    function addOneItem(legendId, legendGroup, legendItem) {
-        if(opts.visible === false) return;
-        if(hasMultipleLegends && legendId !== opts._id) return;
+    function birÖğeEkle(efsaneId, efsaneGrubu, efsaneÖğesi) {
+        if(seçenekler.visible === false) return;
+        if(birdenFazlaEfsaneVarMı && efsaneId !== seçenekler._id) return;
 
-        // each '' legend group is treated as a separate group
-        if(legendGroup === '' || !helpers.isGrouped(opts)) {
-            // TODO: check this against fullData legendgroups?
-            var uniqueGroup = '~~i' + lgroupi;
-            lgroups.push(uniqueGroup);
-            lgroupToTraces[uniqueGroup] = [legendItem];
-            lgroupi++;
-        } else if(lgroups.indexOf(legendGroup) === -1) {
-            lgroups.push(legendGroup);
-            hasOneNonBlankGroup = true;
-            lgroupToTraces[legendGroup] = [legendItem];
+        // her '' efsane grubu ayrı bir grup olarak ele alınır
+        if(efsaneGrubu === '' || !yardımcılar.gruplandırılmışMı(seçenekler)) {
+            var benzersizGrup = '~~i' + grupIndex;
+            gruplar.push(benzersizGrup);
+            grupİzlerineEfsane[benzersizGrup] = [efsaneÖğesi];
+            grupIndex++;
+        } else if(gruplar.indexOf(efsaneGrubu) === -1) {
+            gruplar.push(efsaneGrubu);
+            birBoşOlmayanGrupVar = true;
+            grupİzlerineEfsane[efsaneGrubu] = [efsaneÖğesi];
         } else {
-            lgroupToTraces[legendGroup].push(legendItem);
+            grupİzlerineEfsane[efsaneGrubu].push(efsaneÖğesi);
         }
     }
 
-    // build an { legendgroup: [cd0, cd0], ... } object
-    for(i = 0; i < calcdata.length; i++) {
-        var cd = calcdata[i];
+    // bir { efsaneGrubu: [cd0, cd0], ... } nesnesi oluştur
+    for(i = 0; i < hesapVerileri.length; i++) {
+        var cd = hesapVerileri[i];
         var cd0 = cd[0];
-        var trace = cd0.trace;
-        var lid = trace.legend;
-        var lgroup = trace.legendgroup;
+        var iz = cd0.iz;
+        var efsaneId = iz.efsane;
+        var efsaneGrubu = iz.efsaneGrubu;
 
-        if(!inHover && (!trace.visible || !trace.showlegend)) continue;
+        if(!hoverda && (!iz.visible || !iz.showlegend)) continue;
 
-        if(Registry.traceIs(trace, 'pie-like')) {
-            if(!slicesShown[lgroup]) slicesShown[lgroup] = {};
+        if(KayıtDefteri.izMi(iz, 'pie-like')) {
+            if(!dilimlerGösterildi[efsaneGrubu]) dilimlerGösterildi[efsaneGrubu] = {};
 
             for(j = 0; j < cd.length; j++) {
-                var labelj = cd[j].label;
+                var etiketj = cd[j].etiket;
 
-                if(!slicesShown[lgroup][labelj]) {
-                    addOneItem(lid, lgroup, {
-                        label: labelj,
-                        color: cd[j].color,
+                if(!dilimlerGösterildi[efsaneGrubu][etiketj]) {
+                    birÖğeEkle(efsaneId, efsaneGrubu, {
+                        etiket: etiketj,
+                        renk: cd[j].renk,
                         i: cd[j].i,
-                        trace: trace,
-                        pts: cd[j].pts
+                        iz: iz,
+                        noktalar: cd[j].noktalar
                     });
 
-                    slicesShown[lgroup][labelj] = true;
-                    maxNameLength = Math.max(maxNameLength, (labelj || '').length);
+                    dilimlerGösterildi[efsaneGrubu][etiketj] = true;
+                    maxİsimUzunluğu = Math.max(maxİsimUzunluğu, (etiketj || '').length);
                 }
             }
         } else {
-            addOneItem(lid, lgroup, cd0);
-            maxNameLength = Math.max(maxNameLength, (trace.name || '').length);
+            birÖğeEkle(efsaneId, efsaneGrubu, cd0);
+            maxİsimUzunluğu = Math.max(maxİsimUzunluğu, (iz.isim || '').length);
         }
     }
 
-    // won't draw a legend in this case
-    if(!lgroups.length) return [];
+    // bu durumda bir efsane çizmeyecek
+    if(!gruplar.length) return [];
 
-    // collapse all groups into one if all groups are blank
-    var shouldCollapse = !hasOneNonBlankGroup || !grouped;
+    // tüm grupları birleştir eğer tüm gruplar boşsa
+    var birleştirmeliMi = !birBoşOlmayanGrupVar || !gruplandırılmış;
 
-    var legendData = [];
-    for(i = 0; i < lgroups.length; i++) {
-        var t = lgroupToTraces[lgroups[i]];
-        if(shouldCollapse) {
-            legendData.push(t[0]);
+    var efsaneVerileri = [];
+    for(i = 0; i < gruplar.length; i++) {
+        var t = grupİzlerineEfsane[gruplar[i]];
+        if(birleştirmeliMi) {
+            efsaneVerileri.push(t[0]);
         } else {
-            legendData.push(t);
+            efsaneVerileri.push(t);
         }
     }
-    if(shouldCollapse) legendData = [legendData];
+    if(birleştirmeliMi) efsaneVerileri = [efsaneVerileri];
 
-    for(i = 0; i < legendData.length; i++) {
-        // find minimum rank within group
-        var groupMinRank = Infinity;
-        for(j = 0; j < legendData[i].length; j++) {
-            var rank = legendData[i][j].trace.legendrank;
-            if(groupMinRank > rank) groupMinRank = rank;
+    for(i = 0; i < efsaneVerileri.length; i++) {
+        // grup içindeki minimum rütbeyi bul
+        var grupMinRütbe = Infinity;
+        for(j = 0; j < efsaneVerileri[i].length; j++) {
+            var rütbe = efsaneVerileri[i][j].iz.efsaneRütbesi;
+            if(grupMinRütbe > rütbe) grupMinRütbe = rütbe;
         }
 
-        // record on first group element
-        legendData[i][0]._groupMinRank = groupMinRank;
-        legendData[i][0]._preGroupSort = i;
+        // ilk grup elemanına kaydet
+        efsaneVerileri[i][0]._grupMinRütbe = grupMinRütbe;
+        efsaneVerileri[i][0]._önceGrupSıralama = i;
     }
 
-    var orderFn1 = function(a, b) {
+    var sıralamaFn1 = function(a, b) {
         return (
-            (a[0]._groupMinRank - b[0]._groupMinRank) ||
-            (a[0]._preGroupSort - b[0]._preGroupSort) // fallback for old Chrome < 70 https://bugs.chromium.org/p/v8/issues/detail?id=90
+            (a[0]._grupMinRütbe - b[0]._grupMinRütbe) ||
+            (a[0]._önceGrupSıralama - b[0]._önceGrupSıralama)
         );
     };
 
-    var orderFn2 = function(a, b) {
+    var sıralamaFn2 = function(a, b) {
         return (
-            (a.trace.legendrank - b.trace.legendrank) ||
-            (a._preSort - b._preSort) // fallback for old Chrome < 70 https://bugs.chromium.org/p/v8/issues/detail?id=90
+            (a.iz.efsaneRütbesi - b.iz.efsaneRütbesi) ||
+            (a._önceSıralama - b._önceSıralama)
         );
     };
 
-    // sort considering minimum group legendrank
-    legendData.forEach(function(a, k) { a[0]._preGroupSort = k; });
-    legendData.sort(orderFn1);
-    for(i = 0; i < legendData.length; i++) {
-        // sort considering trace.legendrank and legend.traceorder
-        legendData[i].forEach(function(a, k) { a._preSort = k; });
-        legendData[i].sort(orderFn2);
+    // minimum grup efsane rütbesini dikkate alarak sırala
+    efsaneVerileri.forEach(function(a, k) { a[0]._önceGrupSıralama = k; });
+    efsaneVerileri.sort(sıralamaFn1);
+    for(i = 0; i < efsaneVerileri.length; i++) {
+        // iz.efsaneRütbesi ve efsane.izSıralaması dikkate alarak sırala
+        efsaneVerileri[i].forEach(function(a, k) { a._önceSıralama = k; });
+        efsaneVerileri[i].sort(sıralamaFn2);
 
-        var firstItemTrace = legendData[i][0].trace;
+        var ilkÖğeİzi = efsaneVerileri[i][0].iz;
 
-        var groupTitle = null;
-        // get group title text
-        for(j = 0; j < legendData[i].length; j++) {
-            var gt = legendData[i][j].trace.legendgrouptitle;
-            if(gt && gt.text) {
-                groupTitle = gt;
-                if(inHover) gt.font = opts._groupTitleFont;
+        var grupBaşlığı = null;
+        // grup başlığı metnini al
+        for(j = 0; j < efsaneVerileri[i].length; j++) {
+            var gb = efsaneVerileri[i][j].iz.efsaneGrupBaşlığı;
+            if(gb && gb.text) {
+                grupBaşlığı = gb;
+                if(hoverda) gb.font = seçenekler._grupBaşlıkFontu;
                 break;
             }
         }
 
-        // reverse order
-        if(reversed) legendData[i].reverse();
+        // sırayı tersine çevir
+        if(tersineÇevrilmiş) efsaneVerileri[i].reverse();
 
-        if(groupTitle) {
-            var hasPieLike = false;
-            for(j = 0; j < legendData[i].length; j++) {
-                if(Registry.traceIs(legendData[i][j].trace, 'pie-like')) {
-                    hasPieLike = true;
+        if(grupBaşlığı) {
+            var pieBenzeriVar = false;
+            for(j = 0; j < efsaneVerileri[i].length; j++) {
+                if(KayıtDefteri.izMi(efsaneVerileri[i][j].iz, 'pie-like')) {
+                    pieBenzeriVar = true;
                     break;
                 }
             }
 
-            // set group title text
-            legendData[i].unshift({
+            // grup başlığı metnini ayarla
+            efsaneVerileri[i].unshift({
                 i: -1,
-                groupTitle: groupTitle,
-                noClick: hasPieLike,
-                trace: {
-                    showlegend: firstItemTrace.showlegend,
-                    legendgroup: firstItemTrace.legendgroup,
-                    visible: opts.groupclick === 'toggleitem' ? true : firstItemTrace.visible
+                grupBaşlığı: grupBaşlığı,
+                tıklamaYok: pieBenzeriVar,
+                iz: {
+                    showlegend: ilkÖğeİzi.showlegend,
+                    efsaneGrubu: ilkÖğeİzi.efsaneGrubu,
+                    visible: seçenekler.grupTıklama === 'toggleitem' ? true : ilkÖğeİzi.visible
                 }
             });
         }
 
-        // rearrange lgroupToTraces into a d3-friendly array of arrays
-        for(j = 0; j < legendData[i].length; j++) {
-            legendData[i][j] = [
-                legendData[i][j]
+        // grupİzlerineEfsane'yi d3 dostu bir dizi dizisi haline getir
+        for(j = 0; j < efsaneVerileri[i].length; j++) {
+            efsaneVerileri[i][j] = [
+                efsaneVerileri[i][j]
             ];
         }
     }
 
-    // number of legend groups - needed in legend/draw.js
-    opts._lgroupsLength = legendData.length;
-    // maximum name/label length - needed in legend/draw.js
-    opts._maxNameLength = maxNameLength;
+    // efsane gruplarının sayısı - legend/draw.js'de gerekli
+    seçenekler._gruplarUzunluğu = efsaneVerileri.length;
+    // maksimum isim/etiket uzunluğu - legend/draw.js'de gerekli
+    seçenekler._maxİsimUzunluğu = maxİsimUzunluğu;
 
-    return legendData;
+    return efsaneVerileri;
 };

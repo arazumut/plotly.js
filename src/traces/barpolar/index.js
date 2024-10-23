@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = {
-    moduleType: 'trace',
+    moduleType: 'iz',
     name: 'barpolar',
     basePlotModule: require('../../plots/polar'),
-    categories: ['polar', 'bar', 'showLegend'],
+    categories: ['polar', 'bar', 'gösterEfsane'],
 
     attributes: require('./attributes'),
     layoutAttributes: require('./layout_attributes'),
@@ -27,10 +27,10 @@ module.exports = {
     meta: {
         hrName: 'bar_polar',
         description: [
-            'The data visualized by the radial span of the bars is set in `r`'
-            // 'if `orientation` is set to *radial* (the default)',
-            // 'and the labels are set in `theta`.',
-            // 'By setting `orientation` to *angular*, the roles are interchanged.'
+            'Çubukların radyal aralığı ile görselleştirilen veri `r` içinde ayarlanır'
+            // 'eğer `yönelim` *radyal* olarak ayarlanmışsa (varsayılan)',
+            // 've etiketler `theta` içinde ayarlanır.',
+            // '`yönelim` *açısal* olarak ayarlanarak roller değiştirilebilir.'
         ].join(' ')
     }
 };

@@ -1,11 +1,12 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var traceIs = require('../../registry').traceIs;
 var autoType = require('./axis_autotype');
 
 /*
- *  data: the plot data to use in choosing auto type
- *  name: axis object name (ie 'xaxis') if one should be stored
+ *  data: otomatik tür seçimi için kullanılacak grafik verisi
+ *  name: saklanması gereken eksen nesnesi adı (örneğin 'xaxis')
  */
 module.exports = function handleTypeDefaults(containerIn, containerOut, coerce, options) {
     coerce('autotypenumbers', options.autotypenumbersDflt);
@@ -17,32 +18,31 @@ module.exports = function handleTypeDefaults(containerIn, containerOut, coerce, 
         if(containerOut.type === '-') {
             containerOut.type = 'linear';
         } else {
-            // copy autoType back to input axis
-            // note that if this object didn't exist
-            // in the input layout, we have to put it in
-            // this happens in the main supplyDefaults function
+            // otomatik türü giriş eksenine geri kopyala
+            // not: bu nesne giriş düzeninde yoksa, onu eklememiz gerekiyor
+            // bu, ana supplyDefaults fonksiyonunda gerçekleşir
             containerIn.type = containerOut.type;
         }
     }
 };
 
 function setAutoType(ax, data) {
-    // new logic: let people specify any type they want,
-    // only autotype if type is '-'
+    // yeni mantık: insanlar istedikleri türü belirtebilirler,
+    // sadece tür '-' ise otomatik tür belirlemesi yap
     if(ax.type !== '-') return;
 
     var id = ax._id;
     var axLetter = id.charAt(0);
     var i;
 
-    // support 3d
+    // 3D desteği
     if(id.indexOf('scene') !== -1) id = axLetter;
 
     var d0 = getFirstNonEmptyTrace(data, id, axLetter);
     if(!d0) return;
 
-    // first check for histograms, as the count direction
-    // should always default to a linear axis
+    // ilk olarak histogramları kontrol et, çünkü sayım yönü
+    // her zaman doğrusal bir eksene varsayılan olmalıdır
     if(d0.type === 'histogram' &&
         axLetter === {v: 'y', h: 'x'}[d0.orientation || 'v']
     ) {
@@ -54,7 +54,7 @@ function setAutoType(ax, data) {
     var calendar = d0[calAttr];
     var opts = {noMultiCategory: !traceIs(d0, 'cartesian') || traceIs(d0, 'noMultiCategory')};
 
-    // To not confuse 2D x/y used for per-box sample points for multicategory coordinates
+    // Çok kategorili koordinatlar için kullanılan 2D x/y'yi karıştırmamak için
     if(d0.type === 'box' && d0._hasPreCompStats &&
         axLetter === {h: 'x', v: 'y'}[d0.orientation || 'v']
     ) {
@@ -63,8 +63,8 @@ function setAutoType(ax, data) {
 
     opts.autotypenumbers = ax.autotypenumbers;
 
-    // check all boxes on this x axis to see
-    // if they're dates, numbers, or categories
+    // bu x eksenindeki tüm kutuları kontrol et
+    // tarih, sayı veya kategori olup olmadıklarını görmek için
     if(isBoxWithoutPositionCoords(d0, axLetter)) {
         var posLetter = getBoxPosLetter(d0);
         var boxPositions = [];

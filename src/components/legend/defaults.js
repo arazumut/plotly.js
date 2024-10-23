@@ -1,248 +1,237 @@
 'use strict';
 
-var Registry = require('../../registry');
-var Lib = require('../../lib');
-var Template = require('../../plot_api/plot_template');
+var Kayıt = require('../../registry');
+var Kütüphane = require('../../lib');
+var Şablon = require('../../plot_api/plot_template');
 
-var plotsAttrs = require('../../plots/attributes');
-var attributes = require('./attributes');
-var basePlotLayoutAttributes = require('../../plots/layout_attributes');
-var helpers = require('./helpers');
+var grafikÖznitelikleri = require('../../plots/attributes');
+var öznitelikler = require('./attributes');
+var temelGrafikYerleşimÖznitelikleri = require('../../plots/layout_attributes');
+var yardımcılar = require('./helpers');
 
-function groupDefaults(legendId, layoutIn, layoutOut, fullData) {
-    var containerIn = layoutIn[legendId] || {};
-    var containerOut = Template.newContainer(layoutOut, legendId);
+function grupVarsayılanları(legendId, yerleşimGiriş, yerleşimÇıkış, tamVeri) {
+    var konteynerGiriş = yerleşimGiriş[legendId] || {};
+    var konteynerÇıkış = Şablon.yeniKonteyner(yerleşimÇıkış, legendId);
 
-    function coerce(attr, dflt) {
-        return Lib.coerce(containerIn, containerOut, attributes, attr, dflt);
+    function zorla(attr, varsayılan) {
+        return Kütüphane.zorla(konteynerGiriş, konteynerÇıkış, öznitelikler, attr, varsayılan);
     }
 
-    // N.B. unified hover needs to inherit from font, bgcolor & bordercolor even when legend.visible is false
-    var itemFont = Lib.coerceFont(coerce, 'font', layoutOut.font);
-    coerce('bgcolor', layoutOut.paper_bgcolor);
-    coerce('bordercolor');
+    // Not: Birleşik hover, legend.visible false olsa bile font, arkaplan rengi ve kenarlık renginden miras almalıdır
+    var öğeFontu = Kütüphane.zorlaFont(zorla, 'font', yerleşimÇıkış.font);
+    zorla('bgcolor', yerleşimÇıkış.paper_bgcolor);
+    zorla('bordercolor');
 
-    var visible = coerce('visible');
-    if(!visible) return;
+    var görünür = zorla('visible');
+    if(!görünür) return;
 
-    var trace;
-    var traceCoerce = function(attr, dflt) {
-        var traceIn = trace._input;
-        var traceOut = trace;
-        return Lib.coerce(traceIn, traceOut, plotsAttrs, attr, dflt);
+    var iz;
+    var izZorla = function(attr, varsayılan) {
+        var izGiriş = iz._giriş;
+        var izÇıkış = iz;
+        return Kütüphane.zorla(izGiriş, izÇıkış, grafikÖznitelikleri, attr, varsayılan);
     };
 
-    var globalFont = layoutOut.font || {};
-    var grouptitlefont = Lib.coerceFont(coerce, 'grouptitlefont', globalFont, { overrideDflt: {
-        size: Math.round(globalFont.size * 1.1)
+    var genelFont = yerleşimÇıkış.font || {};
+    var grupBaşlıkFontu = Kütüphane.zorlaFont(zorla, 'grouptitlefont', genelFont, { overrideDflt: {
+        size: Math.round(genelFont.size * 1.1)
     }});
 
-    var legendTraceCount = 0;
-    var legendReallyHasATrace = false;
-    var defaultOrder = 'normal';
+    var legendIzSayısı = 0;
+    var legendGerçektenBirIzVar = false;
+    var varsayılanSıra = 'normal';
 
-    var shapesWithLegend = (layoutOut.shapes || []).filter(function(d) { return d.showlegend; });
+    var legendliŞekiller = (yerleşimÇıkış.shapes || []).filter(function(d) { return d.showlegend; });
 
-    var allLegendItems = fullData.concat(shapesWithLegend).filter(function(d) {
+    var tümLegendÖğeleri = tamVeri.concat(legendliŞekiller).filter(function(d) {
         return legendId === (d.legend || 'legend');
     });
 
-    for(var i = 0; i < allLegendItems.length; i++) {
-        trace = allLegendItems[i];
+    for(var i = 0; i < tümLegendÖğeleri.length; i++) {
+        iz = tümLegendÖğeleri[i];
 
-        if(!trace.visible) continue;
+        if(!iz.visible) continue;
 
-        var isShape = trace._isShape;
+        var şekilMi = iz._isShape;
 
-        // Note that we explicitly count any trace that is either shown or
-        // *would* be shown by default, toward the two traces you need to
-        // ensure the legend is shown by default, because this can still help
-        // disambiguate.
-        if(trace.showlegend || (
-            trace._dfltShowLegend && !(
-                trace._module &&
-                trace._module.attributes &&
-                trace._module.attributes.showlegend &&
-                trace._module.attributes.showlegend.dflt === false
+        if(iz.showlegend || (
+            iz._dfltShowLegend && !(
+                iz._module &&
+                iz._module.attributes &&
+                iz._module.attributes.showlegend &&
+                iz._module.attributes.showlegend.dflt === false
             )
         )) {
-            legendTraceCount++;
-            if(trace.showlegend) {
-                legendReallyHasATrace = true;
-                // Always show the legend by default if there's a pie,
-                // or if there's only one trace but it's explicitly shown
-                if(!isShape && Registry.traceIs(trace, 'pie-like') ||
-                    trace._input.showlegend === true
+            legendIzSayısı++;
+            if(iz.showlegend) {
+                legendGerçektenBirIzVar = true;
+                if(!şekilMi && Kayıt.izMi(iz, 'pie-like') ||
+                    iz._giriş.showlegend === true
                 ) {
-                    legendTraceCount++;
+                    legendIzSayısı++;
                 }
             }
 
-            Lib.coerceFont(traceCoerce, 'legendgrouptitle.font', grouptitlefont);
+            Kütüphane.zorlaFont(izZorla, 'legendgrouptitle.font', grupBaşlıkFontu);
         }
 
-        if((!isShape && Registry.traceIs(trace, 'bar') && layoutOut.barmode === 'stack') ||
-                ['tonextx', 'tonexty'].indexOf(trace.fill) !== -1) {
-            defaultOrder = helpers.isGrouped({traceorder: defaultOrder}) ?
+        if((!şekilMi && Kayıt.izMi(iz, 'bar') && yerleşimÇıkış.barmode === 'stack') ||
+                ['tonextx', 'tonexty'].indexOf(iz.fill) !== -1) {
+            varsayılanSıra = yardımcılar.gruplandırılmışMı({traceorder: varsayılanSıra}) ?
                 'grouped+reversed' : 'reversed';
         }
 
-        if(trace.legendgroup !== undefined && trace.legendgroup !== '') {
-            defaultOrder = helpers.isReversed({traceorder: defaultOrder}) ?
+        if(iz.legendgroup !== undefined && iz.legendgroup !== '') {
+            varsayılanSıra = yardımcılar.tersMi({traceorder: varsayılanSıra}) ?
                 'reversed+grouped' : 'grouped';
         }
     }
 
-    var showLegend = Lib.coerce(layoutIn, layoutOut,
-        basePlotLayoutAttributes, 'showlegend',
-        legendReallyHasATrace && (legendTraceCount > (legendId === 'legend' ? 1 : 0)));
+    var legendGöster = Kütüphane.zorla(yerleşimGiriş, yerleşimÇıkış,
+        temelGrafikYerleşimÖznitelikleri, 'showlegend',
+        legendGerçektenBirIzVar && (legendIzSayısı > (legendId === 'legend' ? 1 : 0)));
 
-    // delete legend
-    if(showLegend === false) layoutOut[legendId] = undefined;
+    if(legendGöster === false) yerleşimÇıkış[legendId] = undefined;
 
-    if(showLegend === false && !containerIn.uirevision) return;
+    if(legendGöster === false && !konteynerGiriş.uirevision) return;
 
-    coerce('uirevision', layoutOut.uirevision);
+    zorla('uirevision', yerleşimÇıkış.uirevision);
 
-    if(showLegend === false) return;
+    if(legendGöster === false) return;
 
-    coerce('borderwidth');
+    zorla('borderwidth');
 
-    var orientation = coerce('orientation');
+    var yön = zorla('orientation');
 
-    var yref = coerce('yref');
-    var xref = coerce('xref');
+    var yref = zorla('yref');
+    var xref = zorla('xref');
 
-    var isHorizontal = orientation === 'h';
-    var isPaperY = yref === 'paper';
-    var isPaperX = xref === 'paper';
-    var defaultX, defaultY, defaultYAnchor;
-    var defaultXAnchor = 'left';
+    var yatayMı = yön === 'h';
+    var kağıtYMi = yref === 'paper';
+    var kağıtXMi = xref === 'paper';
+    var varsayılanX, varsayılanY, varsayılanYAnchor;
+    var varsayılanXAnchor = 'left';
 
-    if(isHorizontal) {
-        defaultX = 0;
+    if(yatayMı) {
+        varsayılanX = 0;
 
-        if(Registry.getComponentMethod('rangeslider', 'isVisible')(layoutIn.xaxis)) {
-            if(isPaperY) {
-                defaultY = 1.1;
-                defaultYAnchor = 'bottom';
+        if(Kayıt.getComponentMethod('rangeslider', 'isVisible')(yerleşimGiriş.xaxis)) {
+            if(kağıtYMi) {
+                varsayılanY = 1.1;
+                varsayılanYAnchor = 'bottom';
             } else {
-                defaultY = 1;
-                defaultYAnchor = 'top';
+                varsayılanY = 1;
+                varsayılanYAnchor = 'top';
             }
         } else {
-            // maybe use y=1.1 / yanchor=bottom as above
-            //   to avoid https://github.com/plotly/plotly.js/issues/1199
-            //   in v3
-            if(isPaperY) {
-                defaultY = -0.1;
-                defaultYAnchor = 'top';
+            if(kağıtYMi) {
+                varsayılanY = -0.1;
+                varsayılanYAnchor = 'top';
             } else {
-                defaultY = 0;
-                defaultYAnchor = 'bottom';
+                varsayılanY = 0;
+                varsayılanYAnchor = 'bottom';
             }
         }
     } else {
-        defaultY = 1;
-        defaultYAnchor = 'auto';
-        if(isPaperX) {
-            defaultX = 1.02;
+        varsayılanY = 1;
+        varsayılanYAnchor = 'auto';
+        if(kağıtXMi) {
+            varsayılanX = 1.02;
         } else {
-            defaultX = 1;
-            defaultXAnchor = 'right';
+            varsayılanX = 1;
+            varsayılanXAnchor = 'right';
         }
     }
 
-    Lib.coerce(containerIn, containerOut, {
+    Kütüphane.zorla(konteynerGiriş, konteynerÇıkış, {
         x: {
             valType: 'number',
             editType: 'legend',
-            min: isPaperX ? -2 : 0,
-            max: isPaperX ? 3 : 1,
-            dflt: defaultX,
+            min: kağıtXMi ? -2 : 0,
+            max: kağıtXMi ? 3 : 1,
+            dflt: varsayılanX,
         }
     }, 'x');
 
-    Lib.coerce(containerIn, containerOut, {
+    Kütüphane.zorla(konteynerGiriş, konteynerÇıkış, {
         y: {
             valType: 'number',
             editType: 'legend',
-            min: isPaperY ? -2 : 0,
-            max: isPaperY ? 3 : 1,
-            dflt: defaultY,
+            min: kağıtYMi ? -2 : 0,
+            max: kağıtYMi ? 3 : 1,
+            dflt: varsayılanY,
         }
     }, 'y');
 
-    coerce('traceorder', defaultOrder);
-    if(helpers.isGrouped(layoutOut[legendId])) coerce('tracegroupgap');
+    zorla('traceorder', varsayılanSıra);
+    if(yardımcılar.gruplandırılmışMı(yerleşimÇıkış[legendId])) zorla('tracegroupgap');
 
-    coerce('entrywidth');
-    coerce('entrywidthmode');
-    coerce('indentation');
-    coerce('itemsizing');
-    coerce('itemwidth');
+    zorla('entrywidth');
+    zorla('entrywidthmode');
+    zorla('indentation');
+    zorla('itemsizing');
+    zorla('itemwidth');
 
-    coerce('itemclick');
-    coerce('itemdoubleclick');
-    coerce('groupclick');
+    zorla('itemclick');
+    zorla('itemdoubleclick');
+    zorla('groupclick');
 
-    coerce('xanchor', defaultXAnchor);
-    coerce('yanchor', defaultYAnchor);
-    coerce('valign');
-    Lib.noneOrAll(containerIn, containerOut, ['x', 'y']);
+    zorla('xanchor', varsayılanXAnchor);
+    zorla('yanchor', varsayılanYAnchor);
+    zorla('valign');
+    Kütüphane.noneOrAll(konteynerGiriş, konteynerÇıkış, ['x', 'y']);
 
-    var titleText = coerce('title.text');
-    if(titleText) {
-        coerce('title.side', isHorizontal ? 'left' : 'top');
-        var dfltTitleFont = Lib.extendFlat({}, itemFont, {
-            size: Lib.bigFont(itemFont.size)
+    var başlıkMetni = zorla('title.text');
+    if(başlıkMetni) {
+        zorla('title.side', yatayMı ? 'left' : 'top');
+        var varsayılanBaşlıkFontu = Kütüphane.extendFlat({}, öğeFontu, {
+            size: Kütüphane.büyükFont(öğeFontu.size)
         });
 
-        Lib.coerceFont(coerce, 'title.font', dfltTitleFont);
+        Kütüphane.zorlaFont(zorla, 'title.font', varsayılanBaşlıkFontu);
     }
 }
 
-module.exports = function legendDefaults(layoutIn, layoutOut, fullData) {
+module.exports = function legendVarsayılanları(yerleşimGiriş, yerleşimÇıkış, tamVeri) {
     var i;
 
-    var allLegendsData = fullData.slice();
+    var tümLegendVerileri = tamVeri.slice();
 
-    // shapes could also show up in legends
-    var shapes = layoutOut.shapes;
-    if(shapes) {
-        for(i = 0; i < shapes.length; i++) {
-            var shape = shapes[i];
-            if(!shape.showlegend) continue;
+    var şekiller = yerleşimÇıkış.shapes;
+    if(şekiller) {
+        for(i = 0; i < şekiller.length; i++) {
+            var şekil = şekiller[i];
+            if(!şekil.showlegend) continue;
 
-            var mockTrace = {
-                _input: shape._input,
-                visible: shape.visible,
-                showlegend: shape.showlegend,
-                legend: shape.legend
+            var sahteIz = {
+                _giriş: şekil._giriş,
+                visible: şekil.visible,
+                showlegend: şekil.showlegend,
+                legend: şekil.legend
             };
 
-            allLegendsData.push(mockTrace);
+            tümLegendVerileri.push(sahteIz);
         }
     }
 
-    var legends = ['legend'];
-    for(i = 0; i < allLegendsData.length; i++) {
-        Lib.pushUnique(legends, allLegendsData[i].legend);
+    var legendler = ['legend'];
+    for(i = 0; i < tümLegendVerileri.length; i++) {
+        Kütüphane.pushUnique(legendler, tümLegendVerileri[i].legend);
     }
 
-    layoutOut._legends = [];
-    for(i = 0; i < legends.length; i++) {
-        var legendId = legends[i];
+    yerleşimÇıkış._legends = [];
+    for(i = 0; i < legendler.length; i++) {
+        var legendId = legendler[i];
 
-        groupDefaults(legendId, layoutIn, layoutOut, allLegendsData);
+        grupVarsayılanları(legendId, yerleşimGiriş, yerleşimÇıkış, tümLegendVerileri);
 
         if(
-            layoutOut[legendId] &&
-            layoutOut[legendId].visible
+            yerleşimÇıkış[legendId] &&
+            yerleşimÇıkış[legendId].visible
         ) {
-            layoutOut[legendId]._id = legendId;
+            yerleşimÇıkış[legendId]._id = legendId;
         }
 
-        layoutOut._legends.push(legendId);
+        yerleşimÇıkış._legends.push(legendId);
     }
 };

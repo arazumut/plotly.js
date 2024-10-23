@@ -1,112 +1,111 @@
 'use strict';
 
-module.exports = Sieve;
+module.exports = Elek;
 
-var distinctVals = require('../../lib').distinctVals;
+var ayriDegerler = require('../../lib').distinctVals;
 
 /**
- * Helper class to sieve data from traces into bins
+ * Verileri izlerden kovalar içine elemek için yardımcı sınıf
  *
  * @class
  *
- * @param {Array} traces
-*   Array of calculated traces
- * @param {object} opts
- *  - @param {boolean} [sepNegVal]
- *      If true, then split data at the same position into a bar
- *      for positive values and another for negative values
- *  - @param {boolean} [overlapNoMerge]
- *     If true, then don't merge overlapping bars into a single bar
+ * @param {Array} izler
+ *   Hesaplanmış izlerin dizisi
+ * @param {object} secenekler
+ *  - @param {boolean} [negDegerAyir]
+ *      Eğer true ise, aynı konumdaki verileri pozitif ve negatif
+ *      değerler için ayrı çubuklara ayır
+ *  - @param {boolean} [cakismaBirlesme]
+ *     Eğer true ise, çakışan çubukları tek bir çubukta birleştirme
  */
-function Sieve(traces, opts) {
-    this.traces = traces;
-    this.sepNegVal = opts.sepNegVal;
-    this.overlapNoMerge = opts.overlapNoMerge;
+function Elek(izler, secenekler) {
+    this.izler = izler;
+    this.negDegerAyir = secenekler.negDegerAyir;
+    this.cakismaBirlesme = secenekler.cakismaBirlesme;
 
-    // for single-bin histograms - see histogram/calc
-    var width1 = Infinity;
+    // Tek kovalı histogramlar için - bkz. histogram/calc
+    var genislik1 = Infinity;
 
-    var axLetter = opts.posAxis._id.charAt(0);
+    var eksenHarf = secenekler.konumEkseni._id.charAt(0);
 
-    var positions = [];
-    for(var i = 0; i < traces.length; i++) {
-        var trace = traces[i];
-        for(var j = 0; j < trace.length; j++) {
-            var bar = trace[j];
-            var pos = bar.p;
-            if(pos === undefined) {
-                pos = bar[axLetter];
+    var konumlar = [];
+    for(var i = 0; i < izler.length; i++) {
+        var iz = izler[i];
+        for(var j = 0; j < iz.length; j++) {
+            var cubuk = iz[j];
+            var konum = cubuk.p;
+            if(konum === undefined) {
+                konum = cubuk[eksenHarf];
             }
-            if(pos !== undefined) positions.push(pos);
+            if(konum !== undefined) konumlar.push(konum);
         }
-        if(trace[0] && trace[0].width1) {
-            width1 = Math.min(trace[0].width1, width1);
+        if(iz[0] && iz[0].genislik1) {
+            genislik1 = Math.min(iz[0].genislik1, genislik1);
         }
     }
-    this.positions = positions;
+    this.konumlar = konumlar;
 
-    var dv = distinctVals(positions);
+    var ad = ayriDegerler(konumlar);
 
-    this.distinctPositions = dv.vals;
-    if(dv.vals.length === 1 && width1 !== Infinity) this.minDiff = width1;
-    else this.minDiff = Math.min(dv.minDiff, width1);
+    this.ayriKonumlar = ad.degerler;
+    if(ad.degerler.length === 1 && genislik1 !== Infinity) this.minFark = genislik1;
+    else this.minFark = Math.min(ad.minFark, genislik1);
 
-    var type = (opts.posAxis || {}).type;
-    if(type === 'category' || type === 'multicategory') {
-        this.minDiff = 1;
+    var tip = (secenekler.konumEkseni || {}).tip;
+    if(tip === 'kategori' || tip === 'cokluKategori') {
+        this.minFark = 1;
     }
 
-    this.binWidth = this.minDiff;
+    this.kovaGenisligi = this.minFark;
 
-    this.bins = {};
+    this.kovalar = {};
 }
 
 /**
- * Sieve datum
+ * Elek verisi
  *
  * @method
- * @param {number} position
- * @param {number} value
- * @returns {number} Previous bin value
+ * @param {number} konum
+ * @param {number} deger
+ * @returns {number} Önceki kova değeri
  */
-Sieve.prototype.put = function put(position, value) {
-    var label = this.getLabel(position, value);
-    var oldValue = this.bins[label] || 0;
+Elek.prototype.koy = function koy(konum, deger) {
+    var etiket = this.etiketAl(konum, deger);
+    var eskiDeger = this.kovalar[etiket] || 0;
 
-    this.bins[label] = oldValue + value;
+    this.kovalar[etiket] = eskiDeger + deger;
 
-    return oldValue;
+    return eskiDeger;
 };
 
 /**
- * Get current bin value for a given datum
+ * Belirli bir veri için mevcut kova değerini al
  *
  * @method
- * @param {number} position  Position of datum
- * @param {number} [value]   Value of datum
- *                           (required if this.sepNegVal is true)
- * @returns {number} Current bin value
+ * @param {number} konum  Verinin konumu
+ * @param {number} [deger]   Verinin değeri
+ *                           (this.negDegerAyir true ise gereklidir)
+ * @returns {number} Mevcut kova değeri
  */
-Sieve.prototype.get = function get(position, value) {
-    var label = this.getLabel(position, value);
-    return this.bins[label] || 0;
+Elek.prototype.al = function al(konum, deger) {
+    var etiket = this.etiketAl(konum, deger);
+    return this.kovalar[etiket] || 0;
 };
 
 /**
- * Get bin label for a given datum
+ * Belirli bir veri için kova etiketini al
  *
  * @method
- * @param {number} position  Position of datum
- * @param {number} [value]   Value of datum
- *                           (required if this.sepNegVal is true)
- * @returns {string} Bin label
- * (prefixed with a 'v' if value is negative and this.sepNegVal is
- * true; otherwise prefixed with '^')
+ * @param {number} konum  Verinin konumu
+ * @param {number} [deger]   Verinin değeri
+ *                           (this.negDegerAyir true ise gereklidir)
+ * @returns {string} Kova etiketi
+ * (değer negatifse ve this.negDegerAyir true ise 'v' ile; aksi takdirde '^' ile öneklenir)
  */
-Sieve.prototype.getLabel = function getLabel(position, value) {
-    var prefix = (value < 0 && this.sepNegVal) ? 'v' : '^';
-    var label = (this.overlapNoMerge) ?
-        position :
-        Math.round(position / this.binWidth);
-    return prefix + label;
+Elek.prototype.etiketAl = function etiketAl(konum, deger) {
+    var onEk = (deger < 0 && this.negDegerAyir) ? 'v' : '^';
+    var etiket = (this.cakismaBirlesme) ?
+        konum :
+        Math.round(konum / this.kovaGenisligi);
+    return onEk + etiket;
 };

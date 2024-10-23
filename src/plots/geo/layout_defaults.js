@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var handleSubplotDefaults = require('../subplot_defaults');
 var getSubplotData = require('../get_data').getSubplotData;
@@ -9,6 +10,7 @@ var layoutAttributes = require('./layout_attributes');
 
 var axesNames = constants.axesNames;
 
+// Ana fonksiyon: layout varsayılanlarını sağla
 module.exports = function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
     handleSubplotDefaults(layoutIn, layoutOut, fullData, {
         type: 'geo',
@@ -19,6 +21,7 @@ module.exports = function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
     });
 };
 
+// Geo varsayılanlarını işleyen fonksiyon
 function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
     var subplotData = getSubplotData(opts.fullData, 'geo', opts.id);
     var traceIndices = subplotData.map(function(t) { return t._expandedIndex; });
@@ -30,7 +33,7 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
     var projType = coerce('projection.type', scopeParams.projType);
     var isAlbersUsa = geoLayoutOut._isAlbersUsa = projType === 'albers usa';
 
-    // no other scopes are allowed for 'albers usa' projection
+    // 'albers usa' projeksiyonu için başka kapsamlar izin verilmez
     if(isAlbersUsa) scope = geoLayoutOut.scope = 'usa';
 
     var isScoped = geoLayoutOut._isScoped = (scope !== 'world');
@@ -39,12 +42,12 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
     var isClipped = geoLayoutOut._isClipped = !!constants.lonaxisSpan[projType];
 
     if(geoLayoutIn.visible === false) {
-        // should override template.layout.geo.show* - see issue 4482
+        // template.layout.geo.show* değerlerini geçersiz kılmalı - bkz. issue 4482
 
-        // make a copy
+        // kopya oluştur
         var newTemplate = Lib.extendDeep({}, geoLayoutOut._template);
 
-        // override show*
+        // show* değerlerini geçersiz kıl
         newTemplate.showcoastlines = false;
         newTemplate.showcountries = false;
         newTemplate.showframe = false;
@@ -56,7 +59,7 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
         if(newTemplate.lonaxis) newTemplate.lonaxis.showgrid = false;
         if(newTemplate.lataxis) newTemplate.lataxis.showgrid = false;
 
-        // set ref to copy
+        // kopyaya referans ayarla
         geoLayoutOut._template = newTemplate;
     }
     var visible = coerce('visible');
@@ -90,7 +93,7 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
             coerce(axisName + '.griddash');
         }
 
-        // mock axis for autorange computations
+        // otomatik aralık hesaplamaları için sahte eksen
         geoLayoutOut[axisName]._ax = {
             type: 'linear',
             _id: axisName.slice(0, 3),
@@ -108,7 +111,7 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
     var lonRange = geoLayoutOut.lonaxis.range;
     var latRange = geoLayoutOut.lataxis.range;
 
-    // to cross antimeridian w/o ambiguity
+    // antimeridyeni belirsizlik olmadan geçmek için
     var lon0 = lonRange[0];
     var lon1 = lonRange[1];
     if(lon0 > 0 && lon1 < 0) lon1 += 360;
@@ -137,8 +140,8 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
     var centerLatDflt;
 
     if(isAlbersUsa) {
-        // 'albers usa' does not have a 'center',
-        // these values were found using via:
+        // 'albers usa' bir 'center' içermez,
+        // bu değerler şu şekilde bulunmuştur:
         //   projection.invert([geoLayout.center.lon, geoLayoutIn.center.lat])
         centerLonDflt = -96.6;
         centerLatDflt = 38.7;
@@ -181,16 +184,16 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
     }
 
     if(scope === 'usa' || (scope === 'north america' && resolution === 50)) {
-        // Only works for:
-        //   USA states at 110m
-        //   USA states + Canada provinces at 50m
+        // Sadece şu durumlarda çalışır:
+        //   110m'de ABD eyaletleri
+        //   50m'de ABD eyaletleri + Kanada eyaletleri
         coerce('showsubunits', visible);
         coerce('subunitcolor');
         coerce('subunitwidth');
     }
 
     if(!isScoped) {
-        // Does not work in non-world scopes
+        // Dünya dışındaki kapsamlar için çalışmaz
         show = coerce('showframe', visible);
         if(show) {
             coerce('framecolor');
@@ -202,7 +205,7 @@ function handleGeoDefaults(geoLayoutIn, geoLayoutOut, coerce, opts) {
 
     var fitBounds = coerce('fitbounds');
 
-    // clear attributes that will get auto-filled later
+    // Daha sonra otomatik doldurulacak öznitelikleri temizle
     if(fitBounds) {
         delete geoLayoutOut.projection.scale;
 

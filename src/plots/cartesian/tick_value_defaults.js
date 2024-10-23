@@ -1,48 +1,48 @@
 'use strict';
 
-var cleanTicks = require('./clean_ticks');
-var isArrayOrTypedArray = require('../../lib').isArrayOrTypedArray;
-var isTypedArraySpec = require('../../lib/array').isTypedArraySpec;
+var temizleTickler = require('./clean_ticks');
+var diziVeyaTypedArrayMi = require('../../lib').isArrayOrTypedArray;
+var typedArraySpecMi = require('../../lib/array').isTypedArraySpec;
 var decodeTypedArraySpec = require('../../lib/array').decodeTypedArraySpec;
 
-module.exports = function handleTickValueDefaults(containerIn, containerOut, coerce, axType, opts) {
-    if(!opts) opts = {};
-    var isMinor = opts.isMinor;
-    var cIn = isMinor ? containerIn.minor || {} : containerIn;
-    var cOut = isMinor ? containerOut.minor : containerOut;
-    var prefix = isMinor ? 'minor.' : '';
+module.exports = function tickDegerVarsayilanlariniIsle(containerIn, containerOut, zorla, eksenTipi, secenekler) {
+    if(!secenekler) secenekler = {};
+    var kucukMu = secenekler.kucukMu;
+    var cIn = kucukMu ? containerIn.kucuk || {} : containerIn;
+    var cOut = kucukMu ? containerOut.kucuk : containerOut;
+    var onEk = kucukMu ? 'kucuk.' : '';
 
-    function readInput(attr) {
-        var v = cIn[attr];
-        if(isTypedArraySpec(v)) v = decodeTypedArraySpec(v);
+    function girisOku(ozellik) {
+        var deger = cIn[ozellik];
+        if(typedArraySpecMi(deger)) deger = decodeTypedArraySpec(deger);
 
         return (
-            v !== undefined
-        ) ? v : (cOut._template || {})[attr];
+            deger !== undefined
+        ) ? deger : (cOut._sablon || {})[ozellik];
     }
 
-    var _tick0 = readInput('tick0');
-    var _dtick = readInput('dtick');
-    var _tickvals = readInput('tickvals');
+    var _tick0 = girisOku('tick0');
+    var _dtick = girisOku('dtick');
+    var _tickvals = girisOku('tickvals');
 
-    var tickmodeDefault = isArrayOrTypedArray(_tickvals) ? 'array' :
-        _dtick ? 'linear' :
-        'auto';
-    var tickmode = coerce(prefix + 'tickmode', tickmodeDefault);
+    var tickModuVarsayilan = diziVeyaTypedArrayMi(_tickvals) ? 'dizi' :
+        _dtick ? 'dogrusal' :
+        'otomatik';
+    var tickModu = zorla(onEk + 'tickmodu', tickModuVarsayilan);
 
-    if(tickmode === 'auto' || tickmode === 'sync') {
-        coerce(prefix + 'nticks');
-    } else if(tickmode === 'linear') {
-        // dtick is usually a positive number, but there are some
-        // special strings available for log or date axes
-        // tick0 also has special logic
-        var dtick = cOut.dtick = cleanTicks.dtick(
-            _dtick, axType);
-        cOut.tick0 = cleanTicks.tick0(
-            _tick0, axType, containerOut.calendar, dtick);
-    } else if(axType !== 'multicategory') {
-        var tickvals = coerce(prefix + 'tickvals');
-        if(tickvals === undefined) cOut.tickmode = 'auto';
-        else if(!isMinor) coerce('ticktext');
+    if(tickModu === 'otomatik' || tickModu === 'senkron') {
+        zorla(onEk + 'nticks');
+    } else if(tickModu === 'dogrusal') {
+        // dtick genellikle pozitif bir sayıdır, ancak log veya tarih eksenleri için bazı
+        // özel dizgiler mevcuttur
+        // tick0 da özel bir mantığa sahiptir
+        var dtick = cOut.dtick = temizleTickler.dtick(
+            _dtick, eksenTipi);
+        cOut.tick0 = temizleTickler.tick0(
+            _tick0, eksenTipi, containerOut.takvim, dtick);
+    } else if(eksenTipi !== 'cokluKategori') {
+        var tickvals = zorla(onEk + 'tickvals');
+        if(tickvals === undefined) cOut.tickmodu = 'otomatik';
+        else if(!kucukMu) zorla('ticktext');
     }
 };

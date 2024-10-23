@@ -1,11 +1,13 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var Axes = require('../../plots/cartesian/axes');
 var alignPeriod = require('../../plots/cartesian/align_period');
 
 var calcCommon = require('../ohlc/calc').calcCommon;
 
+// Modülü dışa aktar
 module.exports = function(gd, trace) {
     var fullLayout = gd._fullLayout;
     var xa = Axes.getFromId(gd, trace.xaxis);
@@ -31,6 +33,7 @@ module.exports = function(gd, trace) {
     }
 };
 
+// Nokta fonksiyonu
 function ptFunc(o, h, l, c) {
     return {
         min: l,

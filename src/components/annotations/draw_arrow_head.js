@@ -1,35 +1,31 @@
 'use strict';
 
 var d3 = require('@plotly/d3');
-
 var Color = require('../color');
-
 var ARROWPATHS = require('./arrow_paths');
-
 var Lib = require('../../lib');
 var strScale = Lib.strScale;
 var strRotate = Lib.strRotate;
 var strTranslate = Lib.strTranslate;
 
 /**
- * Add arrowhead(s) to a path or line element
+ * Bir yol veya çizgi elemanına ok başı ekler
  *
- * @param {d3.selection} el3: a d3-selected line or path element
+ * @param {d3.selection} el3: d3 ile seçilmiş bir çizgi veya yol elemanı
  *
- * @param {string} ends: 'none', 'start', 'end', or 'start+end' for which ends get arrowheads
+ * @param {string} ends: 'none', 'start', 'end' veya 'start+end' hangi uçların ok başı alacağını belirtir
  *
- * @param {object} options: style information. Must have all the following:
- * @param {number} options.arrowhead: end head style - see ./arrow_paths
- * @param {number} options.startarrowhead: start head style - see ./arrow_paths
- * @param {number} options.arrowsize: relative size of the end head vs line width
- * @param {number} options.startarrowsize: relative size of the start head vs line width
- * @param {number} options.standoff: distance in px to move the end arrow point from its target
- * @param {number} options.startstandoff: distance in px to move the start arrow point from its target
- * @param {number} options.arrowwidth: width of the arrow line
- * @param {string} options.arrowcolor: color of the arrow line, for the head to match
- *     Note that the opacity of this color is ignored, as it's assumed the container
- *     of both the line and head has opacity applied to it so there isn't greater opacity
- *     where they overlap.
+ * @param {object} options: stil bilgisi. Aşağıdaki tüm özelliklere sahip olmalıdır:
+ * @param {number} options.arrowhead: uç başı stili - bkz. ./arrow_paths
+ * @param {number} options.startarrowhead: başlangıç başı stili - bkz. ./arrow_paths
+ * @param {number} options.arrowsize: uç başının çizgi genişliğine göre göreceli boyutu
+ * @param {number} options.startarrowsize: başlangıç başının çizgi genişliğine göre göreceli boyutu
+ * @param {number} options.standoff: uç ok noktasını hedefinden uzaklaştırmak için piksel cinsinden mesafe
+ * @param {number} options.startstandoff: başlangıç ok noktasını hedefinden uzaklaştırmak için piksel cinsinden mesafe
+ * @param {number} options.arrowwidth: ok çizgisinin genişliği
+ * @param {string} options.arrowcolor: ok çizgisinin rengi, başın da bu renkle uyumlu olması için
+ *     Bu rengin opaklığı göz ardı edilir, çünkü çizgi ve başın kapsayıcısının opaklığına sahip olduğu varsayılır,
+ *     böylece üst üste geldiklerinde daha fazla opaklık olmaz.
  */
 module.exports = function drawArrowHead(el3, ends, options) {
     var el = el3.node();
@@ -87,17 +83,15 @@ module.exports = function drawArrowHead(el3, ends, options) {
         }
     } else if(el.nodeName === 'path') {
         var pathlen = el.getTotalLength();
-        // using dash to hide the backOff region of the path.
-        // if we ever allow dash for the arrow we'll have to
-        // do better than this hack... maybe just manually
-        // combine the two
+        // yolun backOff bölgesini gizlemek için dash kullanılıyor.
+        // eğer ok için dash'a izin verirsek, bu hileden daha iyisini yapmamız gerekecek...
+        // belki sadece ikisini manuel olarak birleştiririz
         var dashArray = '';
 
         if(pathlen < backOff + startBackOff) {
             hideLine();
             return;
         }
-
 
         var start0 = el.getPointAtLength(0);
         var dstart = el.getPointAtLength(0.1);

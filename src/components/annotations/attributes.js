@@ -8,28 +8,25 @@ var axisPlaceableObjs = require('../../constants/axis_placeable_objects');
 
 function arrowAxisRefDescription(axis) {
     return [
-        'In order for absolute positioning of the arrow to work, *a' + axis +
-        'ref* must be exactly the same as *' + axis + 'ref*, otherwise *a' + axis +
-        'ref* will revert to *pixel* (explained next).',
-        'For relative positioning, *a' + axis + 'ref* can be set to *pixel*,',
-        'in which case the *a' + axis + '* value is specified in pixels',
-        'relative to *' + axis + '*.',
-        'Absolute positioning is useful',
-        'for trendline annotations which should continue to indicate',
-        'the correct trend when zoomed. Relative positioning is useful',
-        'for specifying the text offset for an annotated point.'
+        'Okun mutlak konumlandırılmasının çalışması için, *a' + axis +
+        'ref* tam olarak *' + axis + 'ref* ile aynı olmalıdır, aksi takdirde *a' + axis +
+        'ref* *pixel* (aşağıda açıklanmıştır) olarak değişir.',
+        'Göreceli konumlandırma için, *a' + axis + 'ref* *pixel* olarak ayarlanabilir,',
+        'bu durumda *a' + axis + '* değeri, *' + axis + '* ile ilgili olarak piksellerle belirtilir.',
+        'Mutlak konumlandırma, trend çizgisi açıklamaları için kullanışlıdır,',
+        'bu sayede yakınlaştırıldığında doğru trendi göstermeye devam eder.',
+        'Göreceli konumlandırma, açıklanan bir nokta için metin ofsetini belirtmek için kullanışlıdır.'
     ].join(' ');
 }
 
 function arrowCoordinateDescription(axis, lower, upper) {
     return [
-        'Sets the', axis, 'component of the arrow tail about the arrow head.',
-        'If `a' + axis + 'ref` is `pixel`, a positive (negative)',
-        'component corresponds to an arrow pointing',
-        'from', upper, 'to', lower, '(' + lower, 'to', upper + ').',
-        'If `a' + axis + 'ref` is not `pixel` and is exactly the same as `' + axis + 'ref`,',
-        'this is an absolute value on that axis,',
-        'like `' + axis + '`, specified in the same coordinates as `' + axis + 'ref`.'
+        'Ok başının ok kuyruğuna göre', axis, 'bileşenini ayarlar.',
+        'Eğer `a' + axis + 'ref` `pixel` ise, pozitif (negatif)',
+        'bileşen, okun', upper, 'dan', lower, 'a (veya', lower, 'dan', upper, 'a) işaret ettiğini gösterir.',
+        'Eğer `a' + axis + 'ref` `pixel` değilse ve tam olarak `' + axis + 'ref` ile aynıysa,',
+        'bu, o eksende mutlak bir değerdir,',
+        'tıpkı `' + axis + '` gibi, `' + axis + 'ref` ile aynı koordinatlarda belirtilir.'
     ].join(' ');
 }
 
@@ -38,35 +35,29 @@ module.exports = templatedArray('annotation', {
         valType: 'boolean',
         dflt: true,
         editType: 'calc+arraydraw',
-        description: [
-            'Determines whether or not this annotation is visible.'
-        ].join(' ')
+        description: 'Bu açıklamanın görünür olup olmadığını belirler.'
     },
 
     text: {
         valType: 'string',
         editType: 'calc+arraydraw',
         description: [
-            'Sets the text associated with this annotation.',
-            'Plotly uses a subset of HTML tags to do things like',
-            'newline (<br>), bold (<b></b>), italics (<i></i>),',
-            'hyperlinks (<a href=\'...\'></a>). Tags <em>, <sup>, <sub>, <s>, <u>',
-            '<span> are also supported.'
+            'Bu açıklama ile ilişkili metni ayarlar.',
+            'Plotly, yeni satır (<br>), kalın (<b></b>), italik (<i></i>),',
+            'hiperlinkler (<a href=\'...\'></a>) gibi şeyler yapmak için bir HTML etiketleri alt kümesi kullanır.',
+            '<em>, <sup>, <sub>, <s>, <u>, <span> etiketleri de desteklenir.'
         ].join(' ')
     },
     textangle: {
         valType: 'angle',
         dflt: 0,
         editType: 'calc+arraydraw',
-        description: [
-            'Sets the angle at which the `text` is drawn',
-            'with respect to the horizontal.'
-        ].join(' ')
+        description: 'Metnin yatayla olan açısını ayarlar.'
     },
     font: fontAttrs({
         editType: 'calc+arraydraw',
         colorEditType: 'arraydraw',
-        description: 'Sets the annotation text font.'
+        description: 'Açıklama metin yazı tipini ayarlar.'
     }),
     width: {
         valType: 'number',
@@ -74,9 +65,9 @@ module.exports = templatedArray('annotation', {
         dflt: null,
         editType: 'calc+arraydraw',
         description: [
-            'Sets an explicit width for the text box. null (default) lets the',
-            'text set the box width. Wider text will be clipped.',
-            'There is no automatic wrapping; use <br> to start a new line.'
+            'Metin kutusu için açık bir genişlik ayarlar. null (varsayılan) metnin kutu genişliğini ayarlamasına izin verir.',
+            'Daha geniş metin kesilecektir.',
+            'Otomatik sarma yoktur; yeni bir satır başlatmak için <br> kullanın.'
         ].join(' ')
     },
     height: {
@@ -85,8 +76,8 @@ module.exports = templatedArray('annotation', {
         dflt: null,
         editType: 'calc+arraydraw',
         description: [
-            'Sets an explicit height for the text box. null (default) lets the',
-            'text set the box height. Taller text will be clipped.'
+            'Metin kutusu için açık bir yükseklik ayarlar. null (varsayılan) metnin kutu yüksekliğini ayarlamasına izin verir.',
+            'Daha uzun metin kesilecektir.'
         ].join(' ')
     },
     opacity: {
@@ -95,7 +86,7 @@ module.exports = templatedArray('annotation', {
         max: 1,
         dflt: 1,
         editType: 'arraydraw',
-        description: 'Sets the opacity of the annotation (text + arrow).'
+        description: 'Açıklamanın (metin + ok) opaklığını ayarlar.'
     },
     align: {
         valType: 'enumerated',
@@ -103,10 +94,10 @@ module.exports = templatedArray('annotation', {
         dflt: 'center',
         editType: 'arraydraw',
         description: [
-            'Sets the horizontal alignment of the `text` within the box.',
-            'Has an effect only if `text` spans two or more lines',
-            '(i.e. `text` contains one or more <br> HTML tags) or if an',
-            'explicit width is set to override the text width.'
+            'Metnin kutu içindeki yatay hizalamasını ayarlar.',
+            'Yalnızca metin iki veya daha fazla satıra yayılırsa',
+            '(yani metin bir veya daha fazla <br> HTML etiketi içeriyorsa) veya',
+            'metin genişliğini geçersiz kılmak için açık bir genişlik ayarlanmışsa etkisi vardır.'
         ].join(' ')
     },
     valign: {
@@ -115,60 +106,51 @@ module.exports = templatedArray('annotation', {
         dflt: 'middle',
         editType: 'arraydraw',
         description: [
-            'Sets the vertical alignment of the `text` within the box.',
-            'Has an effect only if an explicit height is set to override',
-            'the text height.'
+            'Metnin kutu içindeki dikey hizalamasını ayarlar.',
+            'Yalnızca metin yüksekliğini geçersiz kılmak için açık bir yükseklik ayarlanmışsa etkisi vardır.'
         ].join(' ')
     },
     bgcolor: {
         valType: 'color',
         dflt: 'rgba(0,0,0,0)',
         editType: 'arraydraw',
-        description: 'Sets the background color of the annotation.'
+        description: 'Açıklamanın arka plan rengini ayarlar.'
     },
     bordercolor: {
         valType: 'color',
         dflt: 'rgba(0,0,0,0)',
         editType: 'arraydraw',
-        description: [
-            'Sets the color of the border enclosing the annotation `text`.'
-        ].join(' ')
+        description: 'Açıklama metnini çevreleyen sınırın rengini ayarlar.'
     },
     borderpad: {
         valType: 'number',
         min: 0,
         dflt: 1,
         editType: 'calc+arraydraw',
-        description: [
-            'Sets the padding (in px) between the `text`',
-            'and the enclosing border.'
-        ].join(' ')
+        description: 'Metin ile çevreleyen sınır arasındaki dolgu (px cinsinden) ayarlar.'
     },
     borderwidth: {
         valType: 'number',
         min: 0,
         dflt: 1,
         editType: 'calc+arraydraw',
-        description: [
-            'Sets the width (in px) of the border enclosing',
-            'the annotation `text`.'
-        ].join(' ')
+        description: 'Açıklama metnini çevreleyen sınırın genişliğini (px cinsinden) ayarlar.'
     },
-    // arrow
+    // ok
     showarrow: {
         valType: 'boolean',
         dflt: true,
         editType: 'calc+arraydraw',
         description: [
-            'Determines whether or not the annotation is drawn with an arrow.',
-            'If *true*, `text` is placed near the arrow\'s tail.',
-            'If *false*, `text` lines up with the `x` and `y` provided.'
+            'Açıklamanın bir ok ile çizilip çizilmeyeceğini belirler.',
+            'Eğer *true* ise, metin okun kuyruğuna yakın yerleştirilir.',
+            'Eğer *false* ise, metin sağlanan x ve y ile hizalanır.'
         ].join(' ')
     },
     arrowcolor: {
         valType: 'color',
         editType: 'arraydraw',
-        description: 'Sets the color of the annotation arrow.'
+        description: 'Açıklama okunun rengini ayarlar.'
     },
     arrowhead: {
         valType: 'integer',
@@ -176,7 +158,7 @@ module.exports = templatedArray('annotation', {
         max: ARROWPATHS.length,
         dflt: 1,
         editType: 'arraydraw',
-        description: 'Sets the end annotation arrow head style.'
+        description: 'Son açıklama ok başı stilini ayarlar.'
     },
     startarrowhead: {
         valType: 'integer',
@@ -184,7 +166,7 @@ module.exports = templatedArray('annotation', {
         max: ARROWPATHS.length,
         dflt: 1,
         editType: 'arraydraw',
-        description: 'Sets the start annotation arrow head style.'
+        description: 'Başlangıç açıklama ok başı stilini ayarlar.'
     },
     arrowside: {
         valType: 'flaglist',
@@ -192,7 +174,7 @@ module.exports = templatedArray('annotation', {
         extras: ['none'],
         dflt: 'end',
         editType: 'arraydraw',
-        description: 'Sets the annotation arrow head position.'
+        description: 'Açıklama ok başı konumunu ayarlar.'
     },
     arrowsize: {
         valType: 'number',
@@ -200,8 +182,8 @@ module.exports = templatedArray('annotation', {
         dflt: 1,
         editType: 'calc+arraydraw',
         description: [
-            'Sets the size of the end annotation arrow head, relative to `arrowwidth`.',
-            'A value of 1 (default) gives a head about 3x as wide as the line.'
+            'Son açıklama ok başının boyutunu, `arrowwidth` ile orantılı olarak ayarlar.',
+            '1 (varsayılan) değeri, çizginin yaklaşık 3 katı genişliğinde bir baş verir.'
         ].join(' ')
     },
     startarrowsize: {
@@ -210,15 +192,15 @@ module.exports = templatedArray('annotation', {
         dflt: 1,
         editType: 'calc+arraydraw',
         description: [
-            'Sets the size of the start annotation arrow head, relative to `arrowwidth`.',
-            'A value of 1 (default) gives a head about 3x as wide as the line.'
+            'Başlangıç açıklama ok başının boyutunu, `arrowwidth` ile orantılı olarak ayarlar.',
+            '1 (varsayılan) değeri, çizginin yaklaşık 3 katı genişliğinde bir baş verir.'
         ].join(' ')
     },
     arrowwidth: {
         valType: 'number',
         min: 0.1,
         editType: 'calc+arraydraw',
-        description: 'Sets the width (in px) of annotation arrow line.'
+        description: 'Açıklama ok çizgisinin genişliğini (px cinsinden) ayarlar.'
     },
     standoff: {
         valType: 'number',
@@ -226,11 +208,10 @@ module.exports = templatedArray('annotation', {
         dflt: 0,
         editType: 'calc+arraydraw',
         description: [
-            'Sets a distance, in pixels, to move the end arrowhead away from the',
-            'position it is pointing at, for example to point at the edge of',
-            'a marker independent of zoom. Note that this shortens the arrow',
-            'from the `ax` / `ay` vector, in contrast to `xshift` / `yshift`',
-            'which moves everything by this amount.'
+            'Ok başını işaret ettiği konumdan uzaklaştırmak için bir mesafe (px cinsinden) ayarlar,',
+            'örneğin, yakınlaştırmadan bağımsız olarak bir işaretleyicinin kenarını işaret etmek için.',
+            'Bu, oku `ax` / `ay` vektöründen kısaltır,',
+            'bu, her şeyi bu miktar kadar hareket ettiren `xshift` / `yshift` in aksine.'
         ].join(' ')
     },
     startstandoff: {
@@ -239,26 +220,21 @@ module.exports = templatedArray('annotation', {
         dflt: 0,
         editType: 'calc+arraydraw',
         description: [
-            'Sets a distance, in pixels, to move the start arrowhead away from the',
-            'position it is pointing at, for example to point at the edge of',
-            'a marker independent of zoom. Note that this shortens the arrow',
-            'from the `ax` / `ay` vector, in contrast to `xshift` / `yshift`',
-            'which moves everything by this amount.'
+            'Başlangıç ok başını işaret ettiği konumdan uzaklaştırmak için bir mesafe (px cinsinden) ayarlar,',
+            'örneğin, yakınlaştırmadan bağımsız olarak bir işaretleyicinin kenarını işaret etmek için.',
+            'Bu, oku `ax` / `ay` vektöründen kısaltır,',
+            'bu, her şeyi bu miktar kadar hareket ettiren `xshift` / `yshift` in aksine.'
         ].join(' ')
     },
     ax: {
         valType: 'any',
         editType: 'calc+arraydraw',
-        description: [
-            arrowCoordinateDescription('x', 'left', 'right')
-        ].join(' ')
+        description: arrowCoordinateDescription('x', 'sol', 'sağ')
     },
     ay: {
         valType: 'any',
         editType: 'calc+arraydraw',
-        description: [
-            arrowCoordinateDescription('y', 'top', 'bottom')
-        ].join(' ')
+        description: arrowCoordinateDescription('y', 'üst', 'alt')
     },
     axref: {
         valType: 'enumerated',
@@ -269,9 +245,8 @@ module.exports = templatedArray('annotation', {
         ],
         editType: 'calc',
         description: [
-            'Indicates in what coordinates the tail of the',
-            'annotation (ax,ay) is specified.',
-            axisPlaceableObjs.axisRefDescription('x', 'left', 'right'),
+            'Açıklamanın (ax,ay) kuyruğunun hangi koordinatlarda belirtildiğini gösterir.',
+            axisPlaceableObjs.axisRefDescription('x', 'sol', 'sağ'),
             arrowAxisRefDescription('x')
         ].join(' ')
     },
@@ -284,13 +259,12 @@ module.exports = templatedArray('annotation', {
         ],
         editType: 'calc',
         description: [
-            'Indicates in what coordinates the tail of the',
-            'annotation (ax,ay) is specified.',
-            axisPlaceableObjs.axisRefDescription('y', 'bottom', 'top'),
+            'Açıklamanın (ax,ay) kuyruğunun hangi koordinatlarda belirtildiğini gösterir.',
+            axisPlaceableObjs.axisRefDescription('y', 'alt', 'üst'),
             arrowAxisRefDescription('y')
         ].join(' ')
     },
-    // positioning
+    // konumlandırma
     xref: {
         valType: 'enumerated',
         values: [
@@ -299,23 +273,20 @@ module.exports = templatedArray('annotation', {
         ],
         editType: 'calc',
         description: [
-            'Sets the annotation\'s x coordinate axis.',
-            axisPlaceableObjs.axisRefDescription('x', 'left', 'right'),
+            'Açıklamanın x koordinat eksenini ayarlar.',
+            axisPlaceableObjs.axisRefDescription('x', 'sol', 'sağ'),
         ].join(' ')
     },
     x: {
         valType: 'any',
         editType: 'calc+arraydraw',
         description: [
-            'Sets the annotation\'s x position.',
-            'If the axis `type` is *log*, then you must take the',
-            'log of your desired range.',
-            'If the axis `type` is *date*, it should be date strings,',
-            'like date data, though Date objects and unix milliseconds',
-            'will be accepted and converted to strings.',
-            'If the axis `type` is *category*, it should be numbers,',
-            'using the scale where each category is assigned a serial',
-            'number from zero in the order it appears.'
+            'Açıklamanın x konumunu ayarlar.',
+            'Eğer eksen `type` *log* ise, aralığınızın logaritmasını almalısınız.',
+            'Eğer eksen `type` *date* ise, tarih verileri gibi tarih dizeleri olmalıdır,',
+            'ancak Tarih nesneleri ve unix milisaniyeleri kabul edilir ve dizelere dönüştürülür.',
+            'Eğer eksen `type` *category* ise, her kategori sıfırdan başlayarak',
+            'göründüğü sıraya göre bir seri numarası atanarak sayılar olmalıdır.'
         ].join(' ')
     },
     xanchor: {
@@ -324,17 +295,13 @@ module.exports = templatedArray('annotation', {
         dflt: 'auto',
         editType: 'calc+arraydraw',
         description: [
-            'Sets the text box\'s horizontal position anchor',
-            'This anchor binds the `x` position to the *left*, *center*',
-            'or *right* of the annotation.',
-            'For example, if `x` is set to 1, `xref` to *paper* and',
-            '`xanchor` to *right* then the right-most portion of the',
-            'annotation lines up with the right-most edge of the',
-            'plotting area.',
-            'If *auto*, the anchor is equivalent to *center* for',
-            'data-referenced annotations or if there is an arrow,',
-            'whereas for paper-referenced with no arrow, the anchor picked',
-            'corresponds to the closest side.'
+            'Metin kutusunun yatay konum ankarasını ayarlar.',
+            'Bu ankara, `x` konumunu açıklamanın *sol*, *orta* veya *sağ* kısmına bağlar.',
+            'Örneğin, eğer `x` 1 olarak ayarlanmışsa, `xref` *paper* ve',
+            '`xanchor` *right* ise, açıklamanın en sağ kısmı,',
+            'çizim alanının en sağ kenarı ile hizalanır.',
+            'Eğer *auto* ise, ankara, veri-referanslı açıklamalar veya ok varsa *orta* ile eşdeğerdir,',
+            'ancak ok olmayan kağıt-referanslı açıklamalar için, seçilen ankara en yakın kenara karşılık gelir.'
         ].join(' ')
     },
     xshift: {
@@ -342,8 +309,7 @@ module.exports = templatedArray('annotation', {
         dflt: 0,
         editType: 'calc+arraydraw',
         description: [
-            'Shifts the position of the whole annotation and arrow to the',
-            'right (positive) or left (negative) by this many pixels.'
+            'Tüm açıklamanın ve okun konumunu sağa (pozitif) veya sola (negatif) bu kadar piksel kaydırır.'
         ].join(' ')
     },
     yref: {
@@ -354,23 +320,20 @@ module.exports = templatedArray('annotation', {
         ],
         editType: 'calc',
         description: [
-            'Sets the annotation\'s y coordinate axis.',
-            axisPlaceableObjs.axisRefDescription('y', 'bottom', 'top'),
+            'Açıklamanın y koordinat eksenini ayarlar.',
+            axisPlaceableObjs.axisRefDescription('y', 'alt', 'üst'),
         ].join(' ')
     },
     y: {
         valType: 'any',
         editType: 'calc+arraydraw',
         description: [
-            'Sets the annotation\'s y position.',
-            'If the axis `type` is *log*, then you must take the',
-            'log of your desired range.',
-            'If the axis `type` is *date*, it should be date strings,',
-            'like date data, though Date objects and unix milliseconds',
-            'will be accepted and converted to strings.',
-            'If the axis `type` is *category*, it should be numbers,',
-            'using the scale where each category is assigned a serial',
-            'number from zero in the order it appears.'
+            'Açıklamanın y konumunu ayarlar.',
+            'Eğer eksen `type` *log* ise, aralığınızın logaritmasını almalısınız.',
+            'Eğer eksen `type` *date* ise, tarih verileri gibi tarih dizeleri olmalıdır,',
+            'ancak Tarih nesneleri ve unix milisaniyeleri kabul edilir ve dizelere dönüştürülür.',
+            'Eğer eksen `type` *category* ise, her kategori sıfırdan başlayarak',
+            'göründüğü sıraya göre bir seri numarası atanarak sayılar olmalıdır.'
         ].join(' ')
     },
     yanchor: {
@@ -379,17 +342,13 @@ module.exports = templatedArray('annotation', {
         dflt: 'auto',
         editType: 'calc+arraydraw',
         description: [
-            'Sets the text box\'s vertical position anchor',
-            'This anchor binds the `y` position to the *top*, *middle*',
-            'or *bottom* of the annotation.',
-            'For example, if `y` is set to 1, `yref` to *paper* and',
-            '`yanchor` to *top* then the top-most portion of the',
-            'annotation lines up with the top-most edge of the',
-            'plotting area.',
-            'If *auto*, the anchor is equivalent to *middle* for',
-            'data-referenced annotations or if there is an arrow,',
-            'whereas for paper-referenced with no arrow, the anchor picked',
-            'corresponds to the closest side.'
+            'Metin kutusunun dikey konum ankarasını ayarlar.',
+            'Bu ankara, `y` konumunu açıklamanın *üst*, *orta* veya *alt* kısmına bağlar.',
+            'Örneğin, eğer `y` 1 olarak ayarlanmışsa, `yref` *paper* ve',
+            '`yanchor` *top* ise, açıklamanın en üst kısmı,',
+            'çizim alanının en üst kenarı ile hizalanır.',
+            'Eğer *auto* ise, ankara, veri-referanslı açıklamalar veya ok varsa *orta* ile eşdeğerdir,',
+            'ancak ok olmayan kağıt-referanslı açıklamalar için, seçilen ankara en yakın kenara karşılık gelir.'
         ].join(' ')
     },
     yshift: {
@@ -397,8 +356,7 @@ module.exports = templatedArray('annotation', {
         dflt: 0,
         editType: 'calc+arraydraw',
         description: [
-            'Shifts the position of the whole annotation and arrow up',
-            '(positive) or down (negative) by this many pixels.'
+            'Tüm açıklamanın ve okun konumunu yukarı (pozitif) veya aşağı (negatif) bu kadar piksel kaydırır.'
         ].join(' ')
     },
     clicktoshow: {
@@ -407,42 +365,37 @@ module.exports = templatedArray('annotation', {
         dflt: false,
         editType: 'arraydraw',
         description: [
-            'Makes this annotation respond to clicks on the plot.',
-            'If you click a data point that exactly matches the `x` and `y`',
-            'values of this annotation, and it is hidden (visible: false),',
-            'it will appear. In *onoff* mode, you must click the same point',
-            'again to make it disappear, so if you click multiple points,',
-            'you can show multiple annotations. In *onout* mode, a click',
-            'anywhere else in the plot (on another data point or not) will',
-            'hide this annotation.',
-            'If you need to show/hide this annotation in response to different',
-            '`x` or `y` values, you can set `xclick` and/or `yclick`. This is',
-            'useful for example to label the side of a bar. To label markers',
-            'though, `standoff` is preferred over `xclick` and `yclick`.'
+            'Bu açıklamanın grafikteki tıklamalara yanıt verip vermeyeceğini belirler.',
+            'Eğer `x` ve `y` değerleri bu açıklama ile tam olarak eşleşen bir veri noktasına tıklarsanız ve',
+            'gizli ise (visible: false), görünür hale gelir. *onoff* modunda, aynı noktaya tekrar tıklamanız gerekir',
+            'bu açıklamayı gizlemek için, bu nedenle birden fazla noktaya tıklarsanız, birden fazla açıklama gösterebilirsiniz.',
+            '*onout* modunda, grafikte başka bir yere (başka bir veri noktasına veya değil) tıklamak',
+            'bu açıklamayı gizler.',
+            'Eğer farklı `x` veya `y` değerlerine yanıt olarak bu açıklamayı gösterip/gizlemeniz gerekiyorsa,',
+            '`xclick` ve/veya `yclick` ayarlayabilirsiniz. Bu, örneğin bir çubuğun yanını etiketlemek için kullanışlıdır.',
+            'Ancak işaretleyicileri etiketlemek için, `standoff` `xclick` ve `yclick` yerine tercih edilir.'
         ].join(' ')
     },
     xclick: {
         valType: 'any',
         editType: 'arraydraw',
         description: [
-            'Toggle this annotation when clicking a data point whose `x` value',
-            'is `xclick` rather than the annotation\'s `x` value.'
+            'Bu açıklamayı, `x` değerinden ziyade `xclick` olan bir veri noktasına tıkladığınızda değiştirir.'
         ].join(' ')
     },
     yclick: {
         valType: 'any',
         editType: 'arraydraw',
         description: [
-            'Toggle this annotation when clicking a data point whose `y` value',
-            'is `yclick` rather than the annotation\'s `y` value.'
+            'Bu açıklamayı, `y` değerinden ziyade `yclick` olan bir veri noktasına tıkladığınızda değiştirir.'
         ].join(' ')
     },
     hovertext: {
         valType: 'string',
         editType: 'arraydraw',
         description: [
-            'Sets text to appear when hovering over this annotation.',
-            'If omitted or blank, no hover label will appear.'
+            'Bu açıklamanın üzerine gelindiğinde görünen metni ayarlar.',
+            'Eğer boş bırakılırsa, hiçbir hover etiketi görünmez.'
         ].join(' ')
     },
     hoverlabel: {
@@ -450,41 +403,40 @@ module.exports = templatedArray('annotation', {
             valType: 'color',
             editType: 'arraydraw',
             description: [
-                'Sets the background color of the hover label.',
-                'By default uses the annotation\'s `bgcolor` made opaque,',
-                'or white if it was transparent.'
+                'Hover etiketinin arka plan rengini ayarlar.',
+                'Varsayılan olarak açıklamanın `bgcolor` rengini opak hale getirir,',
+                'veya şeffafsa beyaz kullanır.'
             ].join(' ')
         },
         bordercolor: {
             valType: 'color',
             editType: 'arraydraw',
             description: [
-                'Sets the border color of the hover label.',
-                'By default uses either dark grey or white, for maximum',
-                'contrast with `hoverlabel.bgcolor`.'
+                'Hover etiketinin sınır rengini ayarlar.',
+                'Varsayılan olarak, `hoverlabel.bgcolor` ile maksimum kontrast için',
+                'koyu gri veya beyaz kullanır.'
             ].join(' ')
         },
         font: fontAttrs({
             editType: 'arraydraw',
             description: [
-                'Sets the hover label text font.',
-                'By default uses the global hover font and size,',
-                'with color from `hoverlabel.bordercolor`.'
+                'Hover etiketi metin yazı tipini ayarlar.',
+                'Varsayılan olarak, küresel hover yazı tipi ve boyutunu kullanır,',
+                '`hoverlabel.bordercolor` renginden.'
             ].join(' ')
         }),
         editType: 'arraydraw'
     },
-    captureevents: {
-        valType: 'boolean',
-        editType: 'arraydraw',
-        description: [
-            'Determines whether the annotation text box captures mouse move',
-            'and click events, or allows those events to pass through to data',
-            'points in the plot that may be behind the annotation. By default',
-            '`captureevents` is *false* unless `hovertext` is provided.',
-            'If you use the event `plotly_clickannotation` without `hovertext`',
-            'you must explicitly enable `captureevents`.'
-        ].join(' ')
-    },
-    editType: 'calc',
-});
+        captureevents: {
+            valType: 'boolean',
+            editType: 'arraydraw',
+            description: [
+                'Açıklama metin kutusunun fare hareketi ve tıklama olaylarını yakalayıp yakalamayacağını belirler,',
+                'veya bu olayların açıklamanın arkasında olabilecek veri noktalarına geçmesine izin verir.',
+                'Varsayılan olarak, `captureevents` *false* olur, `hovertext` sağlanmadıkça.',
+                'Eğer `hovertext` olmadan `plotly_clickannotation` olayını kullanıyorsanız,',
+                '`captureevents` açıkça etkinleştirmeniz gerekir.'
+            ].join(' ')
+            }
+        }
+    );

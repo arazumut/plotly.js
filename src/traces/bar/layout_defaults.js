@@ -7,48 +7,47 @@ var Lib = require('../../lib');
 var layoutAttributes = require('./layout_attributes');
 var validateCornerradius = require('./defaults').validateCornerradius;
 
-
 module.exports = function(layoutIn, layoutOut, fullData) {
-    function coerce(attr, dflt) {
-        return Lib.coerce(layoutIn, layoutOut, layoutAttributes, attr, dflt);
+    function zorla(attr, varsayilan) {
+        return Lib.coerce(layoutIn, layoutOut, layoutAttributes, attr, varsayilan);
     }
 
-    var hasBars = false;
-    var shouldBeGapless = false;
-    var gappedAnyway = false;
-    var usedSubplots = {};
+    var barVarMi = false;
+    var bosluksuzOlmaliMi = false;
+    var yineDeBosluklu = false;
+    var kullanilanAltGrafikler = {};
 
-    var mode = coerce('barmode');
+    var mod = zorla('barmode');
 
     for(var i = 0; i < fullData.length; i++) {
-        var trace = fullData[i];
-        if(Registry.traceIs(trace, 'bar') && trace.visible) hasBars = true;
+        var iz = fullData[i];
+        if(Registry.traceIs(iz, 'bar') && iz.visible) barVarMi = true;
         else continue;
 
-        // if we have at least 2 grouped bar traces on the same subplot,
-        // we should default to a gap anyway, even if the data is histograms
-        if(mode === 'group') {
-            var subploti = trace.xaxis + trace.yaxis;
-            if(usedSubplots[subploti]) gappedAnyway = true;
-            usedSubplots[subploti] = true;
+        // Aynı alt grafikte en az 2 gruplanmış bar izi varsa,
+        // veri histogram olsa bile varsayılan olarak bir boşluk olmalı
+        if(mod === 'group') {
+            var altGrafikId = iz.xaxis + iz.yaxis;
+            if(kullanilanAltGrafikler[altGrafikId]) yineDeBosluklu = true;
+            kullanilanAltGrafikler[altGrafikId] = true;
         }
 
-        if(trace.visible && trace.type === 'histogram') {
-            var pa = Axes.getFromId({_fullLayout: layoutOut},
-                        trace[trace.orientation === 'v' ? 'xaxis' : 'yaxis']);
-            if(pa.type !== 'category') shouldBeGapless = true;
+        if(iz.visible && iz.type === 'histogram') {
+            var eksen = Axes.getFromId({_fullLayout: layoutOut},
+                        iz[iz.orientation === 'v' ? 'xaxis' : 'yaxis']);
+            if(eksen.type !== 'category') bosluksuzOlmaliMi = true;
         }
     }
 
-    if(!hasBars) {
+    if(!barVarMi) {
         delete layoutOut.barmode;
         return;
     }
 
-    if(mode !== 'overlay') coerce('barnorm');
+    if(mod !== 'overlay') zorla('barnorm');
 
-    coerce('bargap', (shouldBeGapless && !gappedAnyway) ? 0 : 0.2);
-    coerce('bargroupgap');
-    var r = coerce('barcornerradius');
+    zorla('bargap', (bosluksuzOlmaliMi && !yineDeBosluklu) ? 0 : 0.2);
+    zorla('bargroupgap');
+    var r = zorla('barcornerradius');
     layoutOut.barcornerradius = validateCornerradius(r);
 };

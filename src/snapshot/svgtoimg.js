@@ -3,115 +3,115 @@
 var Lib = require('../lib');
 var EventEmitter = require('events').EventEmitter;
 
-var helpers = require('./helpers');
+var yardimcilar = require('./helpers');
 
-function svgToImg(opts) {
-    var ev = opts.emitter || new EventEmitter();
+function svgToImg(ayarlar) {
+    var olayYayici = ayarlar.yayici || new EventEmitter();
 
-    var promise = new Promise(function(resolve, reject) {
-        var Image = window.Image;
-        var svg = opts.svg;
-        var format = opts.format || 'png';
+    var soz = new Promise(function(coz, reddet) {
+        var Resim = window.Image;
+        var svg = ayarlar.svg;
+        var format = ayarlar.format || 'png';
 
-        // IE only support svg
+        // IE sadece svg destekler
         if(Lib.isIE() && format !== 'svg') {
-            var ieSvgError = new Error(helpers.MSG_IE_BAD_FORMAT);
-            reject(ieSvgError);
-            // eventually remove the ev
-            //  in favor of promises
-            if(!opts.promise) {
-                return ev.emit('error', ieSvgError);
+            var ieSvgHatasi = new Error(yardimcilar.MSG_IE_BAD_FORMAT);
+            reddet(ieSvgHatasi);
+            // sonunda olayYayici'yı kaldır
+            //  sözlere tercih et
+            if(!ayarlar.soz) {
+                return olayYayici.emit('hata', ieSvgHatasi);
             } else {
-                return promise;
+                return soz;
             }
         }
 
-        var canvas = opts.canvas;
-        var scale = opts.scale || 1;
-        var w0 = opts.width || 300;
-        var h0 = opts.height || 150;
-        var w1 = scale * w0;
-        var h1 = scale * h0;
+        var tuval = ayarlar.tuval;
+        var olcek = ayarlar.olcek || 1;
+        var w0 = ayarlar.genislik || 300;
+        var h0 = ayarlar.yukseklik || 150;
+        var w1 = olcek * w0;
+        var h1 = olcek * h0;
 
-        var ctx = canvas.getContext('2d', {willReadFrequently: true});
-        var img = new Image();
+        var ctx = tuval.getContext('2d', {willReadFrequently: true});
+        var resim = new Resim();
         var svgBlob, url;
 
         if(format === 'svg' || Lib.isSafari()) {
-            url = helpers.encodeSVG(svg);
+            url = yardimcilar.encodeSVG(svg);
         } else {
-            svgBlob = helpers.createBlob(svg, 'svg');
-            url = helpers.createObjectURL(svgBlob);
+            svgBlob = yardimcilar.createBlob(svg, 'svg');
+            url = yardimcilar.createObjectURL(svgBlob);
         }
 
-        canvas.width = w1;
-        canvas.height = h1;
+        tuval.width = w1;
+        tuval.height = h1;
 
-        img.onload = function() {
-            var imgData;
+        resim.onload = function() {
+            var resimVerisi;
 
             svgBlob = null;
-            helpers.revokeObjectURL(url);
+            yardimcilar.revokeObjectURL(url);
 
-            // don't need to draw to canvas if svg
-            //  save some time and also avoid failure on IE
+            // svg ise tuvale çizmek gerekmez
+            //  zaman kazanın ve ayrıca IE'de başarısızlığı önleyin
             if(format !== 'svg') {
-                ctx.drawImage(img, 0, 0, w1, h1);
+                ctx.drawImage(resim, 0, 0, w1, h1);
             }
 
             switch(format) {
                 case 'jpeg':
-                    imgData = canvas.toDataURL('image/jpeg');
+                    resimVerisi = tuval.toDataURL('image/jpeg');
                     break;
                 case 'png':
-                    imgData = canvas.toDataURL('image/png');
+                    resimVerisi = tuval.toDataURL('image/png');
                     break;
                 case 'webp':
-                    imgData = canvas.toDataURL('image/webp');
+                    resimVerisi = tuval.toDataURL('image/webp');
                     break;
                 case 'svg':
-                    imgData = url;
+                    resimVerisi = url;
                     break;
                 default:
-                    var errorMsg = 'Image format is not jpeg, png, svg or webp.';
-                    reject(new Error(errorMsg));
-                    // eventually remove the ev
-                    //  in favor of promises
-                    if(!opts.promise) {
-                        return ev.emit('error', errorMsg);
+                    var hataMesaji = 'Resim formatı jpeg, png, svg veya webp değil.';
+                    reddet(new Error(hataMesaji));
+                    // sonunda olayYayici'yı kaldır
+                    //  sözlere tercih et
+                    if(!ayarlar.soz) {
+                        return olayYayici.emit('hata', hataMesaji);
                     }
             }
-            resolve(imgData);
-            // eventually remove the ev
-            //  in favor of promises
-            if(!opts.promise) {
-                ev.emit('success', imgData);
+            coz(resimVerisi);
+            // sonunda olayYayici'yı kaldır
+            //  sözlere tercih et
+            if(!ayarlar.soz) {
+                olayYayici.emit('basari', resimVerisi);
             }
         };
 
-        img.onerror = function(err) {
+        resim.onerror = function(hata) {
             svgBlob = null;
-            helpers.revokeObjectURL(url);
+            yardimcilar.revokeObjectURL(url);
 
-            reject(err);
-            // eventually remove the ev
-            //  in favor of promises
-            if(!opts.promise) {
-                return ev.emit('error', err);
+            reddet(hata);
+            // sonunda olayYayici'yı kaldır
+            //  sözlere tercih et
+            if(!ayarlar.soz) {
+                return olayYayici.emit('hata', hata);
             }
         };
 
-        img.src = url;
+        resim.src = url;
     });
 
-    // temporary for backward compatibility
-    //  move to only Promise in 2.0.0
-    //  and eliminate the EventEmitter
-    if(opts.promise) {
-        return promise;
+    // geçici olarak geriye dönük uyumluluk için
+    //  2.0.0'da sadece Promise'e geç
+    //  ve EventEmitter'ı ortadan kaldır
+    if(ayarlar.soz) {
+        return soz;
     }
 
-    return ev;
+    return olayYayici;
 }
 
 module.exports = svgToImg;

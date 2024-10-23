@@ -1,11 +1,11 @@
 'use strict';
 
 module.exports = {
-    moduleType: 'component',
-    name: 'modebar',
+    moduleType: 'bileşen',
+    name: 'mod çubuğu',
 
-    layoutAttributes: require('./attributes'),
-    supplyLayoutDefaults: require('./defaults'),
+    yerleşimÖznitelikleri: require('./attributes'),
+    yerleşimVarsayılanlarınıSağla: require('./defaults'),
 
-    manage: require('./manage')
+    yönet: require('./manage')
 };

@@ -16,43 +16,43 @@ attributes[attr] = {
     dflt: name,
     editType: 'calc',
     description: [
-        'Sets a reference between this trace\'s data coordinates and',
-        'a smith subplot.',
-        'If *smith* (the default value), the data refer to `layout.smith`.',
-        'If *smith2*, the data refer to `layout.smith2`, and so on.'
+        'Bu iz verilerinin koordinatları ile',
+        'bir smith alt grafiği arasında bir referans ayarlar.',
+        'Eğer *smith* (varsayılan değer) ise, veriler `layout.smith`e referans verir.',
+        'Eğer *smith2* ise, veriler `layout.smith2`ye referans verir, ve bu şekilde devam eder.'
     ].join(' ')
 };
 
-function plot(gd) {
-    var fullLayout = gd._fullLayout;
-    var calcData = gd.calcdata;
-    var subplotIds = fullLayout._subplots[name];
+function ciz(gd) {
+    var tamYerlesim = gd._fullLayout;
+    var hesapVerisi = gd.calcdata;
+    var altGrafikIdleri = tamYerlesim._subplots[name];
 
-    for(var i = 0; i < subplotIds.length; i++) {
-        var id = subplotIds[i];
-        var subplotCalcData = getSubplotCalcData(calcData, name, id);
-        var subplot = fullLayout[id]._subplot;
+    for(var i = 0; i < altGrafikIdleri.length; i++) {
+        var id = altGrafikIdleri[i];
+        var altGrafikHesapVerisi = getSubplotCalcData(hesapVerisi, name, id);
+        var altGrafik = tamYerlesim[id]._subplot;
 
-        if(!subplot) {
-            subplot = createPolar(gd, id, true);
-            fullLayout[id]._subplot = subplot;
+        if(!altGrafik) {
+            altGrafik = createPolar(gd, id, true);
+            tamYerlesim[id]._subplot = altGrafik;
         }
 
-        subplot.plot(subplotCalcData, fullLayout, gd._promises);
+        altGrafik.plot(altGrafikHesapVerisi, tamYerlesim, gd._promises);
     }
 }
 
-function clean(newFullData, newFullLayout, oldFullData, oldFullLayout) {
-    var oldIds = oldFullLayout._subplots[name] || [];
-    for(var i = 0; i < oldIds.length; i++) {
-        var id = oldIds[i];
-        var oldSubplot = oldFullLayout[id]._subplot;
+function temizle(yeniTamVeri, yeniTamYerlesim, eskiTamVeri, eskiTamYerlesim) {
+    var eskiIdler = eskiTamYerlesim._subplots[name] || [];
+    for(var i = 0; i < eskiIdler.length; i++) {
+        var id = eskiIdler[i];
+        var eskiAltGrafik = eskiTamYerlesim[id]._subplot;
 
-        if(!newFullLayout[id] && !!oldSubplot) {
-            oldSubplot.framework.remove();
+        if(!yeniTamYerlesim[id] && !!eskiAltGrafik) {
+            eskiAltGrafik.framework.remove();
 
-            for(var k in oldSubplot.clipPaths) {
-                oldSubplot.clipPaths[k].remove();
+            for(var k in eskiAltGrafik.clipPaths) {
+                eskiAltGrafik.clipPaths[k].remove();
             }
         }
     }
@@ -67,7 +67,7 @@ module.exports = {
     attributes: attributes,
     layoutAttributes: require('./layout_attributes'),
     supplyLayoutDefaults: require('./layout_defaults'),
-    plot: plot,
-    clean: clean,
+    plot: ciz,
+    clean: temizle,
     toSVG: require('../cartesian').toSVG
 };

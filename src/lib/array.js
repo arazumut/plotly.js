@@ -19,12 +19,11 @@ function isArrayOrTypedArray(a) {
 exports.isArrayOrTypedArray = isArrayOrTypedArray;
 
 /*
- * Test whether an input object is 1D.
+ * Bir nesnenin 1D olup olmadığını test eder.
  *
- * Assumes we already know the object is an array.
+ * Nesnenin bir dizi olduğunu zaten bildiğimizi varsayar.
  *
- * Looks only at the first element, if the dimensionality is
- * not consistent we won't figure that out here.
+ * Yalnızca ilk öğeye bakar, boyutsallık tutarlı değilse burada bunu anlamayız.
  */
 function isArray1D(a) {
     return !isArrayOrTypedArray(a[0]);
@@ -32,20 +31,17 @@ function isArray1D(a) {
 exports.isArray1D = isArray1D;
 
 /*
- * Ensures an array has the right amount of storage space. If it doesn't
- * exist, it creates an array. If it does exist, it returns it if too
- * short or truncates it in-place.
+ * Bir dizinin doğru miktarda depolama alanına sahip olmasını sağlar. Eğer yoksa,
+ * bir dizi oluşturur. Varsa, çok kısa veya yerinde kesilmişse geri döner.
  *
- * The goal is to just reuse memory to avoid a bit of excessive garbage
- * collection.
+ * Amaç, biraz aşırı çöp toplamadan kaçınmak için belleği yeniden kullanmaktır.
  */
 exports.ensureArray = function(out, n) {
-    // TODO: typed array support here? This is only used in
-    // traces/carpet/compute_control_points
+    // TODO: burada yazılmış dizi desteği? Bu yalnızca
+    // traces/carpet/compute_control_points içinde kullanılır
     if(!isArray(out)) out = [];
 
-    // If too long, truncate. (If too short, it will grow
-    // automatically so we don't care about that case)
+    // Çok uzunsa, kısalt. (Çok kısa ise, otomatik olarak büyüyeceği için bu durumu önemsemiyoruz)
     out.length = n;
 
     return out;
@@ -53,7 +49,7 @@ exports.ensureArray = function(out, n) {
 
 var typedArrays = {
     u1c: typeof Uint8ClampedArray === 'undefined' ? undefined :
-                Uint8ClampedArray, // not supported in numpy?
+                Uint8ClampedArray, // numpy'da desteklenmiyor mu?
 
     i1: typeof Int8Array === 'undefined' ? undefined :
                Int8Array,
@@ -79,7 +75,7 @@ var typedArrays = {
     f8: typeof Float64Array === 'undefined' ? undefined :
                Float64Array,
 
-    /* TODO: potentially add Big Int
+    /* TODO: Potansiyel olarak Big Int ekle
 
     i8: typeof BigInt64Array === 'undefined' ? undefined :
                BigInt64Array,
@@ -110,7 +106,7 @@ exports.decodeTypedArraySpec = function(vIn) {
     var dtype = v.dtype;
 
     var T = typedArrays[dtype];
-    if(!T) throw new Error('Error in dtype: "' + dtype + '"');
+    if(!T) throw new Error('dtype hatası: "' + dtype + '"');
     var BYTES_PER_ELEMENT = T.BYTES_PER_ELEMENT;
 
     var buffer = v.bdata;
@@ -118,12 +114,12 @@ exports.decodeTypedArraySpec = function(vIn) {
         buffer = b64decode(buffer);
     }
     var shape = v.shape === undefined ?
-        // detect 1-d length
+        // 1-d uzunluğunu algıla
         [buffer.byteLength / BYTES_PER_ELEMENT] :
-        // convert number to string and split to array
+        // sayıyı stringe çevir ve diziye böl
         ('' + v.shape).split(',');
 
-    shape.reverse(); // i.e. to match numpy order
+    shape.reverse(); // numpy sırasına uymak için
     var ndim = shape.length;
 
     var nj, j;
@@ -151,10 +147,10 @@ exports.decodeTypedArraySpec = function(vIn) {
             }
         }
     } else {
-        throw new Error('ndim: ' + ndim + 'is not supported with the shape:"' + v.shape + '"');
+        throw new Error('ndim: ' + ndim + ' desteklenmiyor, shape:"' + v.shape + '"');
     }
 
-    // attach bdata, dtype & shape to array for json export
+    // bdata, dtype ve shape'i diziye json dışa aktarımı için ekle
     out.bdata = v.bdata;
     out.dtype = v.dtype;
     out.shape = shape.reverse().join(',');
@@ -186,11 +182,11 @@ function coerceTypedArraySpec(v) {
 }
 
 /*
- * TypedArray-compatible concatenation of n arrays
- * if all arrays are the same type it will preserve that type,
- * otherwise it falls back on Array.
- * Also tries to avoid copying, in case one array has zero length
- * But never mutates an existing array
+ * TypedArray uyumlu n dizisinin birleştirilmesi
+ * Eğer tüm diziler aynı türdeyse bu türü korur,
+ * aksi takdirde Array'e geri döner.
+ * Ayrıca, bir dizinin sıfır uzunluğunda olması durumunda kopyalamaktan kaçınmaya çalışır
+ * Ancak mevcut bir diziyi asla değiştirmez
  */
 exports.concat = function() {
     var args = [];
@@ -216,8 +212,8 @@ exports.concat = function() {
                 if(!totalLen) {
                     _constructor = argi.constructor;
                 } else if(_constructor !== argi.constructor) {
-                    // TODO: in principle we could upgrade here,
-                    // ie keep typed array but convert all to Float64Array?
+                    // TODO: prensipte burada yükseltme yapabiliriz,
+                    // yani typed array'i koruyup hepsini Float64Array'e dönüştürebiliriz?
                     _constructor = false;
                 }
             }
@@ -231,7 +227,7 @@ exports.concat = function() {
 
     if(allArray) return arg0.concat.apply(arg0, args);
     if(_constructor) {
-        // matching typed arrays
+        // eşleşen typed arrayler
         out = new _constructor(totalLen);
         out.set(arg0);
         for(i = 0; i < args.length; i++) {
@@ -242,7 +238,7 @@ exports.concat = function() {
         return out;
     }
 
-    // mismatched types or Array + typed
+    // uyumsuz türler veya Array + typed
     out = new Array(totalLen);
     for(j = 0; j < arg0.length; j++) out[j] = arg0[j];
     for(i = 0; i < args.length; i++) {

@@ -1,36 +1,42 @@
 'use strict';
 
-var Registry = require('../../registry');
-var Lib = require('../../lib');
-var layoutAttributes = require('./layout_attributes');
+// Gerekli modülleri dahil et
+var Kayıt = require('../../registry');
+var Kütüphane = require('../../lib');
+var yerleşimÖzellikleri = require('./layout_attributes');
 
-function _supply(layoutIn, layoutOut, fullData, coerce, traceType) {
-    var category = traceType + 'Layout';
-    var hasTraceType = false;
+// Yerleşim varsayılanlarını sağlama fonksiyonu
+function _varsayılanlarıSağla(yerleşimGirdi, yerleşimÇıktı, tamVeri, zorla, izTipi) {
+    var kategori = izTipi + 'Yerleşim';
+    var izTipiVar = false;
 
-    for(var i = 0; i < fullData.length; i++) {
-        var trace = fullData[i];
+    // Verilerde iz tipini kontrol et
+    for(var i = 0; i < tamVeri.length; i++) {
+        var iz = tamVeri[i];
 
-        if(Registry.traceIs(trace, category)) {
-            hasTraceType = true;
+        if(Kayıt.izMi(iz, kategori)) {
+            izTipiVar = true;
             break;
         }
     }
-    if(!hasTraceType) return;
+    if(!izTipiVar) return;
 
-    coerce(traceType + 'mode');
-    coerce(traceType + 'gap');
-    coerce(traceType + 'groupgap');
+    // Zorunlu yerleşim özelliklerini sağla
+    zorla(izTipi + 'modu');
+    zorla(izTipi + 'boşluk');
+    zorla(izTipi + 'grupboşluğu');
 }
 
-function supplyLayoutDefaults(layoutIn, layoutOut, fullData) {
-    function coerce(attr, dflt) {
-        return Lib.coerce(layoutIn, layoutOut, layoutAttributes, attr, dflt);
+// Ana yerleşim varsayılanlarını sağlama fonksiyonu
+function yerleşimVarsayılanlarınıSağla(yerleşimGirdi, yerleşimÇıktı, tamVeri) {
+    function zorla(özellik, varsayılan) {
+        return Kütüphane.zorla(yerleşimGirdi, yerleşimÇıktı, yerleşimÖzellikleri, özellik, varsayılan);
     }
-    _supply(layoutIn, layoutOut, fullData, coerce, 'box');
+    _varsayılanlarıSağla(yerleşimGirdi, yerleşimÇıktı, tamVeri, zorla, 'kutu');
 }
 
+// Modülü dışa aktar
 module.exports = {
-    supplyLayoutDefaults: supplyLayoutDefaults,
-    _supply: _supply
+    yerleşimVarsayılanlarınıSağla: yerleşimVarsayılanlarınıSağla,
+    _varsayılanlarıSağla: _varsayılanlarıSağla
 };

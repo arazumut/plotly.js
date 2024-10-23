@@ -1,49 +1,38 @@
 'use strict';
 
+// Gerekli kütüphaneleri dahil et
 var Lib = require('../../lib');
-
 var handleRThetaDefaults = require('../scatterpolar/defaults').handleRThetaDefaults;
 var handleStyleDefaults = require('../bar/style_defaults');
 var attributes = require('./attributes');
 
-module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
-    function coerce(attr, dflt) {
+// Varsayılan değerleri sağlamak için fonksiyon
+module.exports = function varsayilanDegerleriSagla(traceIn, traceOut, varsayilanRenk, layout) {
+    // Koerce fonksiyonu
+    function koerce(attr, dflt) {
         return Lib.coerce(traceIn, traceOut, attributes, attr, dflt);
     }
 
-    var len = handleRThetaDefaults(traceIn, traceOut, layout, coerce);
-    if(!len) {
+    // R ve Theta varsayılanlarını işle
+    var uzunluk = handleRThetaDefaults(traceIn, traceOut, layout, koerce);
+    if(!uzunluk) {
         traceOut.visible = false;
         return;
     }
 
-    // coerce('orientation', (traceOut.theta && !traceOut.r) ? 'angular' : 'radial');
+    // Koerce işlemleri
+    koerce('thetaunit');
+    koerce('base');
+    koerce('offset');
+    koerce('width');
 
-    coerce('thetaunit');
-    coerce('base');
-    coerce('offset');
-    coerce('width');
+    koerce('text');
+    koerce('hovertext');
+    koerce('hovertemplate');
 
-    coerce('text');
-    coerce('hovertext');
-    coerce('hovertemplate');
+    // Stil varsayılanlarını işle
+    handleStyleDefaults(traceIn, traceOut, koerce, varsayilanRenk, layout);
 
-    // var textPosition = coerce('textposition');
-    // var hasBoth = Array.isArray(textPosition) || textPosition === 'auto';
-    // var hasInside = hasBoth || textPosition === 'inside';
-    // var hasOutside = hasBoth || textPosition === 'outside';
-
-    // if(hasInside || hasOutside) {
-    //     var textFont = coerceFont(coerce, 'textfont', layout.font);
-    //     if(hasInside) coerceFont(coerce, 'insidetextfont', textFont);
-    //     if(hasOutside) coerceFont(coerce, 'outsidetextfont', textFont);
-    //     coerce('constraintext');
-    //     coerce('selected.textfont.color');
-    //     coerce('unselected.textfont.color');
-    //     coerce('cliponaxis');
-    // }
-
-    handleStyleDefaults(traceIn, traceOut, coerce, defaultColor, layout);
-
-    Lib.coerceSelectionMarkerOpacity(traceOut, coerce);
+    // Seçim işaretleyici opaklığını koerce et
+    Lib.coerceSelectionMarkerOpacity(traceOut, koerce);
 };

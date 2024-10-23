@@ -2,74 +2,74 @@
 
 /* eslint-disable no-console */
 
-var dfltConfig = require('../plot_api/plot_config').dfltConfig;
+var varsayilanAyar = require('../plot_api/plot_config').dfltConfig;
 
-var notifier = require('./notifier');
+var bildirim = require('./notifier');
 
-var loggers = module.exports = {};
+var kayitlayicilar = module.exports = {};
 
 /**
  * ------------------------------------------
- * debugging tools
+ * hata ayıklama araçları
  * ------------------------------------------
  */
 
-loggers.log = function() {
+kayitlayicilar.log = function() {
     var i;
 
-    if(dfltConfig.logging > 1) {
-        var messages = ['LOG:'];
+    if(varsayilanAyar.logging > 1) {
+        var mesajlar = ['LOG:'];
         for(i = 0; i < arguments.length; i++) {
-            messages.push(arguments[i]);
+            mesajlar.push(arguments[i]);
         }
-        console.trace.apply(console, messages);
+        console.trace.apply(console, mesajlar);
     }
 
-    if(dfltConfig.notifyOnLogging > 1) {
-        var lines = [];
+    if(varsayilanAyar.notifyOnLogging > 1) {
+        var satirlar = [];
         for(i = 0; i < arguments.length; i++) {
-            lines.push(arguments[i]);
+            satirlar.push(arguments[i]);
         }
-        notifier(lines.join('<br>'), 'long');
+        bildirim(satirlar.join('<br>'), 'uzun');
     }
 };
 
-loggers.warn = function() {
+kayitlayicilar.warn = function() {
     var i;
 
-    if(dfltConfig.logging > 0) {
-        var messages = ['WARN:'];
+    if(varsayilanAyar.logging > 0) {
+        var mesajlar = ['UYARI:'];
         for(i = 0; i < arguments.length; i++) {
-            messages.push(arguments[i]);
+            mesajlar.push(arguments[i]);
         }
-        console.trace.apply(console, messages);
+        console.trace.apply(console, mesajlar);
     }
 
-    if(dfltConfig.notifyOnLogging > 0) {
-        var lines = [];
+    if(varsayilanAyar.notifyOnLogging > 0) {
+        var satirlar = [];
         for(i = 0; i < arguments.length; i++) {
-            lines.push(arguments[i]);
+            satirlar.push(arguments[i]);
         }
-        notifier(lines.join('<br>'), 'stick');
+        bildirim(satirlar.join('<br>'), 'yapışkan');
     }
 };
 
-loggers.error = function() {
+kayitlayicilar.error = function() {
     var i;
 
-    if(dfltConfig.logging > 0) {
-        var messages = ['ERROR:'];
+    if(varsayilanAyar.logging > 0) {
+        var mesajlar = ['HATA:'];
         for(i = 0; i < arguments.length; i++) {
-            messages.push(arguments[i]);
+            mesajlar.push(arguments[i]);
         }
-        console.error.apply(console, messages);
+        console.error.apply(console, mesajlar);
     }
 
-    if(dfltConfig.notifyOnLogging > 0) {
-        var lines = [];
+    if(varsayilanAyar.notifyOnLogging > 0) {
+        var satirlar = [];
         for(i = 0; i < arguments.length; i++) {
-            lines.push(arguments[i]);
+            satirlar.push(arguments[i]);
         }
-        notifier(lines.join('<br>'), 'stick');
+        bildirim(satirlar.join('<br>'), 'yapışkan');
     }
 };

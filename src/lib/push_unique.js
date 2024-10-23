@@ -1,28 +1,28 @@
 'use strict';
 
 /**
- * Push array with unique items
+ * Benzersiz öğelerle diziyi doldur
  *
- * Ignores falsy items, except 0 so we can use it to construct arrays of indices.
+ * 0 hariç sahte (falsy) öğeleri yoksayar, böylece dizinler dizisi oluşturmak için kullanabiliriz.
  *
- * @param {array} array
- *  array to be filled
- * @param {any} item
- *  item to be or not to be inserted
+ * @param {array} dizi
+ *  doldurulacak dizi
+ * @param {any} öğe
+ *  eklenecek veya eklenmeyecek öğe
  * @return {array}
- *  ref to array (now possibly containing one more item)
+ *  diziye referans (şimdi muhtemelen bir öğe daha içeriyor)
  *
  */
-module.exports = function pushUnique(array, item) {
-    if(item instanceof RegExp) {
-        var itemStr = item.toString();
-        for(var i = 0; i < array.length; i++) {
-            if(array[i] instanceof RegExp && array[i].toString() === itemStr) {
-                return array;
+module.exports = function benzersizEkle(dizi, öğe) {
+    if(öğe instanceof RegExp) {
+        var öğeStr = öğe.toString();
+        for(var i = 0; i < dizi.length; i++) {
+            if(dizi[i] instanceof RegExp && dizi[i].toString() === öğeStr) {
+                return dizi;
             }
         }
-        array.push(item);
-    } else if((item || item === 0) && array.indexOf(item) === -1) array.push(item);
+        dizi.push(öğe);
+    } else if((öğe || öğe === 0) && dizi.indexOf(öğe) === -1) dizi.push(öğe);
 
-    return array;
+    return dizi;
 };

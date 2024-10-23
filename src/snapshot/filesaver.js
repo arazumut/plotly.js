@@ -4,63 +4,62 @@ var Lib = require('../lib');
 var helpers = require('./helpers');
 
 /*
-* substantial portions of this code from FileSaver.js
+* Bu kodun önemli bir kısmı FileSaver.js'den alınmıştır
 * https://github.com/eligrey/FileSaver.js
-* License: https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
+* Lisans: https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
 * FileSaver.js
-* A saveAs() FileSaver implementation.
+* Bir saveAs() FileSaver uygulaması.
 * 1.1.20160328
 *
-* By Eli Grey, http://eligrey.com
-* License: MIT
-*   See https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
+* Eli Grey tarafından, http://eligrey.com
+* Lisans: MIT
+*   Bkz. https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
 */
-function fileSaver(url, name, format) {
-    var saveLink = document.createElement('a');
-    var canUseSaveLink = 'download' in saveLink;
+function dosyaKaydedici(url, isim, format) {
+    var kaydetLinki = document.createElement('a');
+    var kaydetLinkiKullanilabilir = 'download' in kaydetLinki;
 
-    var promise = new Promise(function(resolve, reject) {
+    var soz = new Promise(function(coz, reddet) {
         var blob;
-        var objectUrl;
+        var nesneUrl;
 
-        // IE 10+ (native saveAs)
+        // IE 10+ (yerel saveAs)
         if(Lib.isIE()) {
-            // At this point we are only dealing with a decoded SVG as
-            // a data URL (since IE only supports SVG)
+            // Bu noktada sadece bir veri URL'si olarak kodlanmış bir SVG ile ilgileniyoruz
+            // (çünkü IE sadece SVG'yi destekliyor)
             blob = helpers.createBlob(url, 'svg');
-            window.navigator.msSaveBlob(blob, name);
+            window.navigator.msSaveBlob(blob, isim);
             blob = null;
-            return resolve(name);
+            return coz(isim);
         }
 
-        if(canUseSaveLink) {
+        if(kaydetLinkiKullanilabilir) {
             blob = helpers.createBlob(url, format);
-            objectUrl = helpers.createObjectURL(blob);
+            nesneUrl = helpers.createObjectURL(blob);
 
-            saveLink.href = objectUrl;
-            saveLink.download = name;
-            document.body.appendChild(saveLink);
-            saveLink.click();
+            kaydetLinki.href = nesneUrl;
+            kaydetLinki.download = isim;
+            document.body.appendChild(kaydetLinki);
+            kaydetLinki.click();
 
-            document.body.removeChild(saveLink);
-            helpers.revokeObjectURL(objectUrl);
+            document.body.removeChild(kaydetLinki);
+            helpers.revokeObjectURL(nesneUrl);
             blob = null;
 
-            return resolve(name);
+            return coz(isim);
         }
 
-        // Older versions of Safari did not allow downloading of blob urls
+        // Safari'nin eski sürümleri blob URL'lerinin indirilmesine izin vermiyordu
         if(Lib.isSafari()) {
-            var prefix = format === 'svg' ? ',' : ';base64,';
-            helpers.octetStream(prefix + encodeURIComponent(url));
-            return resolve(name);
+            var onEk = format === 'svg' ? ',' : ';base64,';
+            helpers.octetStream(onEk + encodeURIComponent(url));
+            return coz(isim);
         }
 
-        reject(new Error('download error'));
+        reddet(new Error('indirme hatası'));
     });
 
-    return promise;
+    return soz;
 }
 
-
-module.exports = fileSaver;
+module.exports = dosyaKaydedici;

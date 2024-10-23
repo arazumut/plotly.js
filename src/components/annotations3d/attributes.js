@@ -1,40 +1,32 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var annAttrs = require('../annotations/attributes');
 var overrideAll = require('../../plot_api/edit_types').overrideAll;
 var templatedArray = require('../../plot_api/plot_template').templatedArray;
 
+// Modülü dışa aktar
 module.exports = overrideAll(templatedArray('annotation', {
     visible: annAttrs.visible,
     x: {
         valType: 'any',
-        description: [
-            'Sets the annotation\'s x position.'
-        ].join(' ')
+        description: 'Annotasyonun x pozisyonunu ayarlar.'
     },
     y: {
         valType: 'any',
-        description: [
-            'Sets the annotation\'s y position.'
-        ].join(' ')
+        description: 'Annotasyonun y pozisyonunu ayarlar.'
     },
     z: {
         valType: 'any',
-        description: [
-            'Sets the annotation\'s z position.'
-        ].join(' ')
+        description: 'Annotasyonun z pozisyonunu ayarlar.'
     },
     ax: {
         valType: 'number',
-        description: [
-            'Sets the x component of the arrow tail about the arrow head (in pixels).'
-        ].join(' ')
+        description: 'Ok başı etrafındaki ok kuyruğunun x bileşenini ayarlar (piksel cinsinden).'
     },
     ay: {
         valType: 'number',
-        description: [
-            'Sets the y component of the arrow tail about the arrow head (in pixels).'
-        ].join(' ')
+        description: 'Ok başı etrafındaki ok kuyruğunun y bileşenini ayarlar (piksel cinsinden).'
     },
 
     xanchor: annAttrs.xanchor,
@@ -68,15 +60,15 @@ module.exports = overrideAll(templatedArray('annotation', {
     hoverlabel: annAttrs.hoverlabel,
     captureevents: annAttrs.captureevents,
 
-    // maybes later?
+    // Belki daha sonra?
     // clicktoshow: annAttrs.clicktoshow,
     // xclick: annAttrs.xclick,
     // yclick: annAttrs.yclick,
 
-    // not needed!
+    // Gerekli değil!
     // axref: 'pixel'
     // ayref: 'pixel'
     // xref: 'x'
-    // yref: 'y
+    // yref: 'y'
     // zref: 'z'
 }), 'calc', 'from-root');

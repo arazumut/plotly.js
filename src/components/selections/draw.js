@@ -2,7 +2,6 @@
 
 var readPaths = require('../shapes/draw_newshape/helpers').readPaths;
 var displayOutlines = require('../shapes/display_outlines');
-
 var clearOutlineControllers = require('../shapes/handle_outline').clearOutlineControllers;
 
 var Color = require('../color');
@@ -12,15 +11,14 @@ var arrayEditor = require('../../plot_api/plot_template').arrayEditor;
 var helpers = require('../shapes/helpers');
 var getPathString = helpers.getPathString;
 
-
-// Selections are stored in gd.layout.selections, an array of objects
-// index can point to one item in this array,
-//  or non-numeric to simply add a new one
-//  or -1 to modify all existing
-// opt can be the full options object, or one key (to be set to value)
-//  or undefined to simply redraw
-// if opt is blank, val can be 'add' or a full options object to add a new
-//  annotation at that point in the array, or 'remove' to delete this one
+// Seçimler gd.layout.selections içinde saklanır, bir nesne dizisi
+// index bu dizideki bir öğeye işaret edebilir,
+//  veya yeni bir tane eklemek için sayısal olmayan bir değer olabilir
+//  veya mevcut olanların tümünü değiştirmek için -1 olabilir
+// opt tam seçenekler nesnesi olabilir veya bir anahtar (değere ayarlanacak)
+//  veya sadece yeniden çizmek için undefined olabilir
+// opt boşsa, val 'add' veya bu noktada diziye yeni bir
+//  açıklama eklemek için tam seçenekler nesnesi olabilir veya 'remove' bu öğeyi silmek için olabilir
 
 module.exports = {
     draw: draw,
@@ -33,7 +31,7 @@ function draw(gd) {
 
     clearOutlineControllers(gd);
 
-    // Remove previous selections before drawing new selections in fullLayout.selections
+    // Yeni seçimleri çizmeye başlamadan önce önceki seçimleri kaldır
     fullLayout._selectionLayer.selectAll('path').remove();
 
     for(var k in fullLayout._plots) {
@@ -51,8 +49,8 @@ function couldHaveActiveSelection(gd) {
 }
 
 function drawOne(gd, index) {
-    // remove the existing selection if there is one.
-    // because indices can change, we need to look in all selection layers
+    // Mevcut seçimi kaldır.
+    // İndeksler değişebileceğinden, tüm seçim katmanlarında arama yapmamız gerekiyor
     gd._fullLayout._paperdiv
         .selectAll('.selectionlayer [data-index="' + index + '"]')
         .remove();
@@ -61,8 +59,8 @@ function drawOne(gd, index) {
     var options = o.options;
     var plotinfo = o.plotinfo;
 
-    // this selection is gone - quit now after deleting it
-    // TODO: use d3 idioms instead of deleting and redrawing every time
+    // Bu seçim gitmiş - sildikten sonra hemen çık
+    // TODO: Her seferinde silip yeniden çizmek yerine d3 deyimlerini kullan
     if(!options._input) return;
 
     drawSelection(gd._fullLayout._selectionLayer);
@@ -81,7 +79,7 @@ function drawOne(gd, index) {
         var lineWidth = options.line.width;
         var lineDash = options.line.dash;
         if(!lineWidth) {
-            // ensure invisible border to activate the selection
+            // Seçimi etkinleştirmek için görünmez sınır sağla
             lineWidth = 5;
             lineDash = 'solid';
         }
@@ -101,7 +99,7 @@ function drawOne(gd, index) {
                 .style('opacity', sensory ? 0.1 : opacity)
                 .call(Color.stroke, lineColor)
                 .call(Color.fill, fillColor)
-                // make it easier to select senory background path
+                // Sensory arka plan yolunu seçmeyi kolaylaştır
                 .call(Drawing.dashLine,
                     sensory ? 'solid' : lineDash,
                     sensory ? 4 + lineWidth : lineWidth
@@ -121,11 +119,11 @@ function drawOne(gd, index) {
                     plotinfo: plotinfo,
                     gd: gd,
                     editHelpers: editHelpers,
-                    isActiveSelection: true // i.e. to enable controllers
+                    isActiveSelection: true // Yani denetleyicileri etkinleştirmek için
                 };
 
                 var polygons = readPaths(d, gd);
-                // display polygons on the screen
+                // Poligonları ekranda göster
                 displayOutlines(polygons, path, dragOptions);
             } else {
                 path.style('pointer-events', sensory ? 'all' : 'none');
@@ -151,14 +149,13 @@ function setClipPath(selectionPath, gd, selectionOptions) {
     );
 }
 
-
 function activateSelection(gd, path) {
     if(!couldHaveActiveSelection(gd)) return;
 
     var element = path.node();
     var id = +element.getAttribute('data-index');
     if(id >= 0) {
-        // deactivate if already active
+        // Zaten aktifse devre dışı bırak
         if(id === gd._fullLayout._activeSelectionIndex) {
             deactivateSelection(gd);
             return;

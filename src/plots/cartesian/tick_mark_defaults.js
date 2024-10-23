@@ -1,12 +1,10 @@
 'use strict';
 
 var Lib = require('../../lib');
-
 var layoutAttributes = require('./layout_attributes');
 
-
 /**
- * options: inherits outerTicks from axes.handleAxisDefaults
+ * seçenekler: outerTicks'i axes.handleAxisDefaults'tan devralır
  */
 module.exports = function handleTickMarkDefaults(containerIn, containerOut, coerce, options) {
     var isMinor = options.isMinor;

@@ -3,44 +3,40 @@
 module.exports = {
     _isLinkedToArray: 'frames_entry',
 
-    group: {
+    grup: {
         valType: 'string',
         description: [
-            'An identifier that specifies the group to which the frame belongs,',
-            'used by animate to select a subset of frames.'
+            'Çerçevenin ait olduğu grubu belirten bir tanımlayıcı,',
+            'animate tarafından çerçevelerin bir alt kümesini seçmek için kullanılır.'
         ].join(' ')
     },
-    name: {
+    isim: {
         valType: 'string',
-        description: 'A label by which to identify the frame'
+        description: 'Çerçeveyi tanımlamak için kullanılan bir etiket'
     },
-    traces: {
+    izler: {
         valType: 'any',
         description: [
-            'A list of trace indices that identify the respective traces in the',
-            'data attribute'
+            'Veri özniteliğindeki ilgili izleri tanımlayan iz indekslerinin bir listesi'
         ].join(' ')
     },
-    baseframe: {
+    temelÇerçeve: {
         valType: 'string',
         description: [
-            'The name of the frame into which this frame\'s properties are merged',
-            'before applying. This is used to unify properties and avoid needing',
-            'to specify the same values for the same properties in multiple frames.'
+            'Bu çerçevenin özelliklerinin uygulanmadan önce birleştirildiği çerçevenin adı.',
+            'Bu, özellikleri birleştirmek ve aynı özellikler için aynı değerleri birden çok çerçevede belirtme ihtiyacını önlemek için kullanılır.'
         ].join(' ')
     },
-    data: {
+    veri: {
         valType: 'any',
         description: [
-            'A list of traces this frame modifies. The format is identical to the',
-            'normal trace definition.'
+            'Bu çerçevenin değiştirdiği izlerin bir listesi. Format, normal iz tanımı ile aynıdır.'
         ].join(' ')
     },
-    layout: {
+    düzen: {
         valType: 'any',
         description: [
-            'Layout properties which this frame modifies. The format is identical',
-            'to the normal layout definition.'
+            'Bu çerçevenin değiştirdiği düzen özellikleri. Format, normal düzen tanımı ile aynıdır.'
         ].join(' ')
     }
 };

@@ -1,22 +1,23 @@
 'use strict';
 
 module.exports = {
-    // hover labels for multiple horizontal bars get tilted by this angle
+    // Birden fazla yatay çubuk için hover etiketleri bu açıyla eğilir
     YANGLE: 60,
 
-    // size and display constants for hover text
+    // Hover metni için boyut ve görüntüleme sabitleri
 
-    // pixel size of hover arrows
+    // Hover oklarının piksel boyutu
     HOVERARROWSIZE: 6,
-    // pixels padding around text
+    // Metin etrafındaki piksel boşluk
     HOVERTEXTPAD: 3,
-    // hover font
+    // Hover yazı tipi boyutu
     HOVERFONTSIZE: 13,
+    // Hover yazı tipi
     HOVERFONT: 'Arial, sans-serif',
 
-    // minimum time (msec) between hover calls
+    // Hover çağrıları arasındaki minimum süre (milisaniye)
     HOVERMINTIME: 50,
 
-    // ID suffix (with fullLayout._uid) for hover events in the throttle cache
+    // Throttle önbelleğinde hover olayları için ID son eki (fullLayout._uid ile birlikte)
     HOVERID: '-hover'
 };

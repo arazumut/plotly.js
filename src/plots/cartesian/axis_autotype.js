@@ -10,111 +10,110 @@ var isDateTime = Lib.isDateTime;
 var cleanNumber = Lib.cleanNumber;
 var round = Math.round;
 
-module.exports = function autoType(array, calendar, opts) {
-    var a = array;
+module.exports = function otomatikTip(array, takvim, seçenekler) {
+    var dizi = array;
 
-    var noMultiCategory = opts.noMultiCategory;
-    if(isArrayOrTypedArray(a) && !a.length) return '-';
-    if(!noMultiCategory && multiCategory(a)) return 'multicategory';
-    if(noMultiCategory && Array.isArray(a[0])) { // no need to flat typed arrays here
+    var cokluKategoriYok = seçenekler.cokluKategoriYok;
+    if(isArrayOrTypedArray(dizi) && !dizi.length) return '-';
+    if(!cokluKategoriYok && cokluKategori(dizi)) return 'coklukategori';
+    if(cokluKategoriYok && Array.isArray(dizi[0])) { // burada tiplenmiş dizileri düzleştirmeye gerek yok
         var b = [];
-        for(var i = 0; i < a.length; i++) {
-            if(isArrayOrTypedArray(a[i])) {
-                for(var j = 0; j < a[i].length; j++) {
-                    b.push(a[i][j]);
+        for(var i = 0; i < dizi.length; i++) {
+            if(isArrayOrTypedArray(dizi[i])) {
+                for(var j = 0; j < dizi[i].length; j++) {
+                    b.push(dizi[i][j]);
                 }
             }
         }
-        a = b;
+        dizi = b;
     }
 
-    if(moreDates(a, calendar)) return 'date';
+    if(dahaCokTarih(dizi, takvim)) return 'tarih';
 
-    var convertNumeric = opts.autotypenumbers !== 'strict'; // compare against strict, just in case autotypenumbers was not provided in opts
-    if(category(a, convertNumeric)) return 'category';
-    if(linearOK(a, convertNumeric)) return 'linear';
+    var sayisalDonustur = seçenekler.otomatikTipSayilar !== 'katı'; // otomatikTipSayilar seçeneklerde sağlanmamışsa, katı ile karşılaştır
+    if(kategori(dizi, sayisalDonustur)) return 'kategori';
+    if(lineerTamam(dizi, sayisalDonustur)) return 'lineer';
 
     return '-';
 };
 
-function hasTypeNumber(v, convertNumeric) {
-    return convertNumeric ? isNumeric(v) : typeof v === 'number';
+function tipNumaraVarMi(deger, sayisalDonustur) {
+    return sayisalDonustur ? isNumeric(deger) : typeof deger === 'number';
 }
 
-// is there at least one number in array? If not, we should leave
-// ax.type empty so it can be autoset later
-function linearOK(a, convertNumeric) {
-    var len = a.length;
+// dizide en az bir sayı var mı? Eğer yoksa, ax.type boş bırakılmalı ki daha sonra otomatik olarak ayarlanabilsin
+function lineerTamam(dizi, sayisalDonustur) {
+    var uzunluk = dizi.length;
 
-    for(var i = 0; i < len; i++) {
-        if(hasTypeNumber(a[i], convertNumeric)) return true;
+    for(var i = 0; i < uzunluk; i++) {
+        if(tipNumaraVarMi(dizi[i], sayisalDonustur)) return true;
     }
 
     return false;
 }
 
-// does the array a have mostly dates rather than numbers?
-// note: some values can be neither (such as blanks, text)
-// 2- or 4-digit integers can be both, so require twice as many
-// dates as non-dates, to exclude cases with mostly 2 & 4 digit
-// numbers and a few dates
-// as with categories, consider DISTINCT values only.
-function moreDates(a, calendar) {
-    var len = a.length;
+// dizi çoğunlukla tarihlerden mi oluşuyor? 
+// not: bazı değerler ne sayı ne de tarih olabilir (boşluklar, metinler gibi)
+// 2 veya 4 basamaklı tamsayılar hem sayı hem de tarih olabilir, bu yüzden
+// çoğunlukla 2 ve 4 basamaklı sayılar ve birkaç tarih içeren durumları dışlamak için
+// tarihler, sayıların iki katı olmalıdır
+// kategorilerde olduğu gibi, sadece AYRIK değerleri dikkate al.
+function dahaCokTarih(dizi, takvim) {
+    var uzunluk = dizi.length;
 
-    var inc = getIncrement(len);
-    var dats = 0;
-    var nums = 0;
-    var seen = {};
+    var artış = artışAl(uzunluk);
+    var tarihler = 0;
+    var sayilar = 0;
+    var gorulen = {};
 
-    for(var f = 0; f < len; f += inc) {
+    for(var f = 0; f < uzunluk; f += artış) {
         var i = round(f);
-        var ai = a[i];
-        var stri = String(ai);
-        if(seen[stri]) continue;
-        seen[stri] = 1;
+        var deger = dizi[i];
+        var degerStr = String(deger);
+        if(gorulen[degerStr]) continue;
+        gorulen[degerStr] = 1;
 
-        if(isDateTime(ai, calendar)) dats++;
-        if(isNumeric(ai)) nums++;
+        if(isDateTime(deger, takvim)) tarihler++;
+        if(isNumeric(deger)) sayilar++;
     }
 
-    return dats > nums * 2;
+    return tarihler > sayilar * 2;
 }
 
-// return increment to test at most 1000 points, evenly spaced
-function getIncrement(len) {
-    return Math.max(1, (len - 1) / 1000);
+// en fazla 1000 noktayı, eşit aralıklarla test etmek için artış değeri döndür
+function artışAl(uzunluk) {
+    return Math.max(1, (uzunluk - 1) / 1000);
 }
 
-// are the (x,y)-values in gd.data mostly text?
-// require twice as many DISTINCT categories as distinct numbers
-function category(a, convertNumeric) {
-    var len = a.length;
+// gd.data'daki (x,y)-değerleri çoğunlukla metin mi?
+// sayılardan iki kat fazla AYRIK kategori gerektirir
+function kategori(dizi, sayisalDonustur) {
+    var uzunluk = dizi.length;
 
-    var inc = getIncrement(len);
-    var nums = 0;
-    var cats = 0;
-    var seen = {};
+    var artış = artışAl(uzunluk);
+    var sayilar = 0;
+    var kategoriler = 0;
+    var gorulen = {};
 
-    for(var f = 0; f < len; f += inc) {
+    for(var f = 0; f < uzunluk; f += artış) {
         var i = round(f);
-        var ai = a[i];
-        var stri = String(ai);
-        if(seen[stri]) continue;
-        seen[stri] = 1;
+        var deger = dizi[i];
+        var degerStr = String(deger);
+        if(gorulen[degerStr]) continue;
+        gorulen[degerStr] = 1;
 
-        var t = typeof ai;
-        if(t === 'boolean') cats++;
-        else if(convertNumeric ? cleanNumber(ai) !== BADNUM : t === 'number') nums++;
-        else if(t === 'string') cats++;
+        var tip = typeof deger;
+        if(tip === 'boolean') kategoriler++;
+        else if(sayisalDonustur ? cleanNumber(deger) !== BADNUM : tip === 'number') sayilar++;
+        else if(tip === 'string') kategoriler++;
     }
 
-    return cats > nums * 2;
+    return kategoriler > sayilar * 2;
 }
 
-// very-loose requirements for multicategory,
-// trace modules that should never auto-type to multicategory
-// should be declared with 'noMultiCategory'
-function multiCategory(a) {
-    return isArrayOrTypedArray(a[0]) && isArrayOrTypedArray(a[1]);
+// çoklu kategori için çok gevşek gereksinimler,
+// hiçbir zaman çoklu kategoriye otomatik olarak geçmemesi gereken iz modülleri
+// 'cokluKategoriYok' ile belirtilmelidir
+function cokluKategori(dizi) {
+    return isArrayOrTypedArray(dizi[0]) && isArrayOrTypedArray(dizi[1]);
 }

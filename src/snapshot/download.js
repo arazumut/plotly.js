@@ -1,23 +1,21 @@
 'use strict';
 
 var Lib = require('../lib');
-
 var toImage = require('../plot_api/to_image');
-
 var fileSaver = require('./filesaver');
 var helpers = require('./helpers');
 
 /**
- * Plotly.downloadImage
+ * Plotly.indirResim
  *
  * @param {object | string | HTML div} gd
- *   can either be a data/layout/config object
- *   or an existing graph <div>
- *   or an id to an existing graph <div>
- * @param {object} opts (see Plotly.toImage in ../plot_api/to_image)
+ *   veri/düzen/konfigürasyon nesnesi
+ *   veya mevcut bir grafik <div>
+ *   veya mevcut bir grafik <div> id'si olabilir
+ * @param {object} opts (../plot_api/to_image içindeki Plotly.toImage'a bakın)
  * @return {promise}
  */
-function downloadImage(gd, opts) {
+function indirResim(gd, opts) {
     var _gd;
     if(!Lib.isPlainObject(gd)) _gd = Lib.getGraphDiv(gd);
 
@@ -29,14 +27,14 @@ function downloadImage(gd, opts) {
 
     return new Promise(function(resolve, reject) {
         if(_gd && _gd._snapshotInProgress) {
-            reject(new Error('Snapshotting already in progress.'));
+            reject(new Error('Anlık görüntü alma işlemi zaten devam ediyor.'));
         }
 
-        // see comments within svgtoimg for additional
-        //   discussion of problems with IE
-        //   can now draw to canvas, but CORS tainted canvas
-        //   does not allow toDataURL
-        //   svg format will work though
+        // svgtoimg içindeki yorumlara bakın
+        //   IE ile ilgili sorunların tartışması
+        //   artık canvas'a çizebilir, ancak CORS ile kirlenmiş canvas
+        //   toDataURL'e izin vermez
+        //   svg formatı ise çalışır
         if(Lib.isIE() && opts.format !== 'svg') {
             reject(new Error(helpers.MSG_IE_BAD_FORMAT));
         }
@@ -44,12 +42,12 @@ function downloadImage(gd, opts) {
         if(_gd) _gd._snapshotInProgress = true;
         var promise = toImage(gd, opts);
 
-        var filename = opts.filename || gd.fn || 'newplot';
-        filename += '.' + opts.format.replace('-', '.');
+        var dosyaAdi = opts.filename || gd.fn || 'yenigrafik';
+        dosyaAdi += '.' + opts.format.replace('-', '.');
 
         promise.then(function(result) {
             if(_gd) _gd._snapshotInProgress = false;
-            return fileSaver(result, filename, opts.format);
+            return fileSaver(result, dosyaAdi, opts.format);
         }).then(function(name) {
             resolve(name);
         }).catch(function(err) {
@@ -59,4 +57,4 @@ function downloadImage(gd, opts) {
     });
 }
 
-module.exports = downloadImage;
+module.exports = indirResim;

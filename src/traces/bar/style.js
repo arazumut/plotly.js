@@ -1,35 +1,35 @@
 'use strict';
 
 var d3 = require('@plotly/d3');
-var Color = require('../../components/color');
-var Drawing = require('../../components/drawing');
+var Renk = require('../../components/color');
+var Çizim = require('../../components/drawing');
 var Lib = require('../../lib');
-var Registry = require('../../registry');
+var Kayıt = require('../../registry');
 
-var resizeText = require('./uniform_text').resizeText;
-var attributes = require('./attributes');
-var attributeTextFont = attributes.textfont;
-var attributeInsideTextFont = attributes.insidetextfont;
-var attributeOutsideTextFont = attributes.outsidetextfont;
-var helpers = require('./helpers');
+var metinBoyutunuYenidenBoyutlandır = require('./uniform_text').resizeText;
+var özellikler = require('./attributes');
+var özellikMetinFontu = özellikler.textfont;
+var özellikİçMetinFontu = özellikler.insidetextfont;
+var özellikDışMetinFontu = özellikler.outsidetextfont;
+var yardımcılar = require('./helpers');
 
-function style(gd) {
+function stil(gd) {
     var s = d3.select(gd).selectAll('g[class^="barlayer"]').selectAll('g.trace');
-    resizeText(gd, s, 'bar');
+    metinBoyutunuYenidenBoyutlandır(gd, s, 'bar');
 
-    var barcount = s.size();
-    var fullLayout = gd._fullLayout;
+    var barSayısı = s.size();
+    var tamYerleşim = gd._fullLayout;
 
-    // trace styling
+    // iz stilini ayarla
     s.style('opacity', function(d) { return d[0].trace.opacity; })
 
-    // for gapless (either stacked or neighboring grouped) bars use
-    // crispEdges to turn off antialiasing so an artificial gap
-    // isn't introduced.
+    // boşluksuz (ya istiflenmiş ya da komşu gruplandırılmış) çubuklar için
+    // antialiasing'i kapatmak için crispEdges kullanın, böylece yapay bir boşluk
+    // oluşturulmaz.
     .each(function(d) {
-        if((fullLayout.barmode === 'stack' && barcount > 1) ||
-                (fullLayout.bargap === 0 &&
-                 fullLayout.bargroupgap === 0 &&
+        if((tamYerleşim.barmode === 'stack' && barSayısı > 1) ||
+                (tamYerleşim.bargap === 0 &&
+                 tamYerleşim.bargroupgap === 0 &&
                  !d[0].trace.marker.line.width)) {
             d3.select(this).attr('shape-rendering', 'crispEdges');
         }
@@ -37,160 +37,160 @@ function style(gd) {
 
     s.selectAll('g.points').each(function(d) {
         var sel = d3.select(this);
-        var trace = d[0].trace;
-        stylePoints(sel, trace, gd);
+        var iz = d[0].trace;
+        noktalarıStilizeEt(sel, iz, gd);
     });
 
-    Registry.getComponentMethod('errorbars', 'style')(s);
+    Kayıt.getComponentMethod('errorbars', 'style')(s);
 }
 
-function stylePoints(sel, trace, gd) {
-    Drawing.pointStyle(sel.selectAll('path'), trace, gd);
-    styleTextPoints(sel, trace, gd);
+function noktalarıStilizeEt(sel, iz, gd) {
+    Çizim.noktaStili(sel.selectAll('path'), iz, gd);
+    metinNoktalarınıStilizeEt(sel, iz, gd);
 }
 
-function styleTextPoints(sel, trace, gd) {
+function metinNoktalarınıStilizeEt(sel, iz, gd) {
     sel.selectAll('text').each(function(d) {
         var tx = d3.select(this);
-        var font = Lib.ensureUniformFontSize(gd, determineFont(tx, d, trace, gd));
+        var font = Lib.ensureUniformFontSize(gd, fontuBelirle(tx, d, iz, gd));
 
-        Drawing.font(tx, font);
+        Çizim.font(tx, font);
     });
 }
 
-function styleOnSelect(gd, cd, sel) {
-    var trace = cd[0].trace;
+function seçildiğindeStilizeEt(gd, cd, sel) {
+    var iz = cd[0].trace;
 
-    if(trace.selectedpoints) {
-        stylePointsInSelectionMode(sel, trace, gd);
+    if(iz.selectedpoints) {
+        seçimModundaNoktalarıStilizeEt(sel, iz, gd);
     } else {
-        stylePoints(sel, trace, gd);
-        Registry.getComponentMethod('errorbars', 'style')(sel);
+        noktalarıStilizeEt(sel, iz, gd);
+        Kayıt.getComponentMethod('errorbars', 'style')(sel);
     }
 }
 
-function stylePointsInSelectionMode(s, trace, gd) {
-    Drawing.selectedPointStyle(s.selectAll('path'), trace);
-    styleTextInSelectionMode(s.selectAll('text'), trace, gd);
+function seçimModundaNoktalarıStilizeEt(s, iz, gd) {
+    Çizim.seçiliNoktaStili(s.selectAll('path'), iz);
+    seçimModundaMetinStilizeEt(s.selectAll('text'), iz, gd);
 }
 
-function styleTextInSelectionMode(txs, trace, gd) {
+function seçimModundaMetinStilizeEt(txs, iz, gd) {
     txs.each(function(d) {
         var tx = d3.select(this);
         var font;
 
         if(d.selected) {
-            font = Lib.ensureUniformFontSize(gd, determineFont(tx, d, trace, gd));
+            font = Lib.ensureUniformFontSize(gd, fontuBelirle(tx, d, iz, gd));
 
-            var selectedFontColor = trace.selected.textfont && trace.selected.textfont.color;
-            if(selectedFontColor) {
-                font.color = selectedFontColor;
+            var seçiliFontRengi = iz.selected.textfont && iz.selected.textfont.color;
+            if(seçiliFontRengi) {
+                font.color = seçiliFontRengi;
             }
 
-            Drawing.font(tx, font);
+            Çizim.font(tx, font);
         } else {
-            Drawing.selectedTextStyle(tx, trace);
+            Çizim.seçiliMetinStili(tx, iz);
         }
     });
 }
 
-function determineFont(tx, d, trace, gd) {
-    var layoutFont = gd._fullLayout.font;
-    var textFont = trace.textfont;
+function fontuBelirle(tx, d, iz, gd) {
+    var yerleşimFontu = gd._fullLayout.font;
+    var metinFontu = iz.textfont;
 
     if(tx.classed('bartext-inside')) {
-        var barColor = getBarColor(d, trace);
-        textFont = getInsideTextFont(trace, d.i, layoutFont, barColor);
+        var çubukRengi = çubukRenginiAl(d, iz);
+        metinFontu = içMetinFontunuAl(iz, d.i, yerleşimFontu, çubukRengi);
     } else if(tx.classed('bartext-outside')) {
-        textFont = getOutsideTextFont(trace, d.i, layoutFont);
+        metinFontu = dışMetinFontunuAl(iz, d.i, yerleşimFontu);
     }
 
-    return textFont;
+    return metinFontu;
 }
 
-function getTextFont(trace, index, defaultValue) {
-    return getFontValue(
-      attributeTextFont, trace.textfont, index, defaultValue);
+function metinFontunuAl(iz, index, varsayılanDeğer) {
+    return fontDeğeriniAl(
+      özellikMetinFontu, iz.textfont, index, varsayılanDeğer);
 }
 
-function getInsideTextFont(trace, index, layoutFont, barColor) {
-    var defaultFont = getTextFont(trace, index, layoutFont);
+function içMetinFontunuAl(iz, index, yerleşimFontu, çubukRengi) {
+    var varsayılanFont = metinFontunuAl(iz, index, yerleşimFontu);
 
-    var wouldFallBackToLayoutFont =
-      (trace._input.textfont === undefined || trace._input.textfont.color === undefined) ||
-      (Array.isArray(trace.textfont.color) && trace.textfont.color[index] === undefined);
-    if(wouldFallBackToLayoutFont) {
-        defaultFont = {
-            color: Color.contrast(barColor),
-            family: defaultFont.family,
-            size: defaultFont.size,
-            weight: defaultFont.weight,
-            style: defaultFont.style,
-            variant: defaultFont.variant,
-            textcase: defaultFont.textcase,
-            lineposition: defaultFont.lineposition,
-            shadow: defaultFont.shadow,
+    var yerleşimFontunaGeriDönecek =
+      (iz._input.textfont === undefined || iz._input.textfont.color === undefined) ||
+      (Array.isArray(iz.textfont.color) && iz.textfont.color[index] === undefined);
+    if(yerleşimFontunaGeriDönecek) {
+        varsayılanFont = {
+            color: Renk.kontrast(çubukRengi),
+            family: varsayılanFont.family,
+            size: varsayılanFont.size,
+            weight: varsayılanFont.weight,
+            style: varsayılanFont.style,
+            variant: varsayılanFont.variant,
+            textcase: varsayılanFont.textcase,
+            lineposition: varsayılanFont.lineposition,
+            shadow: varsayılanFont.shadow,
         };
     }
 
-    return getFontValue(
-      attributeInsideTextFont, trace.insidetextfont, index, defaultFont);
+    return fontDeğeriniAl(
+      özellikİçMetinFontu, iz.insidetextfont, index, varsayılanFont);
 }
 
-function getOutsideTextFont(trace, index, layoutFont) {
-    var defaultFont = getTextFont(trace, index, layoutFont);
-    return getFontValue(
-      attributeOutsideTextFont, trace.outsidetextfont, index, defaultFont);
+function dışMetinFontunuAl(iz, index, yerleşimFontu) {
+    var varsayılanFont = metinFontunuAl(iz, index, yerleşimFontu);
+    return fontDeğeriniAl(
+      özellikDışMetinFontu, iz.outsidetextfont, index, varsayılanFont);
 }
 
-function getFontValue(attributeDefinition, attributeValue, index, defaultValue) {
-    attributeValue = attributeValue || {};
+function fontDeğeriniAl(özellikTanımı, özellikDeğeri, index, varsayılanDeğer) {
+    özellikDeğeri = özellikDeğeri || {};
 
-    var familyValue = helpers.getValue(attributeValue.family, index);
-    var sizeValue = helpers.getValue(attributeValue.size, index);
-    var colorValue = helpers.getValue(attributeValue.color, index);
-    var weightValue = helpers.getValue(attributeValue.weight, index);
-    var styleValue = helpers.getValue(attributeValue.style, index);
-    var variantValue = helpers.getValue(attributeValue.variant, index);
-    var textcaseValue = helpers.getValue(attributeValue.textcase, index);
-    var linepositionValue = helpers.getValue(attributeValue.lineposition, index);
-    var shadowValue = helpers.getValue(attributeValue.shadow, index);
+    var familyDeğeri = yardımcılar.değeriAl(özellikDeğeri.family, index);
+    var sizeDeğeri = yardımcılar.değeriAl(özellikDeğeri.size, index);
+    var colorDeğeri = yardımcılar.değeriAl(özellikDeğeri.color, index);
+    var weightDeğeri = yardımcılar.değeriAl(özellikDeğeri.weight, index);
+    var styleDeğeri = yardımcılar.değeriAl(özellikDeğeri.style, index);
+    var variantDeğeri = yardımcılar.değeriAl(özellikDeğeri.variant, index);
+    var textcaseDeğeri = yardımcılar.değeriAl(özellikDeğeri.textcase, index);
+    var linepositionDeğeri = yardımcılar.değeriAl(özellikDeğeri.lineposition, index);
+    var shadowDeğeri = yardımcılar.değeriAl(özellikDeğeri.shadow, index);
 
     return {
-        family: helpers.coerceString(
-          attributeDefinition.family, familyValue, defaultValue.family),
-        size: helpers.coerceNumber(
-          attributeDefinition.size, sizeValue, defaultValue.size),
-        color: helpers.coerceColor(
-          attributeDefinition.color, colorValue, defaultValue.color),
-        weight: helpers.coerceString(
-            attributeDefinition.weight, weightValue, defaultValue.weight),
-        style: helpers.coerceString(
-            attributeDefinition.style, styleValue, defaultValue.style),
-        variant: helpers.coerceString(
-            attributeDefinition.variant, variantValue, defaultValue.variant),
-        textcase: helpers.coerceString(
-            attributeDefinition.variant, textcaseValue, defaultValue.textcase),
-        lineposition: helpers.coerceString(
-            attributeDefinition.variant, linepositionValue, defaultValue.lineposition),
-        shadow: helpers.coerceString(
-            attributeDefinition.variant, shadowValue, defaultValue.shadow),
+        family: yardımcılar.stringZorla(
+          özellikTanımı.family, familyDeğeri, varsayılanDeğer.family),
+        size: yardımcılar.numberZorla(
+          özellikTanımı.size, sizeDeğeri, varsayılanDeğer.size),
+        color: yardımcılar.colorZorla(
+          özellikTanımı.color, colorDeğeri, varsayılanDeğer.color),
+        weight: yardımcılar.stringZorla(
+            özellikTanımı.weight, weightDeğeri, varsayılanDeğer.weight),
+        style: yardımcılar.stringZorla(
+            özellikTanımı.style, styleDeğeri, varsayılanDeğer.style),
+        variant: yardımcılar.stringZorla(
+            özellikTanımı.variant, variantDeğeri, varsayılanDeğer.variant),
+        textcase: yardımcılar.stringZorla(
+            özellikTanımı.variant, textcaseDeğeri, varsayılanDeğer.textcase),
+        lineposition: yardımcılar.stringZorla(
+            özellikTanımı.variant, linepositionDeğeri, varsayılanDeğer.lineposition),
+        shadow: yardımcılar.stringZorla(
+            özellikTanımı.variant, shadowDeğeri, varsayılanDeğer.shadow),
     };
 }
 
-function getBarColor(cd, trace) {
-    if(trace.type === 'waterfall') {
-        return trace[cd.dir].marker.color;
+function çubukRenginiAl(cd, iz) {
+    if(iz.type === 'waterfall') {
+        return iz[cd.dir].marker.color;
     }
-    return cd.mcc || cd.mc || trace.marker.color;
+    return cd.mcc || cd.mc || iz.marker.color;
 }
 
 module.exports = {
-    style: style,
-    styleTextPoints: styleTextPoints,
-    styleOnSelect: styleOnSelect,
-    getInsideTextFont: getInsideTextFont,
-    getOutsideTextFont: getOutsideTextFont,
-    getBarColor: getBarColor,
-    resizeText: resizeText
+    stil: stil,
+    metinNoktalarınıStilizeEt: metinNoktalarınıStilizeEt,
+    seçildiğindeStilizeEt: seçildiğindeStilizeEt,
+    içMetinFontunuAl: içMetinFontunuAl,
+    dışMetinFontunuAl: dışMetinFontunuAl,
+    çubukRenginiAl: çubukRenginiAl,
+    metinBoyutunuYenidenBoyutlandır: metinBoyutunuYenidenBoyutlandır
 };

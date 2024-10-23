@@ -3,40 +3,40 @@
 var isNumeric = require('fast-isnumeric');
 var Lib = require('../../lib');
 var constants = require('../../constants/numerical');
-var ONEDAY = constants.ONEDAY;
-var ONEWEEK = constants.ONEWEEK;
+var BIRGUN = constants.ONEDAY;
+var BIRHAFTA = constants.ONEWEEK;
 
 /**
- * Return a validated dtick value for this axis
+ * Bu eksen için doğrulanmış bir dtick değeri döndür
  *
- * @param {any} dtick: the candidate dtick. valid values are numbers and strings,
- *     and further constrained depending on the axis type.
- * @param {string} axType: the axis type
+ * @param {any} dtick: aday dtick. geçerli değerler sayılar ve stringlerdir,
+ *     ve eksen türüne bağlı olarak daha fazla kısıtlanır.
+ * @param {string} eksenTuru: eksen türü
  */
-exports.dtick = function(dtick, axType) {
-    var isLog = axType === 'log';
-    var isDate = axType === 'date';
-    var isCat = axType === 'category';
-    var dtickDflt = isDate ? ONEDAY : 1;
+exports.dtick = function(dtick, eksenTuru) {
+    var logEksen = eksenTuru === 'log';
+    var tarihEksen = eksenTuru === 'date';
+    var kategoriEksen = eksenTuru === 'category';
+    var dtickVarsayilan = tarihEksen ? BIRGUN : 1;
 
-    if(!dtick) return dtickDflt;
+    if(!dtick) return dtickVarsayilan;
 
     if(isNumeric(dtick)) {
         dtick = Number(dtick);
-        if(dtick <= 0) return dtickDflt;
-        if(isCat) {
-            // category dtick must be positive integers
+        if(dtick <= 0) return dtickVarsayilan;
+        if(kategoriEksen) {
+            // kategori dtick pozitif tam sayılar olmalıdır
             return Math.max(1, Math.round(dtick));
         }
-        if(isDate) {
-            // date dtick must be at least 0.1ms (our current precision)
+        if(tarihEksen) {
+            // tarih dtick en az 0.1ms olmalıdır (mevcut hassasiyetimiz)
             return Math.max(0.1, dtick);
         }
         return dtick;
     }
 
-    if(typeof dtick !== 'string' || !(isDate || isLog)) {
-        return dtickDflt;
+    if(typeof dtick !== 'string' || !(tarihEksen || logEksen)) {
+        return dtickVarsayilan;
     }
 
     var prefix = dtick.charAt(0);
@@ -44,39 +44,39 @@ exports.dtick = function(dtick, axType) {
     dtickNum = isNumeric(dtickNum) ? Number(dtickNum) : 0;
 
     if((dtickNum <= 0) || !(
-            // "M<n>" gives ticks every (integer) n months
-            (isDate && prefix === 'M' && dtickNum === Math.round(dtickNum)) ||
-            // "L<f>" gives ticks linearly spaced in data (not in position) every (float) f
-            (isLog && prefix === 'L') ||
-            // "D1" gives powers of 10 with all small digits between, "D2" gives only 2 and 5
-            (isLog && prefix === 'D' && (dtickNum === 1 || dtickNum === 2))
+            // "M<n>" her (tam sayı) n ayda bir tik verir
+            (tarihEksen && prefix === 'M' && dtickNum === Math.round(dtickNum)) ||
+            // "L<f>" verilerde (konumda değil) her (float) f'de bir doğrusal olarak aralıklı tikler verir
+            (logEksen && prefix === 'L') ||
+            // "D1" 10'un kuvvetlerini ve aradaki tüm küçük rakamları verir, "D2" sadece 2 ve 5'i verir
+            (logEksen && prefix === 'D' && (dtickNum === 1 || dtickNum === 2))
         )) {
-        return dtickDflt;
+        return dtickVarsayilan;
     }
 
     return dtick;
 };
 
 /**
- * Return a validated tick0 for this axis
+ * Bu eksen için doğrulanmış bir tick0 değeri döndür
  *
- * @param {any} tick0: the candidate tick0. Valid values are numbers and strings,
- *     further constrained depending on the axis type
- * @param {string} axType: the axis type
- * @param {string} calendar: for date axes, the calendar to validate/convert with
- * @param {any} dtick: an already valid dtick. Only used for D1 and D2 log dticks,
- *     which do not support tick0 at all.
+ * @param {any} tick0: aday tick0. Geçerli değerler sayılar ve stringlerdir,
+ *     eksen türüne bağlı olarak daha fazla kısıtlanır
+ * @param {string} eksenTuru: eksen türü
+ * @param {string} takvim: tarih eksenleri için, doğrulamak/dönüştürmek için takvim
+ * @param {any} dtick: zaten geçerli bir dtick. Sadece D1 ve D2 log dtick'leri için kullanılır,
+ *     bu modlar tick0'ı desteklemez.
  */
-exports.tick0 = function(tick0, axType, calendar, dtick) {
-    if(axType === 'date') {
+exports.tick0 = function(tick0, eksenTuru, takvim, dtick) {
+    if(eksenTuru === 'date') {
         return Lib.cleanDate(tick0,
-            Lib.dateTick0(calendar, (dtick % ONEWEEK === 0) ? 1 : 0)
+            Lib.dateTick0(takvim, (dtick % BIRHAFTA === 0) ? 1 : 0)
         );
     }
     if(dtick === 'D1' || dtick === 'D2') {
-        // D1 and D2 modes ignore tick0 entirely
+        // D1 ve D2 modları tick0'ı tamamen yok sayar
         return undefined;
     }
-    // Aside from date axes, tick0 must be numeric
+    // Tarih eksenleri dışında, tick0 sayısal olmalıdır
     return isNumeric(tick0) ? Number(tick0) : 0;
 };

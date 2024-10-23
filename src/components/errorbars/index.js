@@ -1,10 +1,11 @@
 'use strict';
 
+// Gerekli kütüphaneleri dahil et
 var Lib = require('../../lib');
 var overrideAll = require('../../plot_api/edit_types').overrideAll;
-
 var attributes = require('./attributes');
 
+// x ve y hataları için özellikleri tanımla
 var xyAttrs = {
     error_x: Lib.extendFlat({}, attributes),
     error_y: Lib.extendFlat({}, attributes)
@@ -13,6 +14,7 @@ delete xyAttrs.error_x.copy_zstyle;
 delete xyAttrs.error_y.copy_zstyle;
 delete xyAttrs.error_y.copy_ystyle;
 
+// x, y ve z hataları için özellikleri tanımla
 var xyzAttrs = {
     error_x: Lib.extendFlat({}, attributes),
     error_y: Lib.extendFlat({}, attributes),
@@ -23,6 +25,7 @@ delete xyzAttrs.error_y.copy_ystyle;
 delete xyzAttrs.error_z.copy_ystyle;
 delete xyzAttrs.error_z.copy_zstyle;
 
+// Modülü dışa aktar
 module.exports = {
     moduleType: 'component',
     name: 'errorbars',
@@ -38,15 +41,14 @@ module.exports = {
     },
 
     supplyDefaults: require('./defaults'),
-
     calc: require('./calc'),
     makeComputeError: require('./compute_error'),
-
     plot: require('./plot'),
     style: require('./style'),
     hoverInfo: hoverInfo
 };
 
+// Hover bilgilerini hesaplayan fonksiyon
 function hoverInfo(calcPoint, trace, hoverPoint) {
     if((trace.error_y || {}).visible) {
         hoverPoint.yerr = calcPoint.yh - calcPoint.y;

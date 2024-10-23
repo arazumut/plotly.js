@@ -1,23 +1,23 @@
 'use strict';
 
 module.exports = {
-    moduleType: 'trace',
-    name: 'candlestick',
+    moduleType: 'iz',
+    name: 'mumgrafiği',
     basePlotModule: require('../../plots/cartesian'),
-    categories: ['cartesian', 'svg', 'showLegend', 'candlestick', 'boxLayout'],
+    categories: ['kartezyen', 'svg', 'gösterEfsane', 'mumgrafiği', 'kutuDüzeni'],
     meta: {
         description: [
-            'The candlestick is a style of financial chart describing',
-            'open, high, low and close for a given `x` coordinate (most likely time).',
+            'Mum grafiği, belirli bir `x` koordinatı (muhtemelen zaman) için',
+            'açılış, yüksek, düşük ve kapanış değerlerini tanımlayan bir finansal grafik türüdür.',
 
-            'The boxes represent the spread between the `open` and `close` values and',
-            'the lines represent the spread between the `low` and `high` values',
+            'Kutular `açılış` ve `kapanış` değerleri arasındaki farkı temsil eder ve',
+            'çizgiler `düşük` ve `yüksek` değerler arasındaki farkı temsil eder.',
 
-            'Sample points where the close value is higher (lower) then the open',
-            'value are called increasing (decreasing).',
+            'Kapanış değeri açılış değerinden yüksek (düşük) olan örnek noktalar',
+            'artış (azalış) olarak adlandırılır.',
 
-            'By default, increasing candles are drawn in green whereas',
-            'decreasing are drawn in red.'
+            'Varsayılan olarak, artan mumlar yeşil renkte çizilirken,',
+            'azalanlar kırmızı renkte çizilir.'
         ].join(' ')
     },
 
@@ -28,7 +28,7 @@ module.exports = {
     supplyDefaults: require('./defaults'),
     calc: require('./calc'),
     plot: require('../box/plot').plot,
-    layerName: 'boxlayer',
+    layerName: 'kutukatmanı',
     style: require('../box/style').style,
     hoverPoints: require('../ohlc/hover').hoverPoints,
     selectPoints: require('../ohlc/select')

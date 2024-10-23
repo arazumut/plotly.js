@@ -1,35 +1,34 @@
 'use strict';
 
 module.exports = {
-    attr: 'subplot',
-    name: 'polar',
+    attr: 'altgrafik', // subplot
+    name: 'kutupsal', // polar
 
-    axisNames: ['angularaxis', 'radialaxis'],
-    axisName2dataArray: {angularaxis: 'theta', radialaxis: 'r'},
+    eksenIsimleri: ['açısalEksen', 'radyalEksen'], // axisNames
+    eksenIsmi2veriDizisi: {açısalEksen: 'theta', radyalEksen: 'r'}, // axisName2dataArray
 
-    layerNames: [
-        'draglayer',
-        'plotbg',
-        'backplot',
-        'angular-grid',
-        'radial-grid',
-        'frontplot',
-        'angular-line',
-        'radial-line',
-        'angular-axis',
-        'radial-axis'
+    katmanIsimleri: [ // layerNames
+        'sürüklemeKatmanı', // draglayer
+        'grafikArkaplanı', // plotbg
+        'arkaGrafik', // backplot
+        'açısal-ızgara', // angular-grid
+        'radyal-ızgara', // radial-grid
+        'önGrafik', // frontplot
+        'açısal-çizgi', // angular-line
+        'radyal-çizgi', // radial-line
+        'açısal-eksen', // angular-axis
+        'radyal-eksen' // radial-axis
     ],
 
-    radialDragBoxSize: 50,
-    angularDragBoxSize: 30,
-    cornerLen: 25,
-    cornerHalfWidth: 2,
+    radyalSürüklemeKutusuBoyutu: 50, // radialDragBoxSize
+    açısalSürüklemeKutusuBoyutu: 30, // angularDragBoxSize
+    köşeUzunluğu: 25, // cornerLen
+    köşeYarıGenişliği: 2, // cornerHalfWidth
 
-    // pixels to move mouse before you stop clamping to starting point
-    MINDRAG: 8,
-    // smallest radial distance [px] allowed for a zoombox
-    MINZOOM: 20,
-    // distance [px] off (r=0) or (r=radius) where we transition
-    // from single-sided to two-sided radial zoom
-    OFFEDGE: 20
+    // Fareyi başlangıç noktasına sabitlemeyi bırakmadan önce hareket ettirmeniz gereken piksel sayısı
+    MIN_SÜRÜKLEME: 8, // MINDRAG
+    // Bir yakınlaştırma kutusu için izin verilen en küçük radyal mesafe [px]
+    MIN_YAKINLAŞTIRMA: 20, // MINZOOM
+    // Tek taraflı radyal yakınlaştırmadan iki taraflı radyal yakınlaştırmaya geçiş yaptığımız mesafe [px]
+    KENAR_DIŞI: 20 // OFFEDGE
 };

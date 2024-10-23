@@ -1,15 +1,15 @@
 'use strict';
 
-var helpers = require('./helpers');
+var yardımcılar = require('./helpers');
 
-var Snapshot = {
-    getDelay: helpers.getDelay,
-    getRedrawFunc: helpers.getRedrawFunc,
-    clone: require('./cloneplot'),
-    toSVG: require('./tosvg'),
-    svgToImg: require('./svgtoimg'),
-    toImage: require('./toimage'),
-    downloadImage: require('./download')
+var AnlıkGörüntü = {
+    gecikmeAl: yardımcılar.getDelay,
+    yenidenÇizimFonksiyonuAl: yardımcılar.getRedrawFunc,
+    klonla: require('./cloneplot'),
+    SVGyeDönüştür: require('./tosvg'),
+    SVGyiResmeDönüştür: require('./svgtoimg'),
+    resmeDönüştür: require('./toimage'),
+    resmiİndir: require('./download')
 };
 
-module.exports = Snapshot;
+module.exports = AnlıkGörüntü;

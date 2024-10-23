@@ -2,182 +2,178 @@
 
 var nestedProperty = require('./nested_property');
 
-var SIMPLE_PROPERTY_REGEX = /^\w*$/;
+var BASIT_OZELLIK_REGEX = /^\w*$/;
 
-// bitmask for deciding what's updated. Sometimes the name needs to be updated,
-// sometimes the value needs to be updated, and sometimes both do. This is just
-// a simple way to track what's updated such that it's a simple OR operation to
-// assimilate new updates.
+// Güncellenenleri belirlemek için bitmask. Bazen isim güncellenmeli,
+// bazen değer güncellenmeli ve bazen de her ikisi. Bu, yeni güncellemeleri
+// basit bir OR işlemiyle birleştirmenin basit bir yoludur.
 //
-// The only exception is the UNSET bit that tracks when we need to explicitly
-// unset and remove the property. This concrn arises because of the special
-// way in which nestedProperty handles null/undefined. When you specify `null`,
-// it prunes any unused items in the tree. I ran into some issues with it getting
-// null vs undefined confused, so UNSET is just a bit that forces the property
-// update to send `null`, removing the property explicitly rather than setting
-// it to undefined.
-var NONE = 0;
-var NAME = 1;
-var VALUE = 2;
-var BOTH = 3;
-var UNSET = 4;
+// Tek istisna, özelliği açıkça kaldırmamız gerektiğinde UNSET bitidir.
+// Bu durum, nestedProperty'nin null/undefined ile özel şekilde başa çıkma
+// biçiminden kaynaklanır. `null` belirttiğinizde, ağaçtaki kullanılmayan
+// öğeleri budar. Null ile undefined karışıklığı yaşadığım için, UNSET
+// özelliği açıkça kaldırmak için `null` göndermeye zorlayan bir bittir.
+var HICBIRI = 0;
+var ISIM = 1;
+var DEGER = 2;
+var HER_IKISI = 3;
+var KALDIR = 4;
 
-module.exports = function keyedContainer(baseObj, path, keyName, valueName) {
-    keyName = keyName || 'name';
-    valueName = valueName || 'value';
-    var i, arr, baseProp;
-    var changeTypes = {};
+module.exports = function anahtarliKapsayici(temelNesne, yol, anahtarIsmi, degerIsmi) {
+    anahtarIsmi = anahtarIsmi || 'isim';
+    degerIsmi = degerIsmi || 'deger';
+    var i, dizi, temelOzellik;
+    var degisimTurleri = {};
 
-    if(path && path.length) {
-        baseProp = nestedProperty(baseObj, path);
-        arr = baseProp.get();
+    if(yol && yol.length) {
+        temelOzellik = nestedProperty(temelNesne, yol);
+        dizi = temelOzellik.get();
     } else {
-        arr = baseObj;
+        dizi = temelNesne;
     }
 
-    path = path || '';
+    yol = yol || '';
 
-    // Construct an index:
-    var indexLookup = {};
-    if(arr) {
-        for(i = 0; i < arr.length; i++) {
-            indexLookup[arr[i][keyName]] = i;
+    // Bir indeks oluştur:
+    var indeksBul = {};
+    if(dizi) {
+        for(i = 0; i < dizi.length; i++) {
+            indeksBul[dizi[i][anahtarIsmi]] = i;
         }
     }
 
-    var isSimpleValueProp = SIMPLE_PROPERTY_REGEX.test(valueName);
+    var basitDegerOzelligi = BASIT_OZELLIK_REGEX.test(degerIsmi);
 
-    var obj = {
-        set: function(name, value) {
-            var changeType = value === null ? UNSET : NONE;
+    var nesne = {
+        ayarla: function(isim, deger) {
+            var degisimTuru = deger === null ? KALDIR : HICBIRI;
 
-            // create the base array if necessary
-            if(!arr) {
-                if(!baseProp || changeType === UNSET) return;
+            // Gerekirse temel diziyi oluştur
+            if(!dizi) {
+                if(!temelOzellik || degisimTuru === KALDIR) return;
 
-                arr = [];
-                baseProp.set(arr);
+                dizi = [];
+                temelOzellik.set(dizi);
             }
 
-            var idx = indexLookup[name];
-            if(idx === undefined) {
-                if(changeType === UNSET) return;
+            var indeks = indeksBul[isim];
+            if(indeks === undefined) {
+                if(degisimTuru === KALDIR) return;
 
-                changeType = changeType | BOTH;
-                idx = arr.length;
-                indexLookup[name] = idx;
-            } else if(value !== (isSimpleValueProp ? arr[idx][valueName] : nestedProperty(arr[idx], valueName).get())) {
-                changeType = changeType | VALUE;
+                degisimTuru = degisimTuru | HER_IKISI;
+                indeks = dizi.length;
+                indeksBul[isim] = indeks;
+            } else if(deger !== (basitDegerOzelligi ? dizi[indeks][degerIsmi] : nestedProperty(dizi[indeks], degerIsmi).get())) {
+                degisimTuru = degisimTuru | DEGER;
             }
 
-            var newValue = arr[idx] = arr[idx] || {};
-            newValue[keyName] = name;
+            var yeniDeger = dizi[indeks] = dizi[indeks] || {};
+            yeniDeger[anahtarIsmi] = isim;
 
-            if(isSimpleValueProp) {
-                newValue[valueName] = value;
+            if(basitDegerOzelligi) {
+                yeniDeger[degerIsmi] = deger;
             } else {
-                nestedProperty(newValue, valueName).set(value);
+                nestedProperty(yeniDeger, degerIsmi).set(deger);
             }
 
-            // If it's not an unset, force that bit to be unset. This is all related to the fact
-            // that undefined and null are a bit specially implemented in nestedProperties.
-            if(value !== null) {
-                changeType = changeType & ~UNSET;
+            // Eğer kaldırma değilse, bu biti kaldırmaya zorla.
+            if(deger !== null) {
+                degisimTuru = degisimTuru & ~KALDIR;
             }
 
-            changeTypes[idx] = changeTypes[idx] | changeType;
+            degisimTurleri[indeks] = degisimTurleri[indeks] | degisimTuru;
 
-            return obj;
+            return nesne;
         },
-        get: function(name) {
-            if(!arr) return;
+        getir: function(isim) {
+            if(!dizi) return;
 
-            var idx = indexLookup[name];
+            var indeks = indeksBul[isim];
 
-            if(idx === undefined) {
+            if(indeks === undefined) {
                 return undefined;
-            } else if(isSimpleValueProp) {
-                return arr[idx][valueName];
+            } else if(basitDegerOzelligi) {
+                return dizi[indeks][degerIsmi];
             } else {
-                return nestedProperty(arr[idx], valueName).get();
+                return nestedProperty(dizi[indeks], degerIsmi).get();
             }
         },
-        rename: function(name, newName) {
-            var idx = indexLookup[name];
+        yenidenAdlandir: function(isim, yeniIsim) {
+            var indeks = indeksBul[isim];
 
-            if(idx === undefined) return obj;
-            changeTypes[idx] = changeTypes[idx] | NAME;
+            if(indeks === undefined) return nesne;
+            degisimTurleri[indeks] = degisimTurleri[indeks] | ISIM;
 
-            indexLookup[newName] = idx;
-            delete indexLookup[name];
+            indeksBul[yeniIsim] = indeks;
+            delete indeksBul[isim];
 
-            arr[idx][keyName] = newName;
+            dizi[indeks][anahtarIsmi] = yeniIsim;
 
-            return obj;
+            return nesne;
         },
-        remove: function(name) {
-            var idx = indexLookup[name];
+        kaldir: function(isim) {
+            var indeks = indeksBul[isim];
 
-            if(idx === undefined) return obj;
+            if(indeks === undefined) return nesne;
 
-            var object = arr[idx];
-            if(Object.keys(object).length > 2) {
-                // This object contains more than just the key/value, so unset
-                // the value without modifying the entry otherwise:
-                changeTypes[idx] = changeTypes[idx] | VALUE;
-                return obj.set(name, null);
+            var nesne = dizi[indeks];
+            if(Object.keys(nesne).length > 2) {
+                // Bu nesne anahtar/değer dışında daha fazla içerik içeriyor, bu yüzden
+                // değeri değiştirmeden kaldır:
+                degisimTurleri[indeks] = degisimTurleri[indeks] | DEGER;
+                return nesne.ayarla(isim, null);
             }
 
-            if(isSimpleValueProp) {
-                for(i = idx; i < arr.length; i++) {
-                    changeTypes[i] = changeTypes[i] | BOTH;
+            if(basitDegerOzelligi) {
+                for(i = indeks; i < dizi.length; i++) {
+                    degisimTurleri[i] = degisimTurleri[i] | HER_IKISI;
                 }
-                for(i = idx; i < arr.length; i++) {
-                    indexLookup[arr[i][keyName]]--;
+                for(i = indeks; i < dizi.length; i++) {
+                    indeksBul[dizi[i][anahtarIsmi]]--;
                 }
-                arr.splice(idx, 1);
-                delete(indexLookup[name]);
+                dizi.splice(indeks, 1);
+                delete(indeksBul[isim]);
             } else {
-                // Perform this update *strictly* so we can check whether the result's
-                // been pruned. If so, it's a removal. If not, it's a value unset only.
-                nestedProperty(object, valueName).set(null);
+                // Bu güncellemeyi *kesinlikle* gerçekleştirin, böylece sonucun budanıp budanmadığını kontrol edebiliriz.
+                // Eğer öyleyse, bu bir kaldırmadır. Değilse, bu sadece bir değer kaldırmadır.
+                nestedProperty(nesne, degerIsmi).set(null);
 
-                // Now check if the top level nested property has any keys left. If so,
-                // the object still has values so we only want to unset the key. If not,
-                // the entire object can be removed since there's no other data.
-                // var topLevelKeys = Object.keys(object[valueName.split('.')[0]] || []);
+                // Şimdi üst düzey nested property'nin herhangi bir anahtarı olup olmadığını kontrol edin.
+                // Eğer öyleyse, nesne hala değerlere sahiptir, bu yüzden sadece anahtarı kaldırmak istiyoruz.
+                // Değilse, başka veri olmadığı için tüm nesne kaldırılabilir.
+                // var ustDuzeyAnahtarlar = Object.keys(nesne[degerIsmi.split('.')[0]] || []);
 
-                changeTypes[idx] = changeTypes[idx] | VALUE | UNSET;
+                degisimTurleri[indeks] = degisimTurleri[indeks] | DEGER | KALDIR;
             }
 
-            return obj;
+            return nesne;
         },
-        constructUpdate: function() {
-            var astr, idx;
-            var update = {};
-            var changed = Object.keys(changeTypes);
-            for(var i = 0; i < changed.length; i++) {
-                idx = changed[i];
-                astr = path + '[' + idx + ']';
-                if(arr[idx]) {
-                    if(changeTypes[idx] & NAME) {
-                        update[astr + '.' + keyName] = arr[idx][keyName];
+        guncellemeOlustur: function() {
+            var astr, indeks;
+            var guncelleme = {};
+            var degisenler = Object.keys(degisimTurleri);
+            for(var i = 0; i < degisenler.length; i++) {
+                indeks = degisenler[i];
+                astr = yol + '[' + indeks + ']';
+                if(dizi[indeks]) {
+                    if(degisimTurleri[indeks] & ISIM) {
+                        guncelleme[astr + '.' + anahtarIsmi] = dizi[indeks][anahtarIsmi];
                     }
-                    if(changeTypes[idx] & VALUE) {
-                        if(isSimpleValueProp) {
-                            update[astr + '.' + valueName] = (changeTypes[idx] & UNSET) ? null : arr[idx][valueName];
+                    if(degisimTurleri[indeks] & DEGER) {
+                        if(basitDegerOzelligi) {
+                            guncelleme[astr + '.' + degerIsmi] = (degisimTurleri[indeks] & KALDIR) ? null : dizi[indeks][degerIsmi];
                         } else {
-                            update[astr + '.' + valueName] = (changeTypes[idx] & UNSET) ? null : nestedProperty(arr[idx], valueName).get();
+                            guncelleme[astr + '.' + degerIsmi] = (degisimTurleri[indeks] & KALDIR) ? null : nestedProperty(dizi[indeks], degerIsmi).get();
                         }
                     }
                 } else {
-                    update[astr] = null;
+                    guncelleme[astr] = null;
                 }
             }
 
-            return update;
+            return guncelleme;
         }
     };
 
-    return obj;
+    return nesne;
 };

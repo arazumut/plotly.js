@@ -4,180 +4,180 @@ var tinycolor = require('tinycolor2');
 var isNumeric = require('fast-isnumeric');
 var isTypedArray = require('../../lib/array').isTypedArray;
 
-var color = module.exports = {};
+var renk = module.exports = {};
 
-var colorAttrs = require('./attributes');
-color.defaults = colorAttrs.defaults;
-var defaultLine = color.defaultLine = colorAttrs.defaultLine;
-color.lightLine = colorAttrs.lightLine;
-var background = color.background = colorAttrs.background;
+var renkOzellikleri = require('./attributes');
+renk.varsayılanlar = renkOzellikleri.varsayılanlar;
+var varsayılanÇizgi = renk.varsayılanÇizgi = renkOzellikleri.varsayılanÇizgi;
+renk.açıkÇizgi = renkOzellikleri.açıkÇizgi;
+var arkaPlan = renk.arkaPlan = renkOzellikleri.arkaPlan;
 
 /*
- * tinyRGB: turn a tinycolor into an rgb string, but
- * unlike the built-in tinycolor.toRgbString this never includes alpha
+ * tinyRGB: bir tinycolor'ı rgb stringine çevirir, ancak
+ * tinycolor.toRgbString'in aksine bu asla alpha içermez
  */
-color.tinyRGB = function(tc) {
+renk.tinyRGB = function(tc) {
     var c = tc.toRgb();
     return 'rgb(' + Math.round(c.r) + ', ' +
         Math.round(c.g) + ', ' + Math.round(c.b) + ')';
 };
 
-color.rgb = function(cstr) { return color.tinyRGB(tinycolor(cstr)); };
+renk.rgb = function(cstr) { return renk.tinyRGB(tinycolor(cstr)); };
 
-color.opacity = function(cstr) { return cstr ? tinycolor(cstr).getAlpha() : 0; };
+renk.opacity = function(cstr) { return cstr ? tinycolor(cstr).getAlpha() : 0; };
 
-color.addOpacity = function(cstr, op) {
+renk.opacityEkle = function(cstr, op) {
     var c = tinycolor(cstr).toRgb();
     return 'rgba(' + Math.round(c.r) + ', ' +
         Math.round(c.g) + ', ' + Math.round(c.b) + ', ' + op + ')';
 };
 
-// combine two colors into one apparent color
-// if back has transparency or is missing,
-// color.background is assumed behind it
-color.combine = function(front, back) {
-    var fc = tinycolor(front).toRgb();
-    if(fc.a === 1) return tinycolor(front).toRgbString();
+// İki rengi birleştirir
+// Eğer arka plan şeffafsa veya eksikse,
+// renk.arkaPlan arka planda varsayılır
+renk.birleştir = function(ön, arka) {
+    var fc = tinycolor(ön).toRgb();
+    if(fc.a === 1) return tinycolor(ön).toRgbString();
 
-    var bc = tinycolor(back || background).toRgb();
-    var bcflat = bc.a === 1 ? bc : {
+    var bc = tinycolor(arka || arkaPlan).toRgb();
+    var bcDüz = bc.a === 1 ? bc : {
         r: 255 * (1 - bc.a) + bc.r * bc.a,
         g: 255 * (1 - bc.a) + bc.g * bc.a,
         b: 255 * (1 - bc.a) + bc.b * bc.a
     };
-    var fcflat = {
-        r: bcflat.r * (1 - fc.a) + fc.r * fc.a,
-        g: bcflat.g * (1 - fc.a) + fc.g * fc.a,
-        b: bcflat.b * (1 - fc.a) + fc.b * fc.a
+    var fcDüz = {
+        r: bcDüz.r * (1 - fc.a) + fc.r * fc.a,
+        g: bcDüz.g * (1 - fc.a) + fc.g * fc.a,
+        b: bcDüz.b * (1 - fc.a) + fc.b * fc.a
     };
-    return tinycolor(fcflat).toRgbString();
+    return tinycolor(fcDüz).toRgbString();
 };
 
 /*
- * Linearly interpolate between two colors at a normalized interpolation position (0 to 1).
+ * İki renk arasında doğrusal interpolasyon yapar.
  *
- * Ignores alpha channel values.
- * The resulting color is computed as: factor * first + (1 - factor) * second.
+ * Alpha kanal değerlerini göz ardı eder.
+ * Sonuç renk şu şekilde hesaplanır: faktör * ilk + (1 - faktör) * ikinci.
  */
-color.interpolate = function(first, second, factor) {
-    var fc = tinycolor(first).toRgb();
-    var sc = tinycolor(second).toRgb();
+renk.interpolasyon = function(ilk, ikinci, faktör) {
+    var fc = tinycolor(ilk).toRgb();
+    var sc = tinycolor(ikinci).toRgb();
 
     var ic = {
-        r: factor * fc.r + (1 - factor) * sc.r,
-        g: factor * fc.g + (1 - factor) * sc.g,
-        b: factor * fc.b + (1 - factor) * sc.b,
+        r: faktör * fc.r + (1 - faktör) * sc.r,
+        g: faktör * fc.g + (1 - faktör) * sc.g,
+        b: faktör * fc.b + (1 - faktör) * sc.b,
     };
 
     return tinycolor(ic).toRgbString();
 };
 
 /*
- * Create a color that contrasts with cstr.
+ * cstr ile kontrast oluşturan bir renk oluşturur.
  *
- * If cstr is a dark color, we lighten it; if it's light, we darken.
+ * Eğer cstr koyu bir renkse, onu aydınlatırız; eğer açık bir renkse, karartırız.
  *
- * If lightAmount / darkAmount are used, we adjust by these percentages,
- * otherwise we go all the way to white or black.
+ * Eğer lightAmount / darkAmount kullanılırsa, bu yüzdelerle ayarlarız,
+ * aksi takdirde tamamen beyaz veya siyaha gideriz.
  */
-color.contrast = function(cstr, lightAmount, darkAmount) {
+renk.kontrast = function(cstr, lightAmount, darkAmount) {
     var tc = tinycolor(cstr);
 
-    if(tc.getAlpha() !== 1) tc = tinycolor(color.combine(cstr, background));
+    if(tc.getAlpha() !== 1) tc = tinycolor(renk.birleştir(cstr, arkaPlan));
 
-    var newColor = tc.isDark() ?
-        (lightAmount ? tc.lighten(lightAmount) : background) :
-        (darkAmount ? tc.darken(darkAmount) : defaultLine);
+    var yeniRenk = tc.isDark() ?
+        (lightAmount ? tc.lighten(lightAmount) : arkaPlan) :
+        (darkAmount ? tc.darken(darkAmount) : varsayılanÇizgi);
 
-    return newColor.toString();
+    return yeniRenk.toString();
 };
 
-color.stroke = function(s, c) {
+renk.stroke = function(s, c) {
     var tc = tinycolor(c);
-    s.style({stroke: color.tinyRGB(tc), 'stroke-opacity': tc.getAlpha()});
+    s.style({stroke: renk.tinyRGB(tc), 'stroke-opacity': tc.getAlpha()});
 };
 
-color.fill = function(s, c) {
+renk.fill = function(s, c) {
     var tc = tinycolor(c);
     s.style({
-        fill: color.tinyRGB(tc),
+        fill: renk.tinyRGB(tc),
         'fill-opacity': tc.getAlpha()
     });
 };
 
-// search container for colors with the deprecated rgb(fractions) format
-// and convert them to rgb(0-255 values)
-color.clean = function(container) {
-    if(!container || typeof container !== 'object') return;
+// Konteynerdeki eski rgb(fractions) formatındaki renkleri arar
+// ve bunları rgb(0-255 değerleri) formatına dönüştürür
+renk.temizle = function(konteyner) {
+    if(!konteyner || typeof konteyner !== 'object') return;
 
-    var keys = Object.keys(container);
-    var i, j, key, val;
+    var anahtarlar = Object.keys(konteyner);
+    var i, j, anahtar, değer;
 
-    for(i = 0; i < keys.length; i++) {
-        key = keys[i];
-        val = container[key];
+    for(i = 0; i < anahtarlar.length; i++) {
+        anahtar = anahtarlar[i];
+        değer = konteyner[anahtar];
 
-        if(key.substr(key.length - 5) === 'color') {
-            // only sanitize keys that end in "color" or "colorscale"
+        if(anahtar.substr(anahtar.length - 5) === 'renk') {
+            // sadece "renk" veya "renk ölçeği" ile biten anahtarları temizle
 
-            if(Array.isArray(val)) {
-                for(j = 0; j < val.length; j++) val[j] = cleanOne(val[j]);
-            } else container[key] = cleanOne(val);
-        } else if(key.substr(key.length - 10) === 'colorscale' && Array.isArray(val)) {
-            // colorscales have the format [[0, color1], [frac, color2], ... [1, colorN]]
+            if(Array.isArray(değer)) {
+                for(j = 0; j < değer.length; j++) değer[j] = biriniTemizle(değer[j]);
+            } else konteyner[anahtar] = biriniTemizle(değer);
+        } else if(anahtar.substr(anahtar.length - 10) === 'renk ölçeği' && Array.isArray(değer)) {
+            // renk ölçekleri şu formattadır: [[0, renk1], [frac, renk2], ... [1, renkN]]
 
-            for(j = 0; j < val.length; j++) {
-                if(Array.isArray(val[j])) val[j][1] = cleanOne(val[j][1]);
+            for(j = 0; j < değer.length; j++) {
+                if(Array.isArray(değer[j])) değer[j][1] = biriniTemizle(değer[j][1]);
             }
-        } else if(Array.isArray(val)) {
-            // recurse into arrays of objects, and plain objects
+        } else if(Array.isArray(değer)) {
+            // nesne dizilerine ve düz nesnelere yineleme yap
 
-            var el0 = val[0];
+            var el0 = değer[0];
             if(!Array.isArray(el0) && el0 && typeof el0 === 'object') {
-                for(j = 0; j < val.length; j++) color.clean(val[j]);
+                for(j = 0; j < değer.length; j++) renk.temizle(değer[j]);
             }
-        } else if(val && typeof val === 'object' && !isTypedArray(val)) color.clean(val);
+        } else if(değer && typeof değer === 'object' && !isTypedArray(değer)) renk.temizle(değer);
     }
 };
 
-function cleanOne(val) {
-    if(isNumeric(val) || typeof val !== 'string') return val;
+function biriniTemizle(değer) {
+    if(isNumeric(değer) || typeof değer !== 'string') return değer;
 
-    var valTrim = val.trim();
-    if(valTrim.substr(0, 3) !== 'rgb') return val;
+    var değerTrim = değer.trim();
+    if(değerTrim.substr(0, 3) !== 'rgb') return değer;
 
-    var match = valTrim.match(/^rgba?\s*\(([^()]*)\)$/);
-    if(!match) return val;
+    var eşleşme = değerTrim.match(/^rgba?\s*\(([^()]*)\)$/);
+    if(!eşleşme) return değer;
 
-    var parts = match[1].trim().split(/\s*[\s,]\s*/);
-    var rgba = valTrim.charAt(3) === 'a' && parts.length === 4;
-    if(!rgba && parts.length !== 3) return val;
+    var parçalar = eşleşme[1].trim().split(/\s*[\s,]\s*/);
+    var rgba = değerTrim.charAt(3) === 'a' && parçalar.length === 4;
+    if(!rgba && parçalar.length !== 3) return değer;
 
-    for(var i = 0; i < parts.length; i++) {
-        if(!parts[i].length) return val;
-        parts[i] = Number(parts[i]);
+    for(var i = 0; i < parçalar.length; i++) {
+        if(!parçalar[i].length) return değer;
+        parçalar[i] = Number(parçalar[i]);
 
-        if(!(parts[i] >= 0)) {
-            // all parts must be non-negative numbers
+        if(!(parçalar[i] >= 0)) {
+            // tüm parçalar pozitif sayılar olmalı
 
-            return val;
+            return değer;
         }
 
         if(i === 3) {
-            // alpha>1 gets clipped to 1
+            // alpha>1 1'e kırpılır
 
-            if(parts[i] > 1) parts[i] = 1;
-        } else if(parts[i] >= 1) {
-            // r, g, b must be < 1 (ie 1 itself is not allowed)
+            if(parçalar[i] > 1) parçalar[i] = 1;
+        } else if(parçalar[i] >= 1) {
+            // r, g, b < 1 olmalı (yani 1'in kendisi izin verilmez)
 
-            return val;
+            return değer;
         }
     }
 
-    var rgbStr = Math.round(parts[0] * 255) + ', ' +
-        Math.round(parts[1] * 255) + ', ' +
-        Math.round(parts[2] * 255);
+    var rgbStr = Math.round(parçalar[0] * 255) + ', ' +
+        Math.round(parçalar[1] * 255) + ', ' +
+        Math.round(parçalar[2] * 255);
 
-    if(rgba) return 'rgba(' + rgbStr + ', ' + parts[3] + ')';
+    if(rgba) return 'rgba(' + rgbStr + ', ' + parçalar[3] + ')';
     return 'rgb(' + rgbStr + ')';
 }

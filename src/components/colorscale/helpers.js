@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var d3 = require('@plotly/d3');
 var tinycolor = require('tinycolor2');
 var isNumeric = require('fast-isnumeric');
@@ -9,6 +10,7 @@ var Color = require('../color');
 
 var isValidScale = require('./scales').isValid;
 
+// Renk skalası olup olmadığını kontrol eden fonksiyon
 function hasColorscale(trace, containerStr, colorKey) {
     var container = containerStr ?
         Lib.nestedProperty(trace, containerStr).get() || {} :
@@ -42,19 +44,19 @@ var constantAttrs = ['showscale', 'autocolorscale', 'colorscale', 'reversescale'
 var letterAttrs = ['min', 'max', 'mid', 'auto'];
 
 /**
- * Extract 'c' / 'z', trace / color axis colorscale options
+ * 'c' / 'z', iz / renk ekseni renk skalası seçeneklerini çıkar
  *
- * Note that it would be nice to replace all z* with c* equivalents in v3
+ * Not: v3'te tüm z* ile başlayanları c* ile değiştirmek iyi olurdu
  *
- * @param {object} cont : attribute container
+ * @param {object} cont : öznitelik konteyneri
  * @return {object}:
- *  - min: cmin or zmin
- *  - max: cmax or zmax
- *  - mid: cmid or zmid
- *  - auto: cauto or zauto
- *  - *scale: *scale attrs
+ *  - min: cmin veya zmin
+ *  - max: cmax veya zmax
+ *  - mid: cmid veya zmid
+ *  - auto: cauto veya zauto
+ *  - *scale: *scale öznitelikleri
  *  - colorbar: colorbar
- *  - _sync: function syncing attr and underscore dual (useful when calc'ing min/max)
+ *  - _sync: öznitelik ve alt çizgi ikilisini senkronize eden fonksiyon (min/max hesaplanırken kullanışlı)
  */
 function extractOpts(cont) {
     var colorAx = cont._colorAx;
@@ -100,17 +102,17 @@ function extractOpts(cont) {
 }
 
 /**
- * Extract colorscale into numeric domain and color range.
+ * Renk skalasını sayısal domain ve renk aralığına çıkar.
  *
- * @param {object} cont colorscale container (e.g. trace, marker)
- *  - colorscale {array of arrays}
- *  - cmin/zmin {number}
- *  - cmax/zmax {number}
+ * @param {object} cont renk skalası konteyneri (örneğin iz, marker)
+ *  - colorscale {dizi}
+ *  - cmin/zmin {sayı}
+ *  - cmax/zmax {sayı}
  *  - reversescale {boolean}
  *
  * @return {object}
- *  - domain {array}
- *  - range {array}
+ *  - domain {dizi}
+ *  - range {dizi}
  */
 function extractScale(cont) {
     var cOpts = extractOpts(cont);
@@ -134,6 +136,7 @@ function extractScale(cont) {
     return {domain: domain, range: range};
 }
 
+// Renk skalasını tersine çeviren fonksiyon
 function flipScale(scl) {
     var N = scl.length;
     var sclNew = new Array(N);
@@ -146,15 +149,15 @@ function flipScale(scl) {
 }
 
 /**
- * General colorscale function generator.
+ * Genel renk skalası fonksiyon üreticisi.
  *
- * @param {object} specs output of Colorscale.extractScale or precomputed domain, range.
- *  - domain {array}
- *  - range {array}
+ * @param {object} specs Colorscale.extractScale'in çıktısı veya önceden hesaplanmış domain, range.
+ *  - domain {dizi}
+ *  - range {dizi}
  *
  * @param {object} opts
- *  - noNumericCheck {boolean} if true, scale func bypasses numeric checks
- *  - returnArray {boolean} if true, scale func return 4-item array instead of color strings
+ *  - noNumericCheck {boolean} true ise, skala fonksiyonu sayısal kontrolleri atlar
+ *  - returnArray {boolean} true ise, skala fonksiyonu renk dizeleri yerine 4 öğeli dizi döner
  *
  * @return {function}
  */
@@ -200,17 +203,19 @@ function makeColorScaleFunc(specs, opts) {
         };
     }
 
-    // colorbar draw looks into the d3 scale closure for domain and range
+    // colorbar çizimi d3 skala kapanışında domain ve range'e bakar
     sclFunc.domain = _sclFunc.domain;
     sclFunc.range = function() { return range; };
 
     return sclFunc;
 }
 
+// İzden renk skalası fonksiyonu oluşturan fonksiyon
 function makeColorScaleFuncFromTrace(trace, opts) {
     return makeColorScaleFunc(extractScale(trace), opts);
 }
 
+// Renk dizisini rgba dizgesine dönüştüren fonksiyon
 function colorArray2rbga(colorArray) {
     var colorObj = {
         r: colorArray[0],
@@ -222,6 +227,7 @@ function colorArray2rbga(colorArray) {
     return tinycolor(colorObj).toRgbString();
 }
 
+// Modülleri dışa aktar
 module.exports = {
     hasColorscale: hasColorscale,
     extractOpts: extractOpts,

@@ -1,11 +1,16 @@
 'use strict';
 
-module.exports = function zip3(x, y, z, len) {
-    len = len || x.length;
+// zip3 fonksiyonunu dışa aktar
+module.exports = function zip3(x, y, z, uzunluk) {
+    // Eğer uzunluk belirtilmemişse, x dizisinin uzunluğunu kullan
+    uzunluk = uzunluk || x.length;
 
-    var result = new Array(len);
-    for(var i = 0; i < len; i++) {
-        result[i] = [x[i], y[i], z[i]];
+    // Sonuç dizisini oluştur
+    var sonuc = new Array(uzunluk);
+    for(var i = 0; i < uzunluk; i++) {
+        // x, y ve z dizilerinin i. elemanlarını birleştir ve sonuç dizisine ekle
+        sonuc[i] = [x[i], y[i], z[i]];
     }
-    return result;
+    // Sonuç dizisini döndür
+    return sonuc;
 };

@@ -1,13 +1,13 @@
 'use strict';
 
-var constants = require('./constants');
+var sabitler = require('./constants');
 
 module.exports = {
-    moduleType: 'component',
-    name: constants.name,
+    modulTipi: 'bileşen',
+    isim: sabitler.isim,
 
-    layoutAttributes: require('./attributes'),
-    supplyLayoutDefaults: require('./defaults'),
+    yerleşimÖznitelikleri: require('./attributes'),
+    yerleşimVarsayılanlarınıSağla: require('./defaults'),
 
-    draw: require('./draw')
+    çiz: require('./draw')
 };

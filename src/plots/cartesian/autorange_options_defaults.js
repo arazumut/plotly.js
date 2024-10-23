@@ -1,23 +1,24 @@
 'use strict';
 
+// Bu fonksiyon, otomatik aralık seçeneklerinin varsayılanlarını işler
 module.exports = function handleAutorangeOptionsDefaults(coerce, autorange, range) {
-    var minRange, maxRange;
+    var minAralık, maxAralık;
     if(range) {
-        var isReversed = (
-            autorange === 'reversed' ||
-            autorange === 'min reversed' ||
-            autorange === 'max reversed'
+        var tersMi = (
+            autorange === 'ters' ||
+            autorange === 'min ters' ||
+            autorange === 'max ters'
         );
 
-        minRange = range[isReversed ? 1 : 0];
-        maxRange = range[isReversed ? 0 : 1];
+        minAralık = range[tersMi ? 1 : 0];
+        maxAralık = range[tersMi ? 0 : 1];
     }
 
-    var minallowed = coerce('autorangeoptions.minallowed', maxRange === null ? minRange : undefined);
-    var maxallowed = coerce('autorangeoptions.maxallowed', minRange === null ? maxRange : undefined);
+    var minİzinVerilen = coerce('otomatikaralıkseçenekleri.minİzinVerilen', maxAralık === null ? minAralık : undefined);
+    var maxİzinVerilen = coerce('otomatikaralıkseçenekleri.maxİzinVerilen', minAralık === null ? maxAralık : undefined);
 
-    if(minallowed === undefined) coerce('autorangeoptions.clipmin');
-    if(maxallowed === undefined) coerce('autorangeoptions.clipmax');
+    if(minİzinVerilen === undefined) coerce('otomatikaralıkseçenekleri.minKes');
+    if(maxİzinVerilen === undefined) coerce('otomatikaralıkseçenekleri.maxKes');
 
-    coerce('autorangeoptions.include');
+    coerce('otomatikaralıkseçenekleri.dahilEt');
 };

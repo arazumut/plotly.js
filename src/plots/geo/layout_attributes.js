@@ -1,66 +1,66 @@
 'use strict';
 
-var colorAttrs = require('../../components/color/attributes');
-var domainAttrs = require('../domain').attributes;
-var dash = require('../../components/drawing/attributes').dash;
-var constants = require('./constants');
-var overrideAll = require('../../plot_api/edit_types').overrideAll;
-var sortObjectKeys = require('../../lib/sort_object_keys');
+var renkOzellikleri = require('../../components/color/attributes');
+var alanOzellikleri = require('../domain').attributes;
+var cizgi = require('../../components/drawing/attributes').dash;
+var sabitler = require('./constants');
+var hepsiniGecersizKil = require('../../plot_api/edit_types').overrideAll;
+var nesneAnahtarlariniSirala = require('../../lib/sort_object_keys');
 
-var geoAxesAttrs = {
-    range: {
+var geoEksenOzellikleri = {
+    aralik: {
         valType: 'info_array',
         items: [
             {valType: 'number'},
             {valType: 'number'}
         ],
         description: [
-            'Sets the range of this axis (in degrees),',
-            'sets the map\'s clipped coordinates.'
+            'Bu eksenin aralığını (derece cinsinden) ayarlar,',
+            'haritanın kırpılmış koordinatlarını ayarlar.'
         ].join(' ')
     },
-    showgrid: {
+    gridGoster: {
         valType: 'boolean',
         dflt: false,
-        description: 'Sets whether or not graticule are shown on the map.'
+        description: 'Haritada ızgara çizgilerinin gösterilip gösterilmeyeceğini ayarlar.'
     },
     tick0: {
         valType: 'number',
         dflt: 0,
         description: [
-            'Sets the graticule\'s starting tick longitude/latitude.'
+            'Izgara çizgilerinin başlangıç uzunluk/enlem tikini ayarlar.'
         ].join(' ')
     },
     dtick: {
         valType: 'number',
         description: [
-            'Sets the graticule\'s longitude/latitude tick step.'
+            'Izgara çizgilerinin uzunluk/enlem tik adımını ayarlar.'
         ].join(' ')
     },
-    gridcolor: {
+    gridRenk: {
         valType: 'color',
-        dflt: colorAttrs.lightLine,
+        dflt: renkOzellikleri.lightLine,
         description: [
-            'Sets the graticule\'s stroke color.'
+            'Izgara çizgilerinin çizgi rengini ayarlar.'
         ].join(' ')
     },
-    gridwidth: {
+    gridGenislik: {
         valType: 'number',
         min: 0,
         dflt: 1,
         description: [
-            'Sets the graticule\'s stroke width (in px).'
+            'Izgara çizgilerinin çizgi genişliğini (px cinsinden) ayarlar.'
         ].join(' ')
     },
-    griddash: dash
+    gridCizgi: cizgi
 };
 
-var attrs = module.exports = overrideAll({
-    domain: domainAttrs({name: 'geo'}, {
+var ozellikler = module.exports = hepsiniGecersizKil({
+    alan: alanOzellikleri({name: 'geo'}, {
         description: [
-            'Note that geo subplots are constrained by domain.',
-            'In general, when `projection.scale` is set to 1.',
-            'a map will fit either its x or y domain, but not both.'
+            'Geo alt grafiklerinin alan tarafından kısıtlandığını unutmayın.',
+            'Genel olarak, `projection.scale` 1 olarak ayarlandığında,',
+            'bir harita ya x ya da y alanına sığar, ancak her ikisine birden değil.'
         ].join(' ')
     }),
 
@@ -70,70 +70,67 @@ var attrs = module.exports = overrideAll({
         dflt: false,
         editType: 'plot',
         description: [
-            'Determines if this subplot\'s view settings are auto-computed to fit trace data.',
+            'Bu alt grafiğin görünüm ayarlarının iz verilerine uyacak şekilde otomatik olarak hesaplanıp hesaplanmayacağını belirler.',
 
-            'On scoped maps, setting `fitbounds` leads to `center.lon` and `center.lat` getting auto-filled.',
+            'Sınırlı haritalarda, `fitbounds` ayarlandığında `center.lon` ve `center.lat` otomatik olarak doldurulur.',
 
-            'On maps with a non-clipped projection, setting `fitbounds` leads to `center.lon`, `center.lat`,',
-            'and `projection.rotation.lon` getting auto-filled.',
+            'Kesilmemiş projeksiyona sahip haritalarda, `fitbounds` ayarlandığında `center.lon`, `center.lat`,',
+            've `projection.rotation.lon` otomatik olarak doldurulur.',
 
-            'On maps with a clipped projection, setting `fitbounds` leads to `center.lon`, `center.lat`,',
-            '`projection.rotation.lon`, `projection.rotation.lat`, `lonaxis.range` and `lataxis.range`',
-            'getting auto-filled.',
+            'Kesilmiş projeksiyona sahip haritalarda, `fitbounds` ayarlandığında `center.lon`, `center.lat`,',
+            '`projection.rotation.lon`, `projection.rotation.lat`, `lonaxis.range` ve `lataxis.range`',
+            'otomatik olarak doldurulur.',
 
-            // TODO we should auto-fill `projection.parallels` for maps
-            // with conic projection, but how?
-
-            'If *locations*, only the trace\'s visible locations are considered in the `fitbounds` computations.',
-            'If *geojson*, the entire trace input `geojson` (if provided) is considered in the `fitbounds` computations,',
-            'Defaults to *false*.'
+            'Eğer *locations* ise, sadece iz görünür konumları `fitbounds` hesaplamalarında dikkate alınır.',
+            'Eğer *geojson* ise, sağlanan tüm iz girişi `geojson` (varsa) `fitbounds` hesaplamalarında dikkate alınır,',
+            'Varsayılan olarak *false*.'
         ].join(' ')
     },
 
-    resolution: {
+    cozum: {
         valType: 'enumerated',
         values: [110, 50],
         dflt: 110,
         coerceNumber: true,
         description: [
-            'Sets the resolution of the base layers.',
-            'The values have units of km/mm',
-            'e.g. 110 corresponds to a scale ratio of 1:110,000,000.'
+            'Temel katmanların çözünürlüğünü ayarlar.',
+            'Değerler km/mm birimindedir,',
+            'örneğin 110, 1:110,000,000 ölçek oranına karşılık gelir.'
         ].join(' ')
     },
-    scope: {
+    kapsam: {
         valType: 'enumerated',
-        values: sortObjectKeys(constants.scopeDefaults),
+        values: nesneAnahtarlariniSirala(sabitler.scopeDefaults),
         dflt: 'world',
-        description: 'Set the scope of the map.'
+        description: 'Haritanın kapsamını ayarlar.'
     },
-    projection: {
+    projeksiyon: {
         type: {
             valType: 'enumerated',
-            values: sortObjectKeys(constants.projNames),
-            description: 'Sets the projection type.'
+            values: nesneAnahtarlariniSirala(sabitler.projNames),
+            description: 'Projeksiyon türünü ayarlar.'
         },
         rotation: {
             lon: {
                 valType: 'number',
                 description: [
-                    'Rotates the map along parallels',
-                    '(in degrees East).',
-                    'Defaults to the center of the `lonaxis.range` values.'
+                    'Haritayı paraleller boyunca döndürür',
+                    '(doğu derecelerinde).',
+                    'Varsayılan olarak `lonaxis.range` değerlerinin ortasına ayarlanır.'
                 ].join(' ')
             },
             lat: {
                 valType: 'number',
                 description: [
-                    'Rotates the map along meridians',
-                    '(in degrees North).'
+                    'Haritayı meridyenler boyunca döndürür',
+                    '(kuzey derecelerinde).'
                 ].join(' ')
             },
             roll: {
                 valType: 'number',
                 description: [
-                    'Roll the map (in degrees)',
-                    'For example, a roll of *180* makes the map appear upside down.'
+                    'Haritayı döndürür (derece cinsinden)',
+                    'Örneğin, *180* derecelik bir döndürme haritayı ters çevirir.'
                 ].join(' ')
             }
         },
@@ -141,8 +138,8 @@ var attrs = module.exports = overrideAll({
             valType: 'number',
             dflt: 0,
             description: [
-                'For satellite projection type only.',
-                'Sets the tilt angle of perspective projection.'
+                'Sadece uydu projeksiyon türü için.',
+                'Perspektif projeksiyonun eğim açısını ayarlar.'
             ].join(' ')
         },
         distance: {
@@ -150,11 +147,11 @@ var attrs = module.exports = overrideAll({
             min: 1.001,
             dflt: 2,
             description: [
-                'For satellite projection type only.',
-                'Sets the distance from the center of the sphere to the point of view',
-                'as a proportion of the sphere’s radius.'
+                'Sadece uydu projeksiyon türü için.',
+                'Bakış noktasının kürenin merkezine olan mesafesini ayarlar',
+                'küre yarıçapının bir oranı olarak.'
             ].join(' ')
-        },
+        }, 
         parallels: {
             valType: 'info_array',
             items: [
@@ -162,9 +159,8 @@ var attrs = module.exports = overrideAll({
                 {valType: 'number'}
             ],
             description: [
-                'For conic projection types only.',
-                'Sets the parallels (tangent, secant)',
-                'where the cone intersects the sphere.'
+                'Sadece konik projeksiyon türleri için.',
+                'Koninin küreyi kestiği paralelleri (teğet, kesen) ayarlar.'
             ].join(' ')
         },
         scale: {
@@ -172,159 +168,156 @@ var attrs = module.exports = overrideAll({
             min: 0,
             dflt: 1,
             description: [
-                'Zooms in or out on the map view.',
-                'A scale of *1* corresponds to the largest zoom level',
-                'that fits the map\'s lon and lat ranges. '
+                'Harita görünümünü yakınlaştırır veya uzaklaştırır.',
+                '*1* ölçeği, haritanın uzunluk ve enlem aralıklarına sığan en büyük yakınlaştırma seviyesine karşılık gelir.'
             ].join(' ')
         },
     },
-    center: {
+    merkez: {
         lon: {
             valType: 'number',
             description: [
-                'Sets the longitude of the map\'s center.',
-                'By default, the map\'s longitude center lies at the middle of the longitude range',
-                'for scoped projection and above `projection.rotation.lon` otherwise.'
+                'Haritanın merkezinin boylamını ayarlar.',
+                'Varsayılan olarak, haritanın boylam merkezi, sınırlı projeksiyon için boylam aralığının ortasında yer alır',
+                've aksi takdirde `projection.rotation.lon` üzerinde bulunur.'
             ].join(' ')
         },
         lat: {
             valType: 'number',
             description: [
-                'Sets the latitude of the map\'s center.',
-                'For all projection types, the map\'s latitude center lies',
-                'at the middle of the latitude range by default.'
+                'Haritanın merkezinin enlemini ayarlar.',
+                'Tüm projeksiyon türleri için, haritanın enlem merkezi varsayılan olarak enlem aralığının ortasında yer alır.'
             ].join(' ')
         }
     },
-    visible: {
+    gorunur: {
         valType: 'boolean',
         dflt: true,
-        description: 'Sets the default visibility of the base layers.'
+        description: 'Temel katmanların varsayılan görünürlüğünü ayarlar.'
     },
-    showcoastlines: {
+    sahilCizgileriniGoster: {
         valType: 'boolean',
-        description: 'Sets whether or not the coastlines are drawn.'
+        description: 'Sahil çizgilerinin çizilip çizilmeyeceğini ayarlar.'
     },
-    coastlinecolor: {
+    sahilCizgisiRengi: {
         valType: 'color',
-        dflt: colorAttrs.defaultLine,
-        description: 'Sets the coastline color.'
+        dflt: renkOzellikleri.defaultLine,
+        description: 'Sahil çizgisi rengini ayarlar.'
     },
-    coastlinewidth: {
+    sahilCizgisiGenisligi: {
         valType: 'number',
         min: 0,
         dflt: 1,
-        description: 'Sets the coastline stroke width (in px).'
+        description: 'Sahil çizgisi çizgi genişliğini (px cinsinden) ayarlar.'
     },
-    showland: {
+    karaGoster: {
         valType: 'boolean',
         dflt: false,
-        description: 'Sets whether or not land masses are filled in color.'
+        description: 'Kara kütlelerinin renkle doldurulup doldurulmayacağını ayarlar.'
     },
-    landcolor: {
+    karaRengi: {
         valType: 'color',
-        dflt: constants.landColor,
-        description: 'Sets the land mass color.'
+        dflt: sabitler.landColor,
+        description: 'Kara kütlesi rengini ayarlar.'
     },
-    showocean: {
+    okyanusGoster: {
         valType: 'boolean',
         dflt: false,
-        description: 'Sets whether or not oceans are filled in color.'
+        description: 'Okyanusların renkle doldurulup doldurulmayacağını ayarlar.'
     },
-    oceancolor: {
+    okyanusRengi: {
         valType: 'color',
-        dflt: constants.waterColor,
-        description: 'Sets the ocean color'
+        dflt: sabitler.waterColor,
+        description: 'Okyanus rengini ayarlar.'
     },
-    showlakes: {
+    golGoster: {
         valType: 'boolean',
         dflt: false,
-        description: 'Sets whether or not lakes are drawn.'
+        description: 'Göllerin çizilip çizilmeyeceğini ayarlar.'
     },
-    lakecolor: {
+    golRengi: {
         valType: 'color',
-        dflt: constants.waterColor,
-        description: 'Sets the color of the lakes.'
+        dflt: sabitler.waterColor,
+        description: 'Göllerin rengini ayarlar.'
     },
-    showrivers: {
+    nehirGoster: {
         valType: 'boolean',
         dflt: false,
-        description: 'Sets whether or not rivers are drawn.'
+        description: 'Nehirlerin çizilip çizilmeyeceğini ayarlar.'
     },
-    rivercolor: {
+    nehirRengi: {
         valType: 'color',
-        dflt: constants.waterColor,
-        description: 'Sets color of the rivers.'
+        dflt: sabitler.waterColor,
+        description: 'Nehirlerin rengini ayarlar.'
     },
-    riverwidth: {
+    nehirGenisligi: {
         valType: 'number',
         min: 0,
         dflt: 1,
-        description: 'Sets the stroke width (in px) of the rivers.'
+        description: 'Nehirlerin çizgi genişliğini (px cinsinden) ayarlar.'
     },
-    showcountries: {
+    ulkeGoster: {
         valType: 'boolean',
-        description: 'Sets whether or not country boundaries are drawn.'
+        description: 'Ülke sınırlarının çizilip çizilmeyeceğini ayarlar.'
     },
-    countrycolor: {
+    ulkeRengi: {
         valType: 'color',
-        dflt: colorAttrs.defaultLine,
-        description: 'Sets line color of the country boundaries.'
+        dflt: renkOzellikleri.defaultLine,
+        description: 'Ülke sınırlarının çizgi rengini ayarlar.'
     },
-    countrywidth: {
+    ulkeGenisligi: {
         valType: 'number',
         min: 0,
         dflt: 1,
-        description: 'Sets line width (in px) of the country boundaries.'
+        description: 'Ülke sınırlarının çizgi genişliğini (px cinsinden) ayarlar.'
     },
-    showsubunits: {
+    altBirimGoster: {
         valType: 'boolean',
         description: [
-            'Sets whether or not boundaries of subunits within countries',
-            '(e.g. states, provinces) are drawn.'
+            'Ülkeler içindeki alt birimlerin (örneğin, eyaletler, iller) sınırlarının çizilip çizilmeyeceğini ayarlar.'
         ].join(' ')
     },
-    subunitcolor: {
+    altBirimRengi: {
         valType: 'color',
-        dflt: colorAttrs.defaultLine,
-        description: 'Sets the color of the subunits boundaries.'
+        dflt: renkOzellikleri.defaultLine,
+        description: 'Alt birim sınırlarının rengini ayarlar.'
     },
-    subunitwidth: {
+    altBirimGenisligi: {
         valType: 'number',
         min: 0,
         dflt: 1,
-        description: 'Sets the stroke width (in px) of the subunits boundaries.'
+        description: 'Alt birim sınırlarının çizgi genişliğini (px cinsinden) ayarlar.'
     },
-    showframe: {
+    cerceveGoster: {
         valType: 'boolean',
-        description: 'Sets whether or not a frame is drawn around the map.'
+        description: 'Haritanın etrafında bir çerçeve çizilip çizilmeyeceğini ayarlar.'
     },
-    framecolor: {
+    cerceveRengi: {
         valType: 'color',
-        dflt: colorAttrs.defaultLine,
-        description: 'Sets the color the frame.'
+        dflt: renkOzellikleri.defaultLine,
+        description: 'Çerçevenin rengini ayarlar.'
     },
-    framewidth: {
+    cerceveGenisligi: {
         valType: 'number',
         min: 0,
         dflt: 1,
-        description: 'Sets the stroke width (in px) of the frame.'
+        description: 'Çerçevenin çizgi genişliğini (px cinsinden) ayarlar.'
     },
-    bgcolor: {
+    arkaPlanRengi: {
         valType: 'color',
-        dflt: colorAttrs.background,
-        description: 'Set the background color of the map'
+        dflt: renkOzellikleri.background,
+        description: 'Haritanın arka plan rengini ayarlar.'
     },
-    lonaxis: geoAxesAttrs,
-    lataxis: geoAxesAttrs
+    uzunlukEkseni: geoEksenOzellikleri,
+    enlemEkseni: geoEksenOzellikleri
 }, 'plot', 'from-root');
 
-// set uirevision outside of overrideAll so it can be `editType: 'none'`
-attrs.uirevision = {
+// uirevision'ı overrideAll dışında ayarlayın, böylece `editType: 'none'` olabilir
+ozellikler.uirevision = {
     valType: 'any',
     editType: 'none',
     description: [
-        'Controls persistence of user-driven changes in the view',
-        '(projection and center). Defaults to `layout.uirevision`.'
+        'Kullanıcı tarafından yapılan görünüm değişikliklerinin kalıcılığını kontrol eder',
+        '(projeksiyon ve merkez). Varsayılan olarak `layout.uirevision`.'
     ].join(' ')
 };

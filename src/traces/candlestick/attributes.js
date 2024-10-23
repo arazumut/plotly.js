@@ -1,23 +1,26 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var extendFlat = require('../../lib').extendFlat;
 var axisHoverFormat = require('../../plots/cartesian/axis_format_attributes').axisHoverFormat;
 var OHLCattrs = require('../ohlc/attributes');
 var boxAttrs = require('../box/attributes');
 
-function directionAttrs(lineColorDefault) {
+// Yön özelliklerini tanımlayan fonksiyon
+function yonOzellikleri(cizgiRengiVarsayilan) {
     return {
-        line: {
-            color: extendFlat({}, boxAttrs.line.color, {dflt: lineColorDefault}),
-            width: boxAttrs.line.width,
-            editType: 'style'
+        cizgi: {
+            renk: extendFlat({}, boxAttrs.line.color, {dflt: cizgiRengiVarsayilan}),
+            genislik: boxAttrs.line.width,
+            duzenlemeTuru: 'stil'
         },
 
-        fillcolor: boxAttrs.fillcolor,
-        editType: 'style'
+        dolguRengi: boxAttrs.fillcolor,
+        duzenlemeTuru: 'stil'
     };
 }
 
+// Modülü dışa aktar
 module.exports = {
     xperiod: OHLCattrs.xperiod,
     xperiod0: OHLCattrs.xperiod0,
@@ -26,32 +29,32 @@ module.exports = {
     yhoverformat: axisHoverFormat('y'),
 
     x: OHLCattrs.x,
-    open: OHLCattrs.open,
-    high: OHLCattrs.high,
-    low: OHLCattrs.low,
-    close: OHLCattrs.close,
+    acilis: OHLCattrs.open,
+    yuksek: OHLCattrs.high,
+    dusuk: OHLCattrs.low,
+    kapanis: OHLCattrs.close,
 
-    line: {
-        width: extendFlat({}, boxAttrs.line.width, {
-            description: [
+    cizgi: {
+        genislik: extendFlat({}, boxAttrs.line.width, {
+            aciklama: [
                 boxAttrs.line.width.description,
-                'Note that this style setting can also be set per',
-                'direction via `increasing.line.width` and',
-                '`decreasing.line.width`.'
+                'Bu stil ayarının ayrıca',
+                '`artis.cizgi.genislik` ve',
+                '`azalis.cizgi.genislik` ile de ayarlanabileceğini unutmayın.'
             ].join(' ')
         }),
-        editType: 'style'
+        duzenlemeTuru: 'stil'
     },
 
-    increasing: directionAttrs(OHLCattrs.increasing.line.color.dflt),
+    artis: yonOzellikleri(OHLCattrs.increasing.line.color.dflt),
 
-    decreasing: directionAttrs(OHLCattrs.decreasing.line.color.dflt),
+    azalis: yonOzellikleri(OHLCattrs.decreasing.line.color.dflt),
 
-    text: OHLCattrs.text,
-    hovertext: OHLCattrs.hovertext,
+    metin: OHLCattrs.text,
+    hoverMetin: OHLCattrs.hovertext,
 
-    whiskerwidth: extendFlat({}, boxAttrs.whiskerwidth, { dflt: 0 }),
+    bıyıkGenisligi: extendFlat({}, boxAttrs.whiskerwidth, { dflt: 0 }),
 
-    hoverlabel: OHLCattrs.hoverlabel,
-    zorder: boxAttrs.zorder
+    hoverEtiketi: OHLCattrs.hoverlabel,
+    zSirasi: boxAttrs.zorder
 };

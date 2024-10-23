@@ -4,17 +4,15 @@ var isNumeric = require('fast-isnumeric');
 var toLogRange = require('../../lib/to_log_range');
 
 /*
- * convertCoords: when converting an axis between log and linear
- * you need to alter any annotations on that axis to keep them
- * pointing at the same data point.
- * In v3.0 this will become obsolete
+ * convertCoords: Bir ekseni logaritmik ve doğrusal arasında dönüştürürken,
+ * bu eksendeki herhangi bir anotasyonu aynı veri noktasına işaret etmeye devam edecek şekilde değiştirmeniz gerekir.
+ * v3.0'da bu işlev gereksiz hale gelecektir.
  *
- * gd: the plot div
- * ax: the axis being changed
- * newType: the type it's getting
- * doExtra: function(attr, val) from inside relayout that sets the attribute.
- *     Use this to make the changes as it's aware if any other changes in the
- *     same relayout call should override this conversion.
+ * gd: grafik div'i
+ * ax: değiştirilen eksen
+ * newType: yeni tür
+ * doExtra: relayout içinden attribute'u ayarlayan function(attr, val).
+ *     Bu değişiklikleri yapmak için kullanın çünkü aynı relayout çağrısındaki diğer değişikliklerin bu dönüşümü geçersiz kılıp kılmayacağını bilir.
  */
 module.exports = function convertCoords(gd, ax, newType, doExtra) {
     ax = ax || {};
@@ -22,7 +20,7 @@ module.exports = function convertCoords(gd, ax, newType, doExtra) {
     var toLog = (newType === 'log') && (ax.type === 'linear');
     var fromLog = (newType === 'linear') && (ax.type === 'log');
 
-    if(!(toLog || fromLog)) return;
+    if (!(toLog || fromLog)) return;
 
     var annotations = gd._fullLayout.annotations;
     var axLetter = ax._id.charAt(0);
@@ -33,20 +31,20 @@ module.exports = function convertCoords(gd, ax, newType, doExtra) {
         var currentVal = ann[attr];
         var newVal = null;
 
-        if(toLog) newVal = toLogRange(currentVal, ax.range);
+        if (toLog) newVal = toLogRange(currentVal, ax.range);
         else newVal = Math.pow(10, currentVal);
 
-        // if conversion failed, delete the value so it gets a default value
-        if(!isNumeric(newVal)) newVal = null;
+        // dönüşüm başarısız olursa, değeri silin böylece varsayılan bir değer alır
+        if (!isNumeric(newVal)) newVal = null;
 
         doExtra(attrPrefix + attr, newVal);
     }
 
-    for(var i = 0; i < annotations.length; i++) {
+    for (var i = 0; i < annotations.length; i++) {
         ann = annotations[i];
         attrPrefix = 'annotations[' + i + '].';
 
-        if(ann[axLetter + 'ref'] === ax._id) convert(axLetter);
-        if(ann['a' + axLetter + 'ref'] === ax._id) convert('a' + axLetter);
+        if (ann[axLetter + 'ref'] === ax._id) convert(axLetter);
+        if (ann['a' + axLetter + 'ref'] === ax._id) convert('a' + axLetter);
     }
 };

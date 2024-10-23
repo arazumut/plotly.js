@@ -4,32 +4,30 @@ var Lib = require('../lib');
 var Template = require('../plot_api/plot_template');
 var handleDomainDefaults = require('./domain').defaults;
 
-
 /**
- * Find and supply defaults to all subplots of a given type
- * This handles subplots that are contained within one container - so
- * gl3d, geo, ternary... but not 2d axes which have separate x and y axes
- * finds subplots, coerces their `domain` attributes, then calls the
- * given handleDefaults function to fill in everything else.
+ * Belirli bir türdeki tüm alt grafiklere varsayılan değerleri bul ve uygula
+ * Bu, bir konteyner içinde bulunan alt grafiklerle ilgilenir - yani
+ * gl3d, geo, ternary... ancak ayrı x ve y eksenlerine sahip 2d eksenleri değil.
+ * alt grafiklerini bulur, `domain` özniteliklerini zorlar, ardından
+ * diğer her şeyi doldurmak için verilen handleDefaults işlevini çağırır.
  *
- * layoutIn: the complete user-supplied input layout
- * layoutOut: the complete finished layout
- * fullData: the finished data array, used only to find subplots
+ * layoutIn: kullanıcı tarafından sağlanan tam giriş düzeni
+ * layoutOut: tamamlanmış düzen
+ * fullData: tamamlanmış veri dizisi, sadece alt grafik bulmak için kullanılır
  * opts: {
- *  type: subplot type string
- *  attributes: subplot attributes object
- *  partition: 'x' or 'y', which direction to divide domain space by default
- *      (default 'x', ie side-by-side subplots)
- *      TODO: this option is only here because 3D and geo made opposite
- *      choices in this regard previously and I didn't want to change it.
- *      Instead we should do:
- *      - something consistent
- *      - something more square (4 cuts 2x2, 5/6 cuts 2x3, etc.)
- *      - something that includes all subplot types in one arrangement,
- *        now that we can have them together!
- *  handleDefaults: function of (subplotLayoutIn, subplotLayoutOut, coerce, opts)
- *      this opts object is passed through to handleDefaults, so attach any
- *      additional items needed by this function here as well
+ *  type: alt grafik türü stringi
+ *  attributes: alt grafik öznitelikleri nesnesi
+ *  partition: 'x' veya 'y', varsayılan olarak domain alanını hangi yönde böleceği
+ *      (varsayılan 'x', yani yan yana alt grafikler)
+ *      TODO: bu seçenek sadece 3D ve geo bu konuda önceki seçimler yaptığı için burada
+ *      ve bunu değiştirmek istemedim.
+ *      Bunun yerine şunları yapmalıyız:
+ *      - tutarlı bir şey
+ *      - daha kare bir şey (4 kesim 2x2, 5/6 kesim 2x3, vb.)
+ *      - şimdi birlikte sahip olabileceğimiz tüm alt grafik türlerini içeren bir şey!
+ *  handleDefaults: (subplotLayoutIn, subplotLayoutOut, coerce, opts) işlevi
+ *      bu opts nesnesi handleDefaults'a geçirilir, bu nedenle bu işlev tarafından
+ *      ihtiyaç duyulan ek öğeleri buraya ekleyin
  * }
  */
 module.exports = function handleSubplotDefaults(layoutIn, layoutOut, fullData, opts) {
@@ -52,7 +50,7 @@ module.exports = function handleSubplotDefaults(layoutIn, layoutOut, fullData, o
     for(var i = 0; i < idsLength; i++) {
         var id = ids[i];
 
-        // ternary traces get a layout ternary for free!
+        // ternary izleri ücretsiz olarak bir düzen ternary alır!
         if(layoutIn[id]) subplotLayoutIn = layoutIn[id];
         else subplotLayoutIn = layoutIn[id] = {};
 

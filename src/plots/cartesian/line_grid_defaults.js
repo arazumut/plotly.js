@@ -5,75 +5,75 @@ var colorAttrs = require('../../components/color/attributes');
 var Lib = require('../../lib');
 
 /**
- * @param {object} opts :
- *   - dfltColor {string} : default axis color
- *   - bgColor {string} : combined subplot bg color
- *   - blend {number, optional} : blend percentage (to compute dflt grid color)
- *   - showLine {boolean} : show line by default
- *   - showGrid {boolean} : show grid by default
- *   - noZeroLine {boolean} : don't coerce zeroline* attributes
- *   - attributes {object} : attribute object associated with input containers
+ * @param {object} seçenekler :
+ *   - varsayılanRenk {string} : varsayılan eksen rengi
+ *   - arkaPlanRengi {string} : birleşik alt grafik arka plan rengi
+ *   - karışım {number, optional} : karışım yüzdesi (varsayılan ızgara rengini hesaplamak için)
+ *   - çizgiGöster {boolean} : varsayılan olarak çizgiyi göster
+ *   - ızgaraGöster {boolean} : varsayılan olarak ızgarayı göster
+ *   - sıfırÇizgisiYok {boolean} : sıfır çizgisi* özniteliklerini zorlamayın
+ *   - öznitelikler {object} : giriş konteynerleriyle ilişkili öznitelik nesnesi
  */
-module.exports = function handleLineGridDefaults(containerIn, containerOut, coerce, opts) {
-    opts = opts || {};
+module.exports = function çizgiIzgaraVarsayılanlarınıEleAl(girişKonteyneri, çıkışKonteyneri, zorla, seçenekler) {
+    seçenekler = seçenekler || {};
 
-    var dfltColor = opts.dfltColor;
+    var varsayılanRenk = seçenekler.varsayılanRenk;
 
-    function coerce2(attr, dflt) {
-        return Lib.coerce2(containerIn, containerOut, opts.attributes, attr, dflt);
+    function zorla2(özellik, varsayılan) {
+        return Lib.zorla2(girişKonteyneri, çıkışKonteyneri, seçenekler.öznitelikler, özellik, varsayılan);
     }
 
-    var lineColor = coerce2('linecolor', dfltColor);
-    var lineWidth = coerce2('linewidth');
-    var showLine = coerce('showline', opts.showLine || !!lineColor || !!lineWidth);
+    var çizgiRengi = zorla2('çizgirengi', varsayılanRenk);
+    var çizgiGenişliği = zorla2('çizgigenişliği');
+    var çizgiGöster = zorla('çizgiyiGöster', seçenekler.çizgiGöster || !!çizgiRengi || !!çizgiGenişliği);
 
-    if(!showLine) {
-        delete containerOut.linecolor;
-        delete containerOut.linewidth;
+    if(!çizgiGöster) {
+        delete çıkışKonteyneri.çizgirengi;
+        delete çıkışKonteyneri.çizgigenişliği;
     }
 
-    var gridColorDflt = colorMix(dfltColor, opts.bgColor, opts.blend || colorAttrs.lightFraction).toRgbString();
-    var gridColor = coerce2('gridcolor', gridColorDflt);
-    var gridWidth = coerce2('gridwidth');
-    var gridDash = coerce2('griddash');
-    var showGridLines = coerce('showgrid', opts.showGrid ||
-        !!gridColor ||
-        !!gridWidth ||
-        !!gridDash
+    var ızgaraRengiVarsayılan = colorMix(varsayılanRenk, seçenekler.arkaPlanRengi, seçenekler.karışım || colorAttrs.lightFraction).toRgbString();
+    var ızgaraRengi = zorla2('ızgararengi', ızgaraRengiVarsayılan);
+    var ızgaraGenişliği = zorla2('ızgaragenişliği');
+    var ızgaraÇizgisi = zorla2('ızgaracizgisi');
+    var ızgaraGöster = zorla('ızgarayıGöster', seçenekler.ızgaraGöster ||
+        !!ızgaraRengi ||
+        !!ızgaraGenişliği ||
+        !!ızgaraÇizgisi
     );
 
-    if(!showGridLines) {
-        delete containerOut.gridcolor;
-        delete containerOut.gridwidth;
-        delete containerOut.griddash;
+    if(!ızgaraGöster) {
+        delete çıkışKonteyneri.ızgararengi;
+        delete çıkışKonteyneri.ızgaragenişliği;
+        delete çıkışKonteyneri.ızgaracizgisi;
     }
 
-    if(opts.hasMinor) {
-        var minorGridColorDflt = colorMix(containerOut.gridcolor, opts.bgColor, 67).toRgbString();
-        var minorGridColor = coerce2('minor.gridcolor', minorGridColorDflt);
-        var minorGridWidth = coerce2('minor.gridwidth', containerOut.gridwidth || 1);
-        var minorGridDash = coerce2('minor.griddash', containerOut.griddash || 'solid');
-        var minorShowGridLines = coerce('minor.showgrid',
-            !!minorGridColor ||
-            !!minorGridWidth ||
-            !!minorGridDash
+    if(seçenekler.küçükIzgara) {
+        var küçükIzgaraRengiVarsayılan = colorMix(çıkışKonteyneri.ızgararengi, seçenekler.arkaPlanRengi, 67).toRgbString();
+        var küçükIzgaraRengi = zorla2('küçük.ızgararengi', küçükIzgaraRengiVarsayılan);
+        var küçükIzgaraGenişliği = zorla2('küçük.ızgaragenişliği', çıkışKonteyneri.ızgaragenişliği || 1);
+        var küçükIzgaraÇizgisi = zorla2('küçük.ızgaracizgisi', çıkışKonteyneri.ızgaracizgisi || 'solid');
+        var küçükIzgaraGöster = zorla('küçük.ızgarayıGöster',
+            !!küçükIzgaraRengi ||
+            !!küçükIzgaraGenişliği ||
+            !!küçükIzgaraÇizgisi
         );
 
-        if(!minorShowGridLines) {
-            delete containerOut.minor.gridcolor;
-            delete containerOut.minor.gridwidth;
-            delete containerOut.minor.griddash;
+        if(!küçükIzgaraGöster) {
+            delete çıkışKonteyneri.küçük.ızgararengi;
+            delete çıkışKonteyneri.küçük.ızgaragenişliği;
+            delete çıkışKonteyneri.küçük.ızgaracizgisi;
         }
     }
 
-    if(!opts.noZeroLine) {
-        var zeroLineColor = coerce2('zerolinecolor', dfltColor);
-        var zeroLineWidth = coerce2('zerolinewidth');
-        var showZeroLine = coerce('zeroline', opts.showGrid || !!zeroLineColor || !!zeroLineWidth);
+    if(!seçenekler.sıfırÇizgisiYok) {
+        var sıfırÇizgisiRengi = zorla2('sıfırçizgisirengi', varsayılanRenk);
+        var sıfırÇizgisiGenişliği = zorla2('sıfırçizgisigenişliği');
+        var sıfırÇizgisiGöster = zorla('sıfırçizgisiniGöster', seçenekler.ızgaraGöster || !!sıfırÇizgisiRengi || !!sıfırÇizgisiGenişliği);
 
-        if(!showZeroLine) {
-            delete containerOut.zerolinecolor;
-            delete containerOut.zerolinewidth;
+        if(!sıfırÇizgisiGöster) {
+            delete çıkışKonteyneri.sıfırçizgisirengi;
+            delete çıkışKonteyneri.sıfırçizgisigenişliği;
         }
     }
 };

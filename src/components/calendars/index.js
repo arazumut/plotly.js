@@ -1,38 +1,41 @@
 'use strict';
 
-var calendars = require('./calendars');
+// Takvimleri içe aktar
+var takvimler = require('./calendars');
 
+// Kütüphane ve sabitleri içe aktar
 var Lib = require('../../lib');
-var constants = require('../../constants/numerical');
+var sabitler = require('../../constants/numerical');
 
-var EPOCHJD = constants.EPOCHJD;
-var ONEDAY = constants.ONEDAY;
+// Sabitler
+var EPOCHJD = sabitler.EPOCHJD;
+var ONEDAY = sabitler.ONEDAY;
 
-var attributes = {
+// Özellikler
+var özellikler = {
     valType: 'enumerated',
-    values: Lib.sortObjectKeys(calendars.calendars),
+    values: Lib.sortObjectKeys(takvimler.calendars),
     editType: 'calc',
     dflt: 'gregorian'
 };
 
-var handleDefaults = function(contIn, contOut, attr, dflt) {
+// Varsayılanları işleme fonksiyonu
+var varsayılanlarıİşle = function(contIn, contOut, attr, dflt) {
     var attrs = {};
-    attrs[attr] = attributes;
+    attrs[attr] = özellikler;
 
     return Lib.coerce(contIn, contOut, attrs, attr, dflt);
 };
 
-var handleTraceDefaults = function(traceIn, traceOut, coords, layout) {
+// İz varsayılanlarını işleme fonksiyonu
+var izVarsayılanlarınıİşle = function(traceIn, traceOut, coords, layout) {
     for(var i = 0; i < coords.length; i++) {
-        handleDefaults(traceIn, traceOut, coords[i] + 'calendar', layout.calendar);
+        varsayılanlarıİşle(traceIn, traceOut, coords[i] + 'calendar', layout.calendar);
     }
 };
 
-// each calendar needs its own default canonical tick. I would love to use
-// 2000-01-01 (or even 0000-01-01) for them all but they don't necessarily
-// all support either of those dates. Instead I'll use the most significant
-// number they *do* support, biased toward the present day.
-var CANONICAL_TICK = {
+// Her takvimin kendi varsayılan kanonik tick'i olmalı
+var KANONİK_TICK = {
     chinese: '2000-01-01',
     coptic: '2000-01-01',
     discworld: '2000-01-01',
@@ -50,11 +53,8 @@ var CANONICAL_TICK = {
     ummalqura: '1400-01-01'
 };
 
-// Start on a Sunday - for week ticks
-// Discworld and Mayan calendars don't have 7-day weeks but we're going to give them
-// 7-day week ticks so start on our Sundays.
-// If anyone really cares we can customize the auto tick spacings for these calendars.
-var CANONICAL_SUNDAY = {
+// Pazar günü ile başla - hafta tick'leri için
+var KANONİK_PAZAR = {
     chinese: '2000-01-02',
     coptic: '2000-01-03',
     discworld: '2000-01-03',
@@ -72,7 +72,8 @@ var CANONICAL_SUNDAY = {
     ummalqura: '1400-01-06'
 };
 
-var DFLTRANGE = {
+// Varsayılan aralıklar
+var VARSAYILAN_ARALIK = {
     chinese: ['2000-01-01', '2001-01-01'],
     coptic: ['1700-01-01', '1701-01-01'],
     discworld: ['1800-01-01', '1801-01-01'],
@@ -90,175 +91,167 @@ var DFLTRANGE = {
     ummalqura: ['1400-01-01', '1401-01-01']
 };
 
-/*
- * convert d3 templates to world-calendars templates, so our users only need
- * to know d3's specifiers. Map space padding to no padding, and unknown fields
- * to an ugly placeholder
- */
-var UNKNOWN = '##';
+// d3 şablonlarını world-calendars şablonlarına dönüştür
+var BİLİNMEYEN = '##';
 var d3ToWorldCalendars = {
-    d: {0: 'dd', '-': 'd'}, // 2-digit or unpadded day of month
-    e: {0: 'd', '-': 'd'}, // alternate, always unpadded day of month
-    a: {0: 'D', '-': 'D'}, // short weekday name
-    A: {0: 'DD', '-': 'DD'}, // full weekday name
-    j: {0: 'oo', '-': 'o'}, // 3-digit or unpadded day of the year
-    W: {0: 'ww', '-': 'w'}, // 2-digit or unpadded week of the year (Monday first)
-    m: {0: 'mm', '-': 'm'}, // 2-digit or unpadded month number
-    b: {0: 'M', '-': 'M'}, // short month name
-    B: {0: 'MM', '-': 'MM'}, // full month name
-    y: {0: 'yy', '-': 'yy'}, // 2-digit year (map unpadded to zero-padded)
-    Y: {0: 'yyyy', '-': 'yyyy'}, // 4-digit year (map unpadded to zero-padded)
-    U: UNKNOWN, // Sunday-first week of the year
-    w: UNKNOWN, // day of the week [0(sunday),6]
-    // combined format, we replace the date part with the world-calendar version
-    // and the %X stays there for d3 to handle with time parts
+    d: {0: 'dd', '-': 'd'}, // 2 haneli veya yastıksız ay günü
+    e: {0: 'd', '-': 'd'}, // alternatif, her zaman yastıksız ay günü
+    a: {0: 'D', '-': 'D'}, // kısa hafta günü adı
+    A: {0: 'DD', '-': 'DD'}, // tam hafta günü adı
+    j: {0: 'oo', '-': 'o'}, // 3 haneli veya yastıksız yıl günü
+    W: {0: 'ww', '-': 'w'}, // 2 haneli veya yastıksız yıl haftası (Pazartesi ilk)
+    m: {0: 'mm', '-': 'm'}, // 2 haneli veya yastıksız ay numarası
+    b: {0: 'M', '-': 'M'}, // kısa ay adı
+    B: {0: 'MM', '-': 'MM'}, // tam ay adı
+    y: {0: 'yy', '-': 'yy'}, // 2 haneli yıl (yastıksızdan sıfır yastıklıya eşle)
+    Y: {0: 'yyyy', '-': 'yyyy'}, // 4 haneli yıl (yastıksızdan sıfır yastıklıya eşle)
+    U: BİLİNMEYEN, // Pazar ilk yıl haftası
+    w: BİLİNMEYEN, // hafta günü [0(pazar),6]
     c: {0: 'D M d %X yyyy', '-': 'D M d %X yyyy'},
     x: {0: 'mm/dd/yyyy', '-': 'mm/dd/yyyy'}
 };
 
-function worldCalFmt(fmt, x, calendar) {
-    var dateJD = Math.floor((x + 0.05) / ONEDAY) + EPOCHJD;
-    var cDate = getCal(calendar).fromJD(dateJD);
+// Dünya takvim formatı fonksiyonu
+function dünyaTakvimFormatı(fmt, x, takvim) {
+    var tarihJD = Math.floor((x + 0.05) / ONEDAY) + EPOCHJD;
+    var cTarih = takvimAl(takvim).fromJD(tarihJD);
     var i = 0;
-    var modifier, directive, directiveLen, directiveObj, replacementPart;
+    var değiştirici, direktif, direktifUzunluğu, direktifObjesi, değiştirmeParçası;
 
     while((i = fmt.indexOf('%', i)) !== -1) {
-        modifier = fmt.charAt(i + 1);
-        if(modifier === '0' || modifier === '-' || modifier === '_') {
-            directiveLen = 3;
-            directive = fmt.charAt(i + 2);
-            if(modifier === '_') modifier = '-';
+        değiştirici = fmt.charAt(i + 1);
+        if(değiştirici === '0' || değiştirici === '-' || değiştirici === '_') {
+            direktifUzunluğu = 3;
+            direktif = fmt.charAt(i + 2);
+            if(değiştirici === '_') değiştirici = '-';
         } else {
-            directive = modifier;
-            modifier = '0';
-            directiveLen = 2;
+            direktif = değiştirici;
+            değiştirici = '0';
+            direktifUzunluğu = 2;
         }
-        directiveObj = d3ToWorldCalendars[directive];
-        if(!directiveObj) {
-            i += directiveLen;
+        direktifObjesi = d3ToWorldCalendars[direktif];
+        if(!direktifObjesi) {
+            i += direktifUzunluğu;
         } else {
-            // code is recognized as a date part but world-calendars doesn't support it
-            if(directiveObj === UNKNOWN) replacementPart = UNKNOWN;
+            if(direktifObjesi === BİLİNMEYEN) değiştirmeParçası = BİLİNMEYEN;
+            else değiştirmeParçası = cTarih.formatDate(direktifObjesi[değiştirici]);
 
-            // format the cDate according to the translated directive
-            else replacementPart = cDate.formatDate(directiveObj[modifier]);
-
-            fmt = fmt.substr(0, i) + replacementPart + fmt.substr(i + directiveLen);
-            i += replacementPart.length;
+            fmt = fmt.substr(0, i) + değiştirmeParçası + fmt.substr(i + direktifUzunluğu);
+            i += değiştirmeParçası.length;
         }
     }
     return fmt;
 }
 
-// cache world calendars, so we don't have to reinstantiate
-// during each date-time conversion
-var allCals = {};
-function getCal(calendar) {
-    var calendarObj = allCals[calendar];
-    if(calendarObj) return calendarObj;
+// Dünya takvimlerini önbelleğe al
+var tümTakvimler = {};
+function takvimAl(takvim) {
+    var takvimObjesi = tümTakvimler[takvim];
+    if(takvimObjesi) return takvimObjesi;
 
-    calendarObj = allCals[calendar] = calendars.instance(calendar);
-    return calendarObj;
+    takvimObjesi = tümTakvimler[takvim] = takvimler.instance(takvim);
+    return takvimObjesi;
 }
 
-function makeAttrs(description) {
-    return Lib.extendFlat({}, attributes, { description: description });
+// Özellikler oluşturma fonksiyonu
+function özelliklerOluştur(açıklama) {
+    return Lib.extendFlat({}, özellikler, { description: açıklama });
 }
 
-function makeTraceAttrsDescription(coord) {
-    return 'Sets the calendar system to use with `' + coord + '` date data.';
+// İz özellik açıklaması oluşturma fonksiyonu
+function izÖzellikAçıklamasıOluştur(coord) {
+    return '`' + coord + '` tarih verileri ile kullanılacak takvim sistemini ayarlar.';
 }
 
-var xAttrs = {
-    xcalendar: makeAttrs(makeTraceAttrsDescription('x'))
+// x özellikleri
+var xÖzellikler = {
+    xcalendar: özelliklerOluştur(izÖzellikAçıklamasıOluştur('x'))
 };
 
-var xyAttrs = Lib.extendFlat({}, xAttrs, {
-    ycalendar: makeAttrs(makeTraceAttrsDescription('y'))
+// xy özellikleri
+var xyÖzellikler = Lib.extendFlat({}, xÖzellikler, {
+    ycalendar: özelliklerOluştur(izÖzellikAçıklamasıOluştur('y'))
 });
 
-var xyzAttrs = Lib.extendFlat({}, xyAttrs, {
-    zcalendar: makeAttrs(makeTraceAttrsDescription('z'))
+// xyz özellikleri
+var xyzÖzellikler = Lib.extendFlat({}, xyÖzellikler, {
+    zcalendar: özelliklerOluştur(izÖzellikAçıklamasıOluştur('z'))
 });
 
-var axisAttrs = makeAttrs([
-    'Sets the calendar system to use for `range` and `tick0`',
-    'if this is a date axis. This does not set the calendar for',
-    'interpreting data on this axis, that\'s specified in the trace',
-    'or via the global `layout.calendar`'
+// Eksen özellikleri
+var eksenÖzellikler = özelliklerOluştur([
+    '`range` ve `tick0` için takvim sistemini ayarlar',
+    'eğer bu bir tarih ekseni ise. Bu, eksendeki verileri',
+    'yorumlamak için takvimi ayarlamaz, bu izde belirtilir',
+    'veya genel `layout.calendar` ile.'
 ].join(' '));
 
+// Modülü dışa aktar
 module.exports = {
     moduleType: 'component',
     name: 'calendars',
 
     schema: {
         traces: {
-            scatter: xyAttrs,
-            bar: xyAttrs,
-            box: xyAttrs,
-            heatmap: xyAttrs,
-            contour: xyAttrs,
-            histogram: xyAttrs,
-            histogram2d: xyAttrs,
-            histogram2dcontour: xyAttrs,
-            scatter3d: xyzAttrs,
-            surface: xyzAttrs,
-            mesh3d: xyzAttrs,
-            scattergl: xyAttrs,
-            ohlc: xAttrs,
-            candlestick: xAttrs
+            scatter: xyÖzellikler,
+            bar: xyÖzellikler,
+            box: xyÖzellikler,
+            heatmap: xyÖzellikler,
+            contour: xyÖzellikler,
+            histogram: xyÖzellikler,
+            histogram2d: xyÖzellikler,
+            histogram2dcontour: xyÖzellikler,
+            scatter3d: xyzÖzellikler,
+            surface: xyzÖzellikler,
+            mesh3d: xyzÖzellikler,
+            scattergl: xyÖzellikler,
+            ohlc: xÖzellikler,
+            candlestick: xÖzellikler
         },
         layout: {
-            calendar: makeAttrs([
-                'Sets the default calendar system to use for interpreting and',
-                'displaying dates throughout the plot.'
+            calendar: özelliklerOluştur([
+                'Grafikte tarihleri yorumlamak ve',
+                'göstermek için varsayılan takvim sistemini ayarlar.'
             ].join(' '))
         },
         subplots: {
-            xaxis: {calendar: axisAttrs},
-            yaxis: {calendar: axisAttrs},
+            xaxis: {calendar: eksenÖzellikler},
+            yaxis: {calendar: eksenÖzellikler},
             scene: {
-                xaxis: {calendar: axisAttrs},
-                // TODO: it's actually redundant to include yaxis and zaxis here
-                // because in the scene attributes these are the same object so merging
-                // into one merges into them all. However, I left them in for parity with
-                // cartesian, where yaxis is unused until we Plotschema.get() when we
-                // use its presence or absence to determine whether to delete attributes
-                // from yaxis if they only apply to x (rangeselector/rangeslider)
-                yaxis: {calendar: axisAttrs},
-                zaxis: {calendar: axisAttrs}
+                xaxis: {calendar: eksenÖzellikler},
+                yaxis: {calendar: eksenÖzellikler},
+                zaxis: {calendar: eksenÖzellikler}
             },
             polar: {
-                radialaxis: {calendar: axisAttrs}
+                radialaxis: {calendar: eksenÖzellikler}
             }
         },
         transforms: {
             filter: {
-                valuecalendar: makeAttrs([
-                    'WARNING: All transforms are deprecated and may be removed from the API in next major version.',
-                    'Sets the calendar system to use for `value`, if it is a date.'
+                valuecalendar: özelliklerOluştur([
+                    'UYARI: Tüm dönüşümler kullanımdan kaldırılmıştır ve bir sonraki ana sürümde API\'den kaldırılabilir.',
+                    '`value` için takvim sistemini ayarlar, eğer bu bir tarih ise.'
                 ].join(' ')),
-                targetcalendar: makeAttrs([
-                    'WARNING: All transforms are deprecated and may be removed from the API in next major version.',
-                    'Sets the calendar system to use for `target`, if it is an',
-                    'array of dates. If `target` is a string (eg *x*) we use the',
-                    'corresponding trace attribute (eg `xcalendar`) if it exists,',
-                    'even if `targetcalendar` is provided.'
+                targetcalendar: özelliklerOluştur([
+                    'UYARI: Tüm dönüşümler kullanımdan kaldırılmıştır ve bir sonraki ana sürümde API\'den kaldırılabilir.',
+                    '`target` için takvim sistemini ayarlar, eğer bu bir',
+                    'tarih dizisi ise. Eğer `target` bir dize ise (örneğin *x*)',
+                    'ilgili iz özelliğini kullanırız (örneğin `xcalendar`),',
+                    'hatta `targetcalendar` sağlanmış olsa bile.'
                 ].join(' '))
             }
         }
     },
 
-    layoutAttributes: attributes,
+    layoutAttributes: özellikler,
 
-    handleDefaults: handleDefaults,
-    handleTraceDefaults: handleTraceDefaults,
+    handleDefaults: varsayılanlarıİşle,
+    handleTraceDefaults: izVarsayılanlarınıİşle,
 
-    CANONICAL_SUNDAY: CANONICAL_SUNDAY,
-    CANONICAL_TICK: CANONICAL_TICK,
-    DFLTRANGE: DFLTRANGE,
+    CANONICAL_SUNDAY: KANONİK_PAZAR,
+    CANONICAL_TICK: KANONİK_TICK,
+    DFLTRANGE: VARSAYILAN_ARALIK,
 
-    getCal: getCal,
-    worldCalFmt: worldCalFmt
+    getCal: takvimAl,
+    worldCalFmt: dünyaTakvimFormatı
 };

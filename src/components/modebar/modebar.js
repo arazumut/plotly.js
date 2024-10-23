@@ -10,12 +10,12 @@ var version = require('../../version').version;
 var Parser = new DOMParser();
 
 /**
- * UI controller for interactive plots
+ * Etkileşimli grafikler için UI kontrolcüsü
  * @Class
  * @Param {object} opts
- * @Param {object} opts.buttons    nested arrays of grouped buttons config objects
- * @Param {object} opts.container  container div to append modeBar
- * @Param {object} opts.graphInfo  primary plot object containing data and layout
+ * @Param {object} opts.buttons    gruplandırılmış buton yapılandırma nesnelerinin iç içe dizileri
+ * @Param {object} opts.container  modeBar'ı eklemek için konteyner div
+ * @Param {object} opts.graphInfo  veri ve düzen içeren birincil grafik nesnesi
  */
 function ModeBar(opts) {
     this.container = opts.container;
@@ -29,10 +29,10 @@ function ModeBar(opts) {
 var proto = ModeBar.prototype;
 
 /**
- * Update modeBar (buttons and logo)
+ * ModeBar'ı güncelle (butonlar ve logo)
  *
- * @param {object} graphInfo  primary plot object containing data and layout
- * @param {array of arrays} buttons nested arrays of grouped buttons to initialize
+ * @param {object} graphInfo  veri ve düzen içeren birincil grafik nesnesi
+ * @param {array of arrays} buttons başlatılacak gruplandırılmış butonların iç içe dizileri
  *
  */
 proto.update = function(graphInfo, buttons) {
@@ -62,7 +62,7 @@ proto.update = function(graphInfo, buttons) {
     Lib.addRelatedStyleRule(modeBarId, '#' + modeBarId + ' .modebar-btn:hover .icon path', 'fill: ' + style.activecolor);
     Lib.addRelatedStyleRule(modeBarId, '#' + modeBarId + ' .modebar-btn.active .icon path', 'fill: ' + style.activecolor);
 
-    // if buttons or logo have changed, redraw modebar interior
+    // butonlar veya logo değiştiyse, modebar içeriğini yeniden çiz
     var needsNewButtons = !this.hasButtons(buttons);
     var needsNewLogo = (this.hasLogo !== context.displaylogo);
     var needsNewLocale = (this.locale !== context.locale);
@@ -106,10 +106,10 @@ proto.updateButtons = function(buttons) {
         buttonGroup.forEach(function(buttonConfig) {
             var buttonName = buttonConfig.name;
             if(!buttonName) {
-                throw new Error('must provide button \'name\' in button config');
+                throw new Error('buton yapılandırmasında \'name\' sağlanmalı');
             }
             if(_this.buttonsNames.indexOf(buttonName) !== -1) {
-                throw new Error('button name \'' + buttonName + '\' is taken');
+                throw new Error('buton adı \'' + buttonName + '\' zaten kullanılıyor');
             }
             _this.buttonsNames.push(buttonName);
 
@@ -123,7 +123,7 @@ proto.updateButtons = function(buttons) {
 };
 
 /**
- * Empty div for containing a group of buttons
+ * Buton grubu içeren boş div
  * @Return {HTMLelement}
  */
 proto.createGroup = function() {
@@ -133,8 +133,8 @@ proto.createGroup = function() {
 };
 
 /**
- * Create a new button div and set constant and configurable attributes
- * @Param {object} config (see ./buttons.js for more info)
+ * Yeni bir buton div'i oluştur ve sabit ve yapılandırılabilir öznitelikleri ayarla
+ * @Param {object} config (daha fazla bilgi için ./buttons.js dosyasına bakın)
  * @Return {HTMLelement}
  */
 proto.createButton = function(config) {
@@ -146,7 +146,7 @@ proto.createButton = function(config) {
 
     var title = config.title;
     if(title === undefined) title = config.name;
-    // for localization: allow title to be a callable that takes gd as arg
+    // yerelleştirme için: başlığın gd argümanını alan bir çağrılabilir olmasına izin ver
     else if(typeof title === 'function') title = title(this.graphInfo);
 
     if(title || title === 0) button.setAttribute('data-title', title);
@@ -161,12 +161,12 @@ proto.createButton = function(config) {
 
     var click = config.click;
     if(typeof click !== 'function') {
-        throw new Error('must provide button \'click\' function in button config');
+        throw new Error('buton yapılandırmasında \'click\' fonksiyonu sağlanmalı');
     } else {
         button.addEventListener('click', function(ev) {
             config.click(_this.graphInfo, ev);
 
-            // only needed for 'hoverClosestGeo' which does not call relayout
+            // sadece 'hoverClosestGeo' için gerekli, çünkü relayout çağrılmaz
             _this.updateActiveButton(ev.currentTarget);
         });
     }
@@ -186,7 +186,7 @@ proto.createButton = function(config) {
 };
 
 /**
- * Add an icon to a button
+ * Bir butona ikon ekle
  * @Param {object} thisIcon
  * @Param {number} thisIcon.width
  * @Param {string} thisIcon.path
@@ -211,7 +211,7 @@ proto.createIcon = function(thisIcon) {
         if(thisIcon.transform) {
             path.setAttribute('transform', thisIcon.transform);
         } else if(thisIcon.ascent !== undefined) {
-            // Legacy icon transform calculation
+            // Eski ikon dönüşüm hesaplaması
             path.setAttribute('transform', 'matrix(1 0 0 -1 0 ' + thisIcon.ascent + ')');
         }
 
@@ -230,8 +230,8 @@ proto.createIcon = function(thisIcon) {
 };
 
 /**
- * Updates active button with attribute specified in layout
- * @Param {object} graphInfo plot object containing data and layout
+ * Düzen içinde belirtilen öznitelikle aktif butonu günceller
+ * @Param {object} graphInfo veri ve düzen içeren grafik nesnesi
  * @Return {HTMLelement}
  */
 proto.updateActiveButton = function(buttonClicked) {
@@ -246,8 +246,7 @@ proto.updateActiveButton = function(buttonClicked) {
         var isToggleButton = (button.getAttribute('data-toggle') === 'true');
         var button3 = d3.select(button);
 
-        // Use 'data-toggle' and 'buttonClicked' to toggle buttons
-        // that have no one-to-one equivalent in fullLayout
+        // 'data-toggle' ve 'buttonClicked' kullanarak tam olarak fullLayout'ta karşılığı olmayan butonları değiştir
         if(isToggleButton) {
             if(dataAttr === dataAttrClicked) {
                 button3.classed('active', !button3.classed('active'));
@@ -263,9 +262,9 @@ proto.updateActiveButton = function(buttonClicked) {
 };
 
 /**
- * Check if modeBar is configured as button configuration argument
+ * ModeBar'ın buton yapılandırma argümanı olarak yapılandırılıp yapılandırılmadığını kontrol eder
  *
- * @Param {object} buttons 2d array of grouped button config objects
+ * @Param {object} buttons gruplandırılmış buton yapılandırma nesnelerinin 2d dizisi
  * @Return {boolean}
  */
 proto.hasButtons = function(buttons) {
@@ -290,7 +289,7 @@ function jsVersion(str) {
 }
 
 /**
- * @return {HTMLDivElement} The logo image wrapped in a group
+ * @return {HTMLDivElement} Grup içinde sarılmış logo resmi
  */
 proto.getLogo = function() {
     var group = this.createGroup();
@@ -298,7 +297,7 @@ proto.getLogo = function() {
 
     a.href = 'https://plotly.com/';
     a.target = '_blank';
-    a.setAttribute('data-title', jsVersion(Lib._(this.graphInfo, 'Produced with Plotly.js')));
+    a.setAttribute('data-title', jsVersion(Lib._(this.graphInfo, 'Plotly.js ile Üretildi')));
     a.className = 'modebar-btn plotlyjsicon modebar-btn--logo';
 
     a.appendChild(this.createIcon(Icons.newplotlylogo));
@@ -332,7 +331,7 @@ function createModeBar(gd, buttons) {
     if(fullLayout._privateplot) {
         d3.select(modeBar.element).append('span')
             .classed('badge-private float--left', true)
-            .text('PRIVATE');
+            .text('ÖZEL');
     }
 
     return modeBar;

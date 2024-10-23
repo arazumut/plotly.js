@@ -1,14 +1,14 @@
 'use strict';
 
 module.exports = {
-    scrollBarWidth: 6,
-    scrollBarMinHeight: 20,
-    scrollBarColor: '#808BA4',
-    scrollBarMargin: 4,
-    scrollBarEnterAttrs: {rx: 20, ry: 3, width: 0, height: 0},
+    kaydirmaCubuguGenisligi: 6,
+    kaydirmaCubuguMinYuksekligi: 20,
+    kaydirmaCubuguRengi: '#808BA4',
+    kaydirmaCubuguKenari: 4,
+    kaydirmaCubuguGirisOzellikleri: {rx: 20, ry: 3, genislik: 0, yukseklik: 0},
 
-    // number of px between legend title and (left) side of legend (always in x direction and from inner border)
-    titlePad: 2,
-    // number of px between each legend item (x and/or y direction)
-    itemGap: 5
+    // Başlık ile (sol) kenar arasındaki mesafe (her zaman x yönünde ve iç sınırdan)
+    baslikPad: 2,
+    // Her bir öğe arasındaki mesafe (x ve/veya y yönünde)
+    ogeBoslugu: 5
 };

@@ -1,13 +1,16 @@
 'use strict';
 
-exports.isGrouped = function isGrouped(legendLayout) {
-    return (legendLayout.traceorder || '').indexOf('grouped') !== -1;
+// Legend (açıklama) düzeninin gruplandırılmış olup olmadığını kontrol eder
+exports.gruplandırılmışMı = function gruplandırılmışMı(legendDüzeni) {
+    return (legendDüzeni.izSırası || '').indexOf('gruplandırılmış') !== -1;
 };
 
-exports.isVertical = function isVertical(legendLayout) {
-    return legendLayout.orientation !== 'h';
+// Legend (açıklama) düzeninin dikey olup olmadığını kontrol eder
+exports.dikeyMi = function dikeyMi(legendDüzeni) {
+    return legendDüzeni.yön !== 'y';
 };
 
-exports.isReversed = function isReversed(legendLayout) {
-    return (legendLayout.traceorder || '').indexOf('reversed') !== -1;
+// Legend (açıklama) düzeninin ters çevrilmiş olup olmadığını kontrol eder
+exports.tersMi = function tersMi(legendDüzeni) {
+    return (legendDüzeni.izSırası || '').indexOf('ters') !== -1;
 };

@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri dahil ediyoruz
 var Fx = require('../../components/fx');
 var Registry = require('../../registry');
 var Color = require('../../components/color');
@@ -9,6 +10,7 @@ var getLineWidth = require('./helpers').getLineWidth;
 var hoverLabelText = require('../../plots/cartesian/axes').hoverLabelText;
 var BADNUM = require('../../constants/numerical').BADNUM;
 
+// Hover (üzerine gelme) noktalarını işleyen fonksiyon
 function hoverPoints(pointData, xval, yval, hovermode, opts) {
     var barPointData = hoverOnBars(pointData, xval, yval, hovermode, opts);
 
@@ -24,6 +26,7 @@ function hoverPoints(pointData, xval, yval, hovermode, opts) {
     }
 }
 
+// Çubuklar üzerinde hover (üzerine gelme) işlemini gerçekleştiren fonksiyon
 function hoverOnBars(pointData, xval, yval, hovermode, opts) {
     var cd = pointData.cd;
     var trace = cd[0].trace;
@@ -59,7 +62,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
 
     function thisBarExtPos(di, sgn) {
         var w = di.w;
-
         return di[posLetter] + sgn * w / 2;
     }
 
@@ -73,18 +75,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
             return di.p - periodLength(di) / 2;
         } :
         function(di) {
-            /*
-             * In compare mode, accept a bar if you're on it *or* its group.
-             * Nearly always it's the group that matters, but in case the bar
-             * was explicitly set wider than its group we'd better accept the
-             * whole bar.
-             *
-             * use `bardelta` instead of `bargroupwidth` so we accept hover
-             * in the gap. That way hover doesn't flash on and off as you
-             * mouse over the plot in compare modes.
-             * In 'closest' mode though the flashing seems inevitable,
-             * without far more complex logic
-             */
             return Math.min(thisBarMinPos(di), di.p - t.bardelta / 2);
         };
 
@@ -99,9 +89,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
 
     function inbox(_minPos, _maxPos, maxDistance) {
         if(opts.finiteRange) maxDistance = 0;
-
-        // add a little to the pseudo-distance for wider bars, so that like scatter,
-        // if you are over two overlapping bars, the narrower one wins.
         return Fx.inbox(_minPos - posVal, _maxPos - posVal,
             maxDistance + Math.min(1, Math.abs(_maxPos - _minPos) / pRangeCalc) - 1);
     }
@@ -116,7 +103,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
 
     function getSize(di) {
         var s = di[sizeLetter];
-
         if(isWaterfall) {
             var rawS = Math.abs(di.rawS) || 0;
             if(sizeVal > 0) {
@@ -125,7 +111,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
                 s -= rawS;
             }
         }
-
         return s;
     }
 
@@ -133,9 +118,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
         var v = sizeVal;
         var b = di.b;
         var s = getSize(di);
-
-        // add a gradient so hovering near the end of a
-        // bar makes it a little closer match
         return Fx.inbox(b - v, s - v, maxHoverDistance + (s - v) / (s - b) - 1);
     }
 
@@ -143,9 +125,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
         var v = sizeVal;
         var b = di.b;
         var s = getSize(di);
-
-        // add a gradient so hovering near the end of a
-        // bar makes it a little closer match
         return Fx.inbox(b - v, s - v, maxSpikeDistance + (s - v) / (s - b) - 1);
     }
 
@@ -158,15 +137,10 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
     var distfn = Fx.getDistanceFunction(hovermode, dx, dy, dxy);
     Fx.getClosest(cd, distfn, pointData);
 
-    // skip the rest (for this trace) if we didn't find a close point
     if(pointData.index === false) return;
 
-    // skip points inside axis rangebreaks
     if(cd[pointData.index].p === BADNUM) return;
 
-    // if we get here and we're not in 'closest' mode, push min/max pos back
-    // onto the group - even though that means occasionally the mouse will be
-    // over the hover label.
     if(!isClosestOrPeriod) {
         minPos = function(di) {
             return Math.min(thisBarMinPos(di), di.p - t.bargroupwidth / 2);
@@ -176,7 +150,6 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
         };
     }
 
-    // the closest data point
     var index = pointData.index;
     var di = cd[index];
 
@@ -195,10 +168,7 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
     pointData.valueLabel = hoverLabelText(sa, pointData[sizeLetter + 'LabelVal'], trace[sizeLetter + 'hoverformat']);
     pointData.baseLabel = hoverLabelText(sa, di.b, trace[sizeLetter + 'hoverformat']);
 
-    // spikelines always want "closest" distance regardless of hovermode
     pointData.spikeDistance = (thisBarSizeFn(di) + thisBarPositionFn(di)) / 2;
-    // they also want to point to the data value, regardless of where the label goes
-    // in case of bars shifted within groups
     pointData[posLetter + 'Spike'] = pa.c2p(di.p, true);
 
     fillText(di, trace, pointData);
@@ -207,6 +177,7 @@ function hoverOnBars(pointData, xval, yval, hovermode, opts) {
     return pointData;
 }
 
+// İz rengini alan fonksiyon
 function getTraceColor(trace, di) {
     var mc = di.mcc || trace.marker.color;
     var mlc = di.mlcc || trace.marker.line.color;
@@ -216,6 +187,7 @@ function getTraceColor(trace, di) {
     else if(Color.opacity(mlc) && mlw) return mlc;
 }
 
+// Modülü dışa aktarıyoruz
 module.exports = {
     hoverPoints: hoverPoints,
     hoverOnBars: hoverOnBars,

@@ -2,36 +2,36 @@
 
 var setCursor = require('./setcursor');
 
-var STASHATTR = 'data-savedcursor';
-var NO_CURSOR = '!!';
+var KAYITLI_ATTR = 'data-kayitlikursor';
+var KURSOR_YOK = '!!';
 
 /*
- * works with our CSS cursor classes (see css/_cursor.scss)
- * to override a previous cursor set on d3 single-element selections,
- * by moving the name of the original cursor to the data-savedcursor attr.
- * omit cursor to revert to the previously set value.
+ * CSS kursor sınıflarımızla (bkz. css/_cursor.scss) çalışarak,
+ * d3 tek element seçimlerinde daha önce ayarlanmış kursörü geçersiz kılar,
+ * orijinal kursör adını data-kayitlikursor özelliğine taşır.
+ * kursörü atlamayı, daha önce ayarlanmış değere geri dönmek için kullanın.
  */
-module.exports = function overrideCursor(el3, csr) {
-    var savedCursor = el3.attr(STASHATTR);
+module.exports = function kursorGecersizKil(el3, csr) {
+    var kayitliKursor = el3.attr(KAYITLI_ATTR);
     if(csr) {
-        if(!savedCursor) {
-            var classes = (el3.attr('class') || '').split(' ');
-            for(var i = 0; i < classes.length; i++) {
-                var cls = classes[i];
-                if(cls.indexOf('cursor-') === 0) {
-                    el3.attr(STASHATTR, cls.substr(7))
-                        .classed(cls, false);
+        if(!kayitliKursor) {
+            var siniflar = (el3.attr('class') || '').split(' ');
+            for(var i = 0; i < siniflar.length; i++) {
+                var sinif = siniflar[i];
+                if(sinif.indexOf('cursor-') === 0) {
+                    el3.attr(KAYITLI_ATTR, sinif.substr(7))
+                        .classed(sinif, false);
                 }
             }
-            if(!el3.attr(STASHATTR)) {
-                el3.attr(STASHATTR, NO_CURSOR);
+            if(!el3.attr(KAYITLI_ATTR)) {
+                el3.attr(KAYITLI_ATTR, KURSOR_YOK);
             }
         }
         setCursor(el3, csr);
-    } else if(savedCursor) {
-        el3.attr(STASHATTR, null);
+    } else if(kayitliKursor) {
+        el3.attr(KAYITLI_ATTR, null);
 
-        if(savedCursor === NO_CURSOR) setCursor(el3);
-        else setCursor(el3, savedCursor);
+        if(kayitliKursor === KURSOR_YOK) setCursor(el3);
+        else setCursor(el3, kayitliKursor);
     }
 };

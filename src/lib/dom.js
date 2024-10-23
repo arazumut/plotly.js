@@ -6,12 +6,11 @@ var matrix = require('./matrix');
 var mat4X4 = require('gl-mat4');
 
 /**
- * Allow referencing a graph DOM element either directly
- * or by its id string
+ * Bir grafik DOM elemanına doğrudan veya id stringi ile referans vermeyi sağlar
  *
- * @param {HTMLDivElement|string} gd: a graph element or its id
+ * @param {HTMLDivElement|string} gd: bir grafik elemanı veya onun id'si
  *
- * @returns {HTMLDivElement} the DOM element of the graph
+ * @returns {HTMLDivElement} grafiğin DOM elemanı
  */
 function getGraphDiv(gd) {
     var gdElement;
@@ -20,15 +19,15 @@ function getGraphDiv(gd) {
         gdElement = document.getElementById(gd);
 
         if(gdElement === null) {
-            throw new Error('No DOM element with id \'' + gd + '\' exists on the page.');
+            throw new Error('Sayfada \'' + gd + '\' id\'li bir DOM elemanı yok.');
         }
 
         return gdElement;
     } else if(gd === null || gd === undefined) {
-        throw new Error('DOM element provided is null or undefined');
+        throw new Error('Sağlanan DOM elemanı null veya undefined');
     }
 
-    // otherwise assume that gd is a DOM element
+    // aksi takdirde gd'nin bir DOM elemanı olduğunu varsay
     return gd;
 }
 
@@ -45,17 +44,16 @@ function removeElement(el) {
 }
 
 /**
- * for dynamically adding style rules
- * makes one stylesheet that contains all rules added
- * by all calls to this function
+ * Dinamik olarak stil kuralları eklemek için
+ * Bu fonksiyonun tüm çağrıları tarafından eklenen kuralları içeren bir stil sayfası oluşturur
  */
 function addStyleRule(selector, styleString) {
     addRelatedStyleRule('global', selector, styleString);
 }
 
 /**
- * for dynamically adding style rules
- * to a stylesheet uniquely identified by a uid
+ * Dinamik olarak stil kuralları eklemek için
+ * Bir uid ile benzersiz olarak tanımlanan bir stil sayfasına
  */
 function addRelatedStyleRule(uid, selector, styleString) {
     var id = 'plotly.js-style-' + uid;
@@ -73,11 +71,11 @@ function addRelatedStyleRule(uid, selector, styleString) {
         styleSheet.insertRule(selector + '{' + styleString + '}', 0);
     } else if(styleSheet.addRule) {
         styleSheet.addRule(selector, styleString, 0);
-    } else loggers.warn('addStyleRule failed');
+    } else loggers.warn('addStyleRule başarısız oldu');
 }
 
 /**
- * to remove from the page a stylesheet identified by a given uid
+ * Belirli bir uid ile tanımlanan bir stil sayfasını sayfadan kaldırmak için
  */
 function deleteRelatedStyleRule(uid) {
     var id = 'plotly.js-style-' + uid;
@@ -87,7 +85,7 @@ function deleteRelatedStyleRule(uid) {
 
 function getFullTransformMatrix(element) {
     var allElements = getElementAndAncestors(element);
-    // the identity matrix
+    // kimlik matrisi
     var out = [
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -105,7 +103,7 @@ function getFullTransformMatrix(element) {
 }
 
 /**
- * extracts and parses the 2d css style transform matrix from some element
+ * Bir elemandan 2D CSS stil dönüşüm matrisini çıkarır ve ayrıştırır
  */
 function getElementTransformMatrix(element) {
     var style = window.getComputedStyle(element, null);
@@ -118,7 +116,7 @@ function getElementTransformMatrix(element) {
     );
 
     if(transform === 'none') return null;
-    // the transform is a string in the form of matrix(a, b, ...) or matrix3d(...)
+    // dönüşüm, matrix(a, b, ...) veya matrix3d(...) biçiminde bir stringdir
     return transform
         .replace('matrix', '')
         .replace('3d', '')
@@ -126,8 +124,9 @@ function getElementTransformMatrix(element) {
         .split(',')
         .map(function(n) { return +n; });
 }
+
 /**
- * retrieve all DOM elements that are ancestors of the specified one (including itself)
+ * Belirtilen elemanın (kendisi dahil) tüm DOM elemanlarını alır
  */
 function getElementAndAncestors(element) {
     var allElements = [];

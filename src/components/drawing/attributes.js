@@ -1,21 +1,21 @@
 'use strict';
 
+// Çizgi stili ayarları
 exports.dash = {
     valType: 'string',
-    // string type usually doesn't take values... this one should really be
-    // a special type or at least a special coercion function, from the GUI
-    // you only get these values but elsewhere the user can supply a list of
-    // dash lengths in px, and it will be honored
+    // string türü genellikle değer almaz... bu gerçekten özel bir tür veya en azından özel bir zorlama fonksiyonu olmalı,
+    // GUI'den yalnızca bu değerleri alırsınız, ancak başka yerlerde kullanıcı bir px cinsinden çizgi uzunlukları listesi sağlayabilir ve bu kabul edilir
     values: ['solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot'],
     dflt: 'solid',
     editType: 'style',
     description: [
-        'Sets the dash style of lines. Set to a dash type string',
-        '(*solid*, *dot*, *dash*, *longdash*, *dashdot*, or *longdashdot*)',
-        'or a dash length list in px (eg *5px,10px,2px,2px*).'
+        'Çizgilerin çizgi stilini ayarlar. Bir çizgi türü dizesine ayarlayın',
+        '(*solid*, *dot*, *dash*, *longdash*, *dashdot* veya *longdashdot*)',
+        'veya px cinsinden bir çizgi uzunluğu listesine (örneğin *5px,10px,2px,2px*).'
     ].join(' ')
 };
 
+// Desen ayarları
 exports.pattern = {
     shape: {
         valType: 'enumerated',
@@ -24,8 +24,8 @@ exports.pattern = {
         arrayOk: true,
         editType: 'style',
         description: [
-            'Sets the shape of the pattern fill.',
-            'By default, no pattern is used for filling the area.',
+            'Desen dolgusunun şeklini ayarlar.',
+            'Varsayılan olarak, alanı doldurmak için desen kullanılmaz.',
         ].join(' ')
     },
     fillmode: {
@@ -34,8 +34,7 @@ exports.pattern = {
         dflt: 'replace',
         editType: 'style',
         description: [
-            'Determines whether `marker.color` should be used',
-            'as a default to `bgcolor` or a `fgcolor`.'
+            '`marker.color`ın varsayılan olarak `bgcolor` veya `fgcolor` olarak kullanılıp kullanılmayacağını belirler.'
         ].join(' ')
     },
     bgcolor: {
@@ -43,9 +42,9 @@ exports.pattern = {
         arrayOk: true,
         editType: 'style',
         description: [
-            'When there is no colorscale sets the color of background pattern fill.',
-            'Defaults to a `marker.color` background when `fillmode` is *overlay*.',
-            'Otherwise, defaults to a transparent background.'
+            'Renk skalası olmadığında arka plan desen dolgusunun rengini ayarlar.',
+            '`fillmode` *overlay* olduğunda varsayılan olarak `marker.color` arka planına ayarlanır.',
+            'Aksi takdirde, varsayılan olarak şeffaf bir arka plan olur.'
         ].join(' ')
     },
     fgcolor: {
@@ -53,10 +52,9 @@ exports.pattern = {
         arrayOk: true,
         editType: 'style',
         description: [
-            'When there is no colorscale sets the color of foreground pattern fill.',
-            'Defaults to a `marker.color` background when `fillmode` is *replace*.',
-            'Otherwise, defaults to dark grey or white',
-            'to increase contrast with the `bgcolor`.',
+            'Renk skalası olmadığında ön plan desen dolgusunun rengini ayarlar.',
+            '`fillmode` *replace* olduğunda varsayılan olarak `marker.color` arka planına ayarlanır.',
+            'Aksi takdirde, kontrastı artırmak için varsayılan olarak koyu gri veya beyaz olur.',
         ].join(' ')
     },
     fgopacity: {
@@ -65,9 +63,9 @@ exports.pattern = {
         min: 0,
         max: 1,
         description: [
-            'Sets the opacity of the foreground pattern fill.',
-            'Defaults to a 0.5 when `fillmode` is *overlay*.',
-            'Otherwise, defaults to 1.'
+            'Ön plan desen dolgusunun opaklığını ayarlar.',
+            '`fillmode` *overlay* olduğunda varsayılan olarak 0.5 olur.',
+            'Aksi takdirde, varsayılan olarak 1 olur.'
         ].join(' ')
     },
     size: {
@@ -77,8 +75,8 @@ exports.pattern = {
         arrayOk: true,
         editType: 'style',
         description: [
-            'Sets the size of unit squares of the pattern fill in pixels,',
-            'which corresponds to the interval of repetition of the pattern.',
+            'Desen dolgusunun birim karelerinin boyutunu piksel cinsinden ayarlar,',
+            'bu, desenin tekrarlama aralığına karşılık gelir.',
         ].join(' ')
     },
     solidity: {
@@ -89,14 +87,14 @@ exports.pattern = {
         arrayOk: true,
         editType: 'style',
         description: [
-            'Sets the solidity of the pattern fill.',
-            'Solidity is roughly the fraction of the area filled by the pattern.',
-            'Solidity of 0 shows only the background color without pattern',
-            'and solidty of 1 shows only the foreground color without pattern.',
+            'Desen dolgusunun sağlamlığını ayarlar.',
+            'Sağlamlık, desen tarafından doldurulan alanın yaklaşık olarak oranıdır.',
+            '0 sağlamlığı yalnızca arka plan rengini desen olmadan gösterir',
+            've 1 sağlamlığı yalnızca ön plan rengini desen olmadan gösterir.',
         ].join(' ')
     },
     editType: 'style',
     description: [
-        'Sets the pattern within the marker.'
+        'İşaretleyici içindeki deseni ayarlar.'
     ].join(' '),
 };

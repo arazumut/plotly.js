@@ -3,25 +3,24 @@
 var extendFlat = require('../lib/extend').extendFlat;
 
 /**
- * Make a xy domain attribute group
+ * Bir xy domain attribute grubu oluştur
  *
  * @param {object} opts
  *   @param {string}
- *     opts.name: name to be inserted in the default description
+ *     opts.name: varsayılan açıklamaya eklenecek isim
  *   @param {boolean}
- *     opts.trace: set to true for trace containers
+ *     opts.trace: iz konteynerleri için true olarak ayarla
  *   @param {string}
- *     opts.editType: editType for all pieces
+ *     opts.editType: tüm parçalar için editType
  *   @param {boolean}
- *     opts.noGridCell: set to true to omit `row` and `column`
+ *     opts.noGridCell: `row` ve `column`'u atlamak için true olarak ayarla
  *
  * @param {object} extra
  *   @param {string}
- *     extra.description: extra description. N.B we use
- *     a separate extra container to make it compatible with
- *     the compress_attributes transform.
+ *     extra.description: ekstra açıklama. Not: 
+ *     compress_attributes dönüşümü ile uyumlu hale getirmek için ayrı bir ekstra konteyner kullanıyoruz.
  *
- * @return {object} attributes object containing {x,y} as specified
+ * @return {object} belirtilen {x,y} içeren attribute nesnesi
  */
 exports.attributes = function(opts, extra) {
     opts = opts || {};
@@ -38,25 +37,19 @@ exports.attributes = function(opts, extra) {
     };
 
     var namePart = opts.name ? opts.name + ' ' : '';
-    var contPart = opts.trace ? 'trace ' : 'subplot ';
+    var contPart = opts.trace ? 'iz ' : 'alt grafik ';
     var descPart = extra.description ? ' ' + extra.description : '';
 
     var out = {
         x: extendFlat({}, base, {
             description: [
-                'Sets the horizontal domain of this ',
-                namePart,
-                contPart,
-                '(in plot fraction).',
+                'Bu ' + namePart + contPart + 'nin yatay domainini ayarlar (grafik kesirinde).',
                 descPart
             ].join('')
         }),
         y: extendFlat({}, base, {
             description: [
-                'Sets the vertical domain of this ',
-                namePart,
-                contPart,
-                '(in plot fraction).',
+                'Bu ' + namePart + contPart + 'nin dikey domainini ayarlar (grafik kesirinde).',
                 descPart
             ].join('')
         }),
@@ -70,11 +63,7 @@ exports.attributes = function(opts, extra) {
             dflt: 0,
             editType: opts.editType,
             description: [
-                'If there is a layout grid, use the domain ',
-                'for this row in the grid for this ',
-                namePart,
-                contPart,
-                '.',
+                'Eğer bir layout grid varsa, bu ' + namePart + contPart + ' için griddeki bu satırın domainini kullan.',
                 descPart
             ].join('')
         };
@@ -84,11 +73,7 @@ exports.attributes = function(opts, extra) {
             dflt: 0,
             editType: opts.editType,
             description: [
-                'If there is a layout grid, use the domain ',
-                'for this column in the grid for this ',
-                namePart,
-                contPart,
-                '.',
+                'Eğer bir layout grid varsa, bu ' + namePart + contPart + ' için griddeki bu sütunun domainini kullan.',
                 descPart
             ].join('')
         };
@@ -119,7 +104,7 @@ exports.defaults = function(containerOut, layout, coerce, dfltDomains) {
     var x = coerce('domain.x', dfltX);
     var y = coerce('domain.y', dfltY);
 
-    // don't accept bad input data
+    // kötü giriş verilerini kabul etme
     if(!(x[0] < x[1])) containerOut.domain.x = dfltX.slice();
     if(!(y[0] < y[1])) containerOut.domain.y = dfltY.slice();
 };

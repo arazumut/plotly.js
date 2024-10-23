@@ -1,13 +1,15 @@
 'use strict';
 
-exports.selectMode = function(dragmode) {
+// Seçim modunu kontrol eder
+exports.secimModu = function(dragmode) {
     return (
         dragmode === 'lasso' ||
         dragmode === 'select'
     );
 };
 
-exports.drawMode = function(dragmode) {
+// Çizim modunu kontrol eder
+exports.cizimModu = function(dragmode) {
     return (
         dragmode === 'drawclosedpath' ||
         dragmode === 'drawopenpath' ||
@@ -17,14 +19,16 @@ exports.drawMode = function(dragmode) {
     );
 };
 
-exports.openMode = function(dragmode) {
+// Açık çizim modunu kontrol eder
+exports.acikModu = function(dragmode) {
     return (
         dragmode === 'drawline' ||
         dragmode === 'drawopenpath'
     );
 };
 
-exports.rectMode = function(dragmode) {
+// Dikdörtgen modunu kontrol eder
+exports.dikdortgenModu = function(dragmode) {
     return (
         dragmode === 'select' ||
         dragmode === 'drawline' ||
@@ -33,7 +37,8 @@ exports.rectMode = function(dragmode) {
     );
 };
 
-exports.freeMode = function(dragmode) {
+// Serbest çizim modunu kontrol eder
+exports.serbestModu = function(dragmode) {
     return (
         dragmode === 'lasso' ||
         dragmode === 'drawclosedpath' ||
@@ -41,9 +46,10 @@ exports.freeMode = function(dragmode) {
     );
 };
 
-exports.selectingOrDrawing = function(dragmode) {
+// Seçim veya çizim modunu kontrol eder
+exports.secimVeyaCizim = function(dragmode) {
     return (
-        exports.freeMode(dragmode) ||
-        exports.rectMode(dragmode)
+        exports.serbestModu(dragmode) ||
+        exports.dikdortgenModu(dragmode)
     );
 };

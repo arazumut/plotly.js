@@ -7,54 +7,54 @@ var sortObjectKeys = require('../../lib/sort_object_keys');
 var palettes = require('./scales.js').scales;
 var paletteStr = sortObjectKeys(palettes);
 
-function code(s) {
+function kod(s) {
     return '`' + s + '`';
 }
 
 /**
- * Make colorscale attribute declarations for
+ * Renk skalası öznitelik deklarasyonları oluşturur
  *
  * - colorscale,
  * - (c|z)auto, (c|z)min, (c|z)max,
  * - autocolorscale, reversescale,
- * - showscale (optionally)
- * - color (optionally)
+ * - showscale (isteğe bağlı)
+ * - color (isteğe bağlı)
  *
- * @param {string} context (dflt: '', i.e. from trace root):
- *     the container this is in ('', *marker*, *marker.line* etc)
+ * @param {string} context (varsayılan: '', yani iz kökünden):
+ *     bu konteynerin içinde olduğu yer ('', *marker*, *marker.line* vb.)
  *
  * @param {object} opts:
- *   - cLetter {string} (dflt: 'c'):
- *     leading letter for 'min', 'max and 'auto' attribute (either 'z' or 'c')
+ *   - cLetter {string} (varsayılan: 'c'):
+ *     'min', 'max' ve 'auto' öznitelikleri için öncü harf (ya 'z' ya da 'c')
  *
- *   - colorAttr {string} (dflt: 'z' if `cLetter: 'z'`, 'color' if `cLetter: 'c'`):
- *     (for descriptions) sets the name of the color attribute that maps to the colorscale.
+ *   - colorAttr {string} (varsayılan: `cLetter: 'z'` ise 'z', `cLetter: 'c'` ise 'color'):
+ *     (açıklamalar için) renk özniteliğinin adını belirler.
  *
- *     N.B. if `colorAttr: 'color'`, we include the `color` declaration here.
+ *     Not: `colorAttr: 'color'` ise, burada `color` deklarasyonunu içeririz.
  *
- *   - onlyIfNumerical {string} (dflt: false' if `cLetter: 'z'`, true if `cLetter: 'c'`):
- *     (for descriptions) set to true if colorscale attribute only
+ *   - onlyIfNumerical {string} (varsayılan: `cLetter: 'z'` ise false, `cLetter: 'c'` ise true):
+ *     (açıklamalar için) renk skalası özniteliğinin yalnızca sayısal olduğunda geçerli olup olmadığını belirler.
  *
  *   - colorscaleDflt {string}:
- *     overrides the colorscale dflt
+ *     renk skalası varsayılanını geçersiz kılar
  *
- *   - autoColorDflt {boolean} (dflt true):
- *     normally autocolorscale.dflt is `true`, but pass `false` to override
+ *   - autoColorDflt {boolean} (varsayılan true):
+ *     normalde autocolorscale.dflt `true`'dur, ancak `false` geçerek geçersiz kılabilirsiniz
  *
- *   - noScale {boolean} (dflt: true if `context: 'marker.line'`, false otherwise):
- *     set to `false` to not include showscale attribute (e.g. for 'marker.line')
+ *   - noScale {boolean} (varsayılan: `context: 'marker.line'` ise true, aksi takdirde false):
+ *     showscale özniteliğini dahil etmemek için `false` olarak ayarlayın (örneğin 'marker.line' için)
  *
- *   - showScaleDflt {boolean} (dflt: true if `cLetter: 'z'`, false otherwise)
+ *   - showScaleDflt {boolean} (varsayılan: `cLetter: 'z'` ise true, aksi takdirde false)
  *
- *   - editTypeOverride {boolean} (dflt: ''):
- *     most of these attributes already require a recalc, but the ones that do not
- *     have editType *style* or *plot* unless you override (presumably with *calc*)
+ *   - editTypeOverride {boolean} (varsayılan: ''):
+ *     bu özniteliklerin çoğu zaten bir yeniden hesaplama gerektirir, ancak gerektirmeyenler
+ *     *style* veya *plot* düzenleme türüne sahiptir, aksi takdirde (muhtemelen *calc* ile) geçersiz kılabilirsiniz
  *
- *   - anim {boolean) (dflt: undefined): is 'color' animatable?
+ *   - anim {boolean) (varsayılan: undefined): 'color' animasyonlu mu?
  *
  * @return {object}
  */
-module.exports = function colorScaleAttrs(context, opts) {
+module.exports = function renkSkalasıÖznitelikleri(context, opts) {
     context = context || '';
     opts = opts || {};
 
@@ -73,21 +73,21 @@ module.exports = function colorScaleAttrs(context, opts) {
         colorAttrFull = opts.colorAttr;
     } else {
         colorAttr = {z: 'z', c: 'color'}[cLetter];
-        colorAttrFull = 'in ' + code(contextHead + colorAttr);
+        colorAttrFull = 'in ' + kod(contextHead + colorAttr);
     }
 
     var effectDesc = onlyIfNumerical ?
-        ' Has an effect only if ' + colorAttrFull + ' is set to a numerical array.' :
+        ' Yalnızca ' + colorAttrFull + ' sayısal bir dizi olarak ayarlandığında etkisi vardır.' :
         '';
 
     var auto = cLetter + 'auto';
     var min = cLetter + 'min';
     var max = cLetter + 'max';
     var mid = cLetter + 'mid';
-    var autoFull = code(contextHead + auto);
-    var minFull = code(contextHead + min);
-    var maxFull = code(contextHead + max);
-    var minmaxFull = minFull + ' and ' + maxFull;
+    var autoFull = kod(contextHead + auto);
+    var minFull = kod(contextHead + min);
+    var maxFull = kod(contextHead + max);
+    var minmaxFull = minFull + ' ve ' + maxFull;
     var autoImpliedEdits = {};
     autoImpliedEdits[min] = autoImpliedEdits[max] = undefined;
     var minmaxImpliedEdits = {};
@@ -101,11 +101,11 @@ module.exports = function colorScaleAttrs(context, opts) {
             arrayOk: true,
             editType: editTypeOverride || 'style',
             description: [
-                'Sets the', context, 'color.',
-                'It accepts either a specific color',
-                'or an array of numbers that are mapped to the colorscale',
-                'relative to the max and min values of the array or relative to',
-                minmaxFull, 'if set.'
+                context, ' rengini ayarlar.',
+                'Belirli bir rengi veya',
+                'dizinin maksimum ve minimum değerlerine göre veya',
+                minmaxFull, 'ayarlanmışsa,',
+                'renk skalasına eşlenen sayıların bir dizisini kabul eder.'
             ].join(' ')
         };
 
@@ -120,10 +120,10 @@ module.exports = function colorScaleAttrs(context, opts) {
         editType: 'calc',
         impliedEdits: autoImpliedEdits,
         description: [
-            'Determines whether or not the color domain is computed',
-            'with respect to the input data (here ' + colorAttrFull + ') or the bounds set in',
+            'Renk alanının giriş verilerine göre mi',
+            '(burada ' + colorAttrFull + ') yoksa',
             minmaxFull + effectDesc,
-            'Defaults to `false` when', minmaxFull, 'are set by the user.'
+            'kullanıcı tarafından ayarlandığında `false` olur.'
         ].join(' ')
     };
 
@@ -133,9 +133,9 @@ module.exports = function colorScaleAttrs(context, opts) {
         editType: editTypeOverride || 'plot',
         impliedEdits: minmaxImpliedEdits,
         description: [
-            'Sets the lower bound of the color domain.' + effectDesc,
-            'Value should have the same units as', colorAttrFull,
-            'and if set,', maxFull, 'must be set as well.'
+            'Renk alanının alt sınırını ayarlar.' + effectDesc,
+            'Değer', colorAttrFull, 'ile aynı birimlerde olmalıdır',
+            've ayarlanmışsa,', maxFull, 'da ayarlanmalıdır.'
         ].join(' ')
     };
 
@@ -145,9 +145,9 @@ module.exports = function colorScaleAttrs(context, opts) {
         editType: editTypeOverride || 'plot',
         impliedEdits: minmaxImpliedEdits,
         description: [
-            'Sets the upper bound of the color domain.' + effectDesc,
-            'Value should have the same units as', colorAttrFull,
-            'and if set,', minFull, 'must be set as well.'
+            'Renk alanının üst sınırını ayarlar.' + effectDesc,
+            'Değer', colorAttrFull, 'ile aynı birimlerde olmalıdır',
+            've ayarlanmışsa,', minFull, 'da ayarlanmalıdır.'
         ].join(' ')
     };
 
@@ -157,10 +157,10 @@ module.exports = function colorScaleAttrs(context, opts) {
         editType: 'calc',
         impliedEdits: autoImpliedEdits,
         description: [
-            'Sets the mid-point of the color domain by scaling', minFull,
-            'and/or', maxFull, 'to be equidistant to this point.' + effectDesc,
-            'Value should have the same units as', colorAttrFull + '.',
-            'Has no effect when', autoFull, 'is `false`.'
+            'Renk alanının orta noktasını ayarlar', minFull,
+            've/veya', maxFull, 'bu noktaya eşit uzaklıkta olacak şekilde ölçeklendirilir.' + effectDesc,
+            'Değer', colorAttrFull + ' ile aynı birimlerde olmalıdır.',
+            autoFull, ' `false` olduğunda etkisi yoktur.'
         ].join(' ')
     };
 
@@ -170,32 +170,31 @@ module.exports = function colorScaleAttrs(context, opts) {
         dflt: colorscaleDflt,
         impliedEdits: {autocolorscale: false},
         description: [
-            'Sets the colorscale.' + effectDesc,
-            'The colorscale must be an array containing',
-            'arrays mapping a normalized value to an',
-            'rgb, rgba, hex, hsl, hsv, or named color string.',
-            'At minimum, a mapping for the lowest (0) and highest (1)',
-            'values are required. For example,',
+            'Renk skalasını ayarlar.' + effectDesc,
+            'Renk skalası, normalize edilmiş bir değeri',
+            'rgb, rgba, hex, hsl, hsv veya adlandırılmış renk dizgisine eşleyen',
+            'diziler içeren bir dizi olmalıdır.',
+            'En azından, en düşük (0) ve en yüksek (1)',
+            'değerler için bir eşleme gereklidir. Örneğin,',
             '`[[0, \'rgb(0,0,255)\'], [1, \'rgb(255,0,0)\']]`.',
-            'To control the bounds of the colorscale in color space,',
-            'use', minmaxFull + '.',
-            'Alternatively, `colorscale` may be a palette name string',
-            'of the following list: ' + paletteStr + '.'
+            'Renk alanının sınırlarını renk uzayında kontrol etmek için,',
+            minmaxFull + ' kullanın.',
+            'Alternatif olarak, `colorscale` aşağıdaki listeden bir palet adı dizgisi olabilir: ' + paletteStr + '.'
         ].join(' ')
     };
 
     attrs.autocolorscale = {
         valType: 'boolean',
-        // gets overrode in 'heatmap' & 'surface' for backwards comp.
+        // 'heatmap' ve 'surface' için geriye dönük uyumlulukta geçersiz kılınır.
         dflt: opts.autoColorDflt === false ? false : true,
         editType: 'calc',
         impliedEdits: {colorscale: undefined},
         description: [
-            'Determines whether the colorscale is a default palette (`autocolorscale: true`)',
-            'or the palette determined by', code(contextHead + 'colorscale') + '.' + effectDesc,
-            'In case `colorscale` is unspecified or `autocolorscale` is true, the default',
-            'palette will be chosen according to whether numbers in the `color` array are',
-            'all positive, all negative or mixed.'
+            'Renk skalasının varsayılan bir palet olup olmadığını belirler (`autocolorscale: true`)',
+            'veya', kod(contextHead + 'colorscale') + ' tarafından belirlenen palet.' + effectDesc,
+            '`colorscale` belirtilmemişse veya `autocolorscale` true ise, varsayılan',
+            'palet, `color` dizisindeki sayıların',
+            'tamamının pozitif, tamamının negatif veya karışık olup olmamasına göre seçilecektir.'
         ].join(' ')
     };
 
@@ -204,9 +203,9 @@ module.exports = function colorScaleAttrs(context, opts) {
         dflt: false,
         editType: 'plot',
         description: [
-            'Reverses the color mapping if true.' + effectDesc,
-            'If true,', minFull, 'will correspond to the last color',
-            'in the array and', maxFull, 'will correspond to the first color.'
+            'Renk eşlemeyi tersine çevirir.' + effectDesc,
+            'Eğer true ise,', minFull, 'dizideki son renge',
+            've', maxFull, 'dizideki ilk renge karşılık gelir.'
         ].join(' ')
     };
 
@@ -216,7 +215,7 @@ module.exports = function colorScaleAttrs(context, opts) {
             dflt: showScaleDflt,
             editType: 'calc',
             description: [
-                'Determines whether or not a colorbar is displayed for this trace.' + effectDesc
+                'Bu iz için bir renk çubuğunun gösterilip gösterilmeyeceğini belirler.' + effectDesc
             ].join(' ')
         };
 
@@ -230,11 +229,11 @@ module.exports = function colorScaleAttrs(context, opts) {
             dflt: null,
             editType: 'calc',
             description: [
-                'Sets a reference to a shared color axis.',
-                'References to these shared color axes are *coloraxis*, *coloraxis2*, *coloraxis3*, etc.',
-                'Settings for these shared color axes are set in the layout, under',
-                '`layout.coloraxis`, `layout.coloraxis2`, etc.',
-                'Note that multiple color scales can be linked to the same color axis.'
+                'Paylaşılan bir renk eksenine referans ayarlar.',
+                'Bu paylaşılan renk eksenlerine referanslar *coloraxis*, *coloraxis2*, *coloraxis3* vb. şeklindedir.',
+                'Bu paylaşılan renk eksenleri için ayarlar, yerleşimde,',
+                '`layout.coloraxis`, `layout.coloraxis2` vb. altında ayarlanır.',
+                'Birden fazla renk skalasının aynı renk eksenine bağlanabileceğini unutmayın.'
             ].join(' ')
         };
     }

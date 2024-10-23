@@ -4,24 +4,23 @@ var isNumeric = require('fast-isnumeric');
 var isArrayOrTypedArray = require('./array').isArrayOrTypedArray;
 
 /**
- * convert a string s (such as 'xaxis.range[0]')
- * representing a property of nested object into set and get methods
- * also return the string and object so we don't have to keep track of them
- * allows [-1] for an array index, to set a property inside all elements
- * of an array
- * eg if obj = {arr: [{a: 1}, {a: 2}]}
- * you can do p = nestedProperty(obj, 'arr[-1].a')
- * but you cannot set the array itself this way, to do that
- * just set the whole array.
- * eg if obj = {arr: [1, 2, 3]}
- * you can't do nestedProperty(obj, 'arr[-1]').set(5)
- * but you can do nestedProperty(obj, 'arr').set([5, 5, 5])
+ * Bir dizeyi (örneğin 'xaxis.range[0]')
+ * iç içe geçmiş bir nesnenin özelliğini temsil eden bir dizeyi set ve get yöntemlerine dönüştür
+ * ayrıca dizeyi ve nesneyi döndür, böylece onları takip etmek zorunda kalmayız
+ * bir dizinin tüm öğelerinin içinde bir özelliği ayarlamak için [-1] dizinini kullanmaya izin verir
+ * örneğin obj = {arr: [{a: 1}, {a: 2}]} ise
+ * p = nestedProperty(obj, 'arr[-1].a') yapabilirsiniz
+ * ancak diziyi bu şekilde ayarlayamazsınız, bunu yapmak için
+ * tüm diziyi ayarlayın.
+ * örneğin obj = {arr: [1, 2, 3]} ise
+ * nestedProperty(obj, 'arr[-1]').set(5) yapamazsınız
+ * ancak nestedProperty(obj, 'arr').set([5, 5, 5]) yapabilirsiniz
  */
 module.exports = function nestedProperty(container, propStr) {
     if(isNumeric(propStr)) propStr = String(propStr);
     else if(typeof propStr !== 'string' ||
             propStr.substr(propStr.length - 4) === '[-1]') {
-        throw 'bad property string';
+        throw 'geçersiz özellik dizesi';
     }
 
     var propParts = propStr.split('.');
@@ -30,22 +29,22 @@ module.exports = function nestedProperty(container, propStr) {
     var i, j;
 
     for(j = 0; j < propParts.length; j++) {
-        // guard against polluting __proto__ and other internals
+        // __proto__ ve diğer dahili yapıların kirlenmesini önleyin
         if(String(propParts[j]).slice(0, 2) === '__') {
-            throw 'bad property string';
+            throw 'geçersiz özellik dizesi';
         }
     }
 
-    // check for parts of the nesting hierarchy that are numbers (ie array elements)
+    // sayılar olan iç içe hiyerarşi parçalarını kontrol edin (yani dizi öğeleri)
     j = 0;
     while(j < propParts.length) {
-        // look for non-bracket chars, then any number of [##] blocks
+        // köşeli parantez blokları olan karakterler arayın
         indexed = String(propParts[j]).match(/^([^\[\]]*)((\[\-?[0-9]*\])+)$/);
         if(indexed) {
             if(indexed[1]) propParts[j] = indexed[1];
-            // allow propStr to start with bracketed array indices
+            // dizeyi köşeli parantezli dizi dizinleriyle başlatmaya izin ver
             else if(j === 0) propParts.splice(0, 1);
-            else throw 'bad property string';
+            else throw 'geçersiz özellik dizesi';
 
             indices = indexed[2]
                 .substr(1, indexed[2].length - 2)
@@ -101,7 +100,7 @@ function npGet(cont, parts) {
             }
         }
 
-        // only hit this if parts.length === 1
+        // sadece parts.length === 1 ise buraya ulaşır
         if(typeof curCont !== 'object' || curCont === null) return undefined;
 
         out = curCont[parts[i]];
@@ -111,17 +110,16 @@ function npGet(cont, parts) {
 }
 
 /*
- * Can this value be deleted? We can delete `undefined`, and `null` except INSIDE an
- * *args* array.
+ * Bu değer silinebilir mi? `undefined` ve `null` değerlerini silebiliriz, ancak *args* dizisinin
+ * içinde değilse.
  *
- * Previously we also deleted some `{}` and `[]`, in order to try and make set/unset
- * a net noop; but this causes far more complication than it's worth, and still had
- * lots of exceptions. See https://github.com/plotly/plotly.js/issues/1410
+ * Daha önce bazı `{}` ve `[]` öğelerini de siliyorduk, set/unset işlemlerini net bir şekilde
+ * nötr hale getirmeye çalışmak için; ancak bu, değerinden çok daha fazla karmaşıklığa neden
+ * oluyordu ve hala birçok istisna vardı. Bkz: https://github.com/plotly/plotly.js/issues/1410
  *
- * *args* arrays get passed directly to API methods and we should respect null if
- * the user put it there, but otherwise null is deleted as we use it as code
- * in restyle/relayout/update for "delete this value" whereas undefined means
- * "ignore this edit"
+ * *args* dizileri doğrudan API yöntemlerine geçirilir ve kullanıcı oraya koyduysa null'a
+ * saygı göstermeliyiz, ancak aksi takdirde null, "bu değeri sil" anlamında kullanıldığı için
+ * silinir, undefined ise "bu düzenlemeyi görmezden gel" anlamına gelir.
  */
 var ARGS_PATTERN = /(^|\.)args\[/;
 function isDeletable(val, propStr) {
@@ -141,10 +139,10 @@ function npSet(cont, parts, propStr) {
             curPart = parts[i];
 
             if(typeof curPart === 'number' && !isArrayOrTypedArray(curCont)) {
-                throw 'array index but container is not an array';
+                throw 'dizi dizini ama konteyner bir dizi değil';
             }
 
-            // handle special -1 array index
+            // özel -1 dizi dizinini işleyin
             if(curPart === -1) {
                 toDelete = !setArrayAll(curCont, parts.slice(i + 1), val, propStr);
                 if(toDelete) break;
@@ -158,7 +156,7 @@ function npSet(cont, parts, propStr) {
             curCont = curCont[curPart];
 
             if(typeof curCont !== 'object' || curCont === null) {
-                throw 'container is not an object';
+                throw 'konteyner bir nesne değil';
             }
 
             propPart = joinPropStr(propPart, curPart);
@@ -170,9 +168,9 @@ function npSet(cont, parts, propStr) {
             if(i === parts.length - 1) {
                 delete curCont[parts[i]];
 
-                // The one bit of pruning we still do: drop `undefined` from the end of arrays.
-                // In case someone has already unset previous items, continue until we hit a
-                // non-undefined value.
+                // Yaptığımız tek budama: dizilerin sonundan `undefined` öğelerini kaldırmak.
+                // Önceki öğeleri zaten kaldırmış olma durumunda, tanımlı olmayan bir değere
+                // ulaşana kadar devam edin.
                 if(Array.isArray(curCont) && +parts[i] === curCont.length - 1) {
                     while(curCont.length && curCont[curCont.length - 1] === undefined) {
                         curCont.pop();
@@ -191,7 +189,7 @@ function joinPropStr(propStr, newPart) {
     return propStr + toAdd;
 }
 
-// handle special -1 array index
+// özel -1 dizi dizinini işleyin
 function setArrayAll(containerArray, innerParts, val, propStr) {
     var arrayVal = isArrayOrTypedArray(val);
     var allSet = true;
@@ -217,9 +215,8 @@ function setArrayAll(containerArray, innerParts, val, propStr) {
 }
 
 /**
- * make new sub-container as needed.
- * returns false if there's no container and none is needed
- * because we're only deleting an attribute
+ * Gerektiğinde yeni alt konteyner oluştur.
+ * yalnızca bir özniteliği sildiğimiz için konteyner yoksa ve gerek yoksa false döner
  */
 function checkNewContainer(container, part, nextPart, toDelete) {
     if(container[part] === undefined) {
@@ -233,7 +230,7 @@ function checkNewContainer(container, part, nextPart, toDelete) {
 
 function badContainer(container, propStr, propParts) {
     return {
-        set: function() { throw 'bad container'; },
+        set: function() { throw 'geçersiz konteyner'; },
         get: function() {},
         astr: propStr,
         parts: propParts,

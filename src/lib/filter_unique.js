@@ -1,40 +1,36 @@
 'use strict';
 
-
 /**
- * Return news array containing only the unique items
- * found in input array.
+ * Girdi dizisinde bulunan yalnızca benzersiz öğeleri içeren yeni bir dizi döndürür.
  *
- * IMPORTANT: Note that items are considered unique
- * if `String({})` is unique. For example;
+ * ÖNEMLİ: Öğelerin `String({})` benzersiz olduğu sürece benzersiz kabul edildiğini unutmayın. Örneğin;
  *
  *  Lib.filterUnique([ { a: 1 }, { b: 2 } ])
  *
- *  returns [{ a: 1 }]
+ *  [{ a: 1 }] döndürür
  *
- * and
+ * ve
  *
  *  Lib.filterUnique([ '1', 1 ])
  *
- *  returns ['1']
+ *  ['1'] döndürür
  *
- *
- * @param {array} array base array
- * @return {array} new filtered array
+ * @param {array} array temel dizi
+ * @return {array} yeni filtrelenmiş dizi
  */
 module.exports = function filterUnique(array) {
-    var seen = {};
-    var out = [];
+    var görülen = {};
+    var çıktı = [];
     var j = 0;
 
     for(var i = 0; i < array.length; i++) {
-        var item = array[i];
+        var öğe = array[i];
 
-        if(seen[item] !== 1) {
-            seen[item] = 1;
-            out[j++] = item;
+        if(görülen[öğe] !== 1) {
+            görülen[öğe] = 1;
+            çıktı[j++] = öğe;
         }
     }
 
-    return out;
+    return çıktı;
 };

@@ -6,20 +6,20 @@ var BADNUM = require('../constants/numerical').BADNUM;
 var polygon = module.exports = {};
 
 /**
- * Turn an array of [x, y] pairs into a polygon object
- * that can test if points are inside it
+ * Bir [x, y] çiftleri dizisini, noktaların içinde olup olmadığını test edebilen
+ * bir çokgen nesnesine dönüştür
  *
- * @param ptsIn Array of [x, y] pairs
+ * @param ptsIn [x, y] çiftleri dizisi
  *
- * @returns polygon Object {xmin, xmax, ymin, ymax, pts, contains}
- *      (x|y)(min|max) are the bounding rect of the polygon
- *      pts is the original array, with the first pair repeated at the end
- *      contains is a function: (pt, omitFirstEdge)
- *          pt is the [x, y] pair to test
- *          omitFirstEdge truthy means points exactly on the first edge don't
- *              count. This is for use adding one polygon to another so we
- *              don't double-count the edge where they meet.
- *          returns boolean: is pt inside the polygon (including on its edges)
+ * @returns polygon Nesnesi {xmin, xmax, ymin, ymax, pts, contains}
+ *      (x|y)(min|max) çokgenin sınır dikdörtgenidir
+ *      pts orijinal dizidir, ilk çift tekrar edilmiştir
+ *      contains bir fonksiyondur: (pt, omitFirstEdge)
+ *          pt test edilecek [x, y] çifti
+ *          omitFirstEdge doğruysa, tam olarak ilk kenarda olan noktalar
+ *              sayılmaz. Bu, bir çokgeni diğerine eklerken, birleşim yerindeki
+ *              kenarı iki kez saymamak içindir.
+ *          boolean döner: pt çokgenin içinde mi (kenarları dahil)
  */
 polygon.tester = function tester(ptsIn) {
     var pts = ptsIn.slice();
@@ -33,7 +33,7 @@ polygon.tester = function tester(ptsIn) {
         pts[pts.length - 1][0] !== pts[0][0] ||
         pts[pts.length - 1][1] !== pts[0][1]
     ) {
-        // close the polygon
+        // çokgeni kapat
         pts.push(pts[0]);
     }
 
@@ -44,21 +44,21 @@ polygon.tester = function tester(ptsIn) {
         ymax = Math.max(ymax, pts[i][1]);
     }
 
-    // do we have a rectangle? Handle this here, so we can use the same
-    // tester for the rectangular case without sacrificing speed
+    // bir dikdörtgenimiz var mı? Bunu burada ele alalım, böylece aynı
+    // test cihazını dikdörtgen durumunda hızdan ödün vermeden kullanabiliriz
 
     var isRect = false;
     var rectFirstEdgeTest;
 
     if(pts.length === 5) {
-        if(pts[0][0] === pts[1][0]) { // vert, horz, vert, horz
+        if(pts[0][0] === pts[1][0]) { // dikey, yatay, dikey, yatay
             if(pts[2][0] === pts[3][0] &&
                     pts[0][1] === pts[3][1] &&
                     pts[1][1] === pts[2][1]) {
                 isRect = true;
                 rectFirstEdgeTest = function(pt) { return pt[0] === pts[0][0]; };
             }
-        } else if(pts[0][1] === pts[1][1]) { // horz, vert, horz, vert
+        } else if(pts[0][1] === pts[1][1]) { // yatay, dikey, yatay, dikey
             if(pts[2][1] === pts[3][1] &&
                     pts[0][0] === pts[3][0] &&
                     pts[1][0] === pts[2][0]) {
@@ -73,7 +73,7 @@ polygon.tester = function tester(ptsIn) {
         var y = pt[1];
 
         if(x === BADNUM || x < xmin || x > xmax || y === BADNUM || y < ymin || y > ymax) {
-            // pt is outside the bounding box of polygon
+            // pt çokgenin sınır kutusunun dışında
             return false;
         }
         if(omitFirstEdge && rectFirstEdgeTest(pt)) return false;
@@ -86,7 +86,7 @@ polygon.tester = function tester(ptsIn) {
         var y = pt[1];
 
         if(x === BADNUM || x < xmin || x > xmax || y === BADNUM || y < ymin || y > ymax) {
-            // pt is outside the bounding box of polygon
+            // pt çokgenin sınır kutusunun dışında
             return false;
         }
 
@@ -101,10 +101,10 @@ polygon.tester = function tester(ptsIn) {
         var ycross;
 
         for(i = 1; i < imax; i++) {
-            // find all crossings of a vertical line upward from pt with
-            // polygon segments
-            // crossings exactly at xmax don't count, unless the point is
-            // exactly on the segment, then it counts as inside.
+            // pt'den yukarı doğru bir dikey çizginin
+            // çokgen segmentleriyle tüm kesişimlerini bulun
+            // xmax'teki kesişimler sayılmaz, nokta
+            // segmentin tam üzerindeyse, içeride sayılır.
             x0 = x1;
             y0 = y1;
             x1 = pts[i][0];
@@ -112,28 +112,28 @@ polygon.tester = function tester(ptsIn) {
             xmini = Math.min(x0, x1);
 
             if(x < xmini || x > Math.max(x0, x1) || y > Math.max(y0, y1)) {
-                // outside the bounding box of this segment, it's only a crossing
-                // if it's below the box.
+                // bu segmentin sınır kutusunun dışında, sadece bir kesişimdir
+                // kutunun altındaysa.
 
                 continue;
             } else if(y < Math.min(y0, y1)) {
-                // don't count the left-most point of the segment as a crossing
-                // because we don't want to double-count adjacent crossings
-                // UNLESS the polygon turns past vertical at exactly this x
-                // Note that this is repeated below, but we can't factor it out
-                // because
+                // segmentin en sol noktasını kesişim olarak sayma
+                // çünkü bitişik kesişimleri iki kez saymak istemiyoruz
+                // ÇOKGEN tam olarak bu x'te dikeyin ötesine geçmedikçe
+                // Bu aşağıda tekrarlanır, ancak dışarıda faktörize edemeyiz
+                // çünkü
                 if(x !== xmini) crossings++;
             } else {
-                // inside the bounding box, check the actual line intercept
+                // sınır kutusunun içinde, gerçek çizgi kesişimini kontrol edin
 
-                // vertical segment - we know already that the point is exactly
-                // on the segment, so mark the crossing as exactly at the point.
+                // dikey segment - noktanın tam olarak
+                // segmentin üzerinde olduğunu zaten biliyoruz, bu yüzden kesişimi tam olarak noktada işaretleyin.
                 if(x1 === x0) ycross = y;
-                // any other angle
+                // başka bir açı
                 else ycross = y0 + (x - x0) * (y1 - y0) / (x1 - x0);
 
-                // exactly on the edge: counts as inside the polygon, unless it's the
-                // first edge and we're omitting it.
+                // tam olarak kenarda: çokgenin içinde sayılır, ilk kenar
+                // ve onu atlıyorsak hariç.
                 if(y === ycross) {
                     if(i === 1 && omitFirstEdge) return false;
                     return true;
@@ -143,11 +143,11 @@ polygon.tester = function tester(ptsIn) {
             }
         }
 
-        // if we've gotten this far, odd crossings means inside, even is outside
+        // buraya kadar geldiysek, tek kesişimler içeride, çiftler dışarıda demektir
         return crossings % 2 === 1;
     }
 
-    // detect if poly is degenerate
+    // çokgenin dejenere olup olmadığını tespit et
     var degenerate = true;
     var lastPt = pts[0];
     for(i = 1; i < pts.length; i++) {
@@ -170,14 +170,14 @@ polygon.tester = function tester(ptsIn) {
 };
 
 /**
- * Test if a segment of a points array is bent or straight
+ * Bir nokta dizisinin bir segmentinin bükülmüş mü yoksa düz mü olduğunu test et
  *
- * @param pts Array of [x, y] pairs
- * @param start the index of the proposed start of the straight section
- * @param end the index of the proposed end point
- * @param tolerance the max distance off the line connecting start and end
- *      before the line counts as bent
- * @returns boolean: true means this segment is bent, false means straight
+ * @param pts [x, y] çiftleri dizisi
+ * @param start düz bölümün önerilen başlangıç noktasının indeksi
+ * @param end önerilen bitiş noktasının indeksi
+ * @param tolerance başlangıç ve bitişi bağlayan çizgiden sapma toleransı
+ *      çizginin bükülmüş sayılması için
+ * @returns boolean: true bu segmentin bükülmüş olduğunu, false düz olduğunu belirtir
  */
 polygon.isSegmentBent = function isSegmentBent(pts, start, end, tolerance) {
     var startPt = pts[start];
@@ -200,17 +200,17 @@ polygon.isSegmentBent = function isSegmentBent(pts, start, end, tolerance) {
 };
 
 /**
- * Make a filtering polygon, to minimize the number of segments
+ * Bir filtreleme çokgeni oluştur, segment sayısını en aza indirmek için
  *
- * @param pts Array of [x, y] pairs (must start with at least 1 pair)
- * @param tolerance the maximum deviation from straight allowed for
- *      removing points to simplify the polygon
+ * @param pts [x, y] çiftleri dizisi (en az 1 çiftle başlamalı)
+ * @param tolerance düzleştirmek için izin verilen maksimum sapma
+ *      noktaları kaldırarak çokgeni basitleştirmek için
  *
- * @returns Object {addPt, raw, filtered}
- *      addPt is a function(pt: [x, y] pair) to add a raw point and
- *          continue filtering
- *      raw is all the input points
- *      filtered is the resulting filtered Array of [x, y] pairs
+ * @returns Nesne {addPt, raw, filtered}
+ *      addPt bir fonksiyondur (pt: [x, y] çifti) ham bir noktayı eklemek ve
+ *          filtrelemeye devam etmek için
+ *      raw tüm giriş noktalarıdır
+ *      filtered sonuçta elde edilen filtrelenmiş [x, y] çiftleri dizisidir
  */
 polygon.filter = function filter(pts, tolerance) {
     var ptsFiltered = [pts[0]];

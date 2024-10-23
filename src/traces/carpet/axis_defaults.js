@@ -13,16 +13,16 @@ var setConvert = require('../../plots/cartesian/set_convert');
 var autoType = require('../../plots/cartesian/axis_autotype');
 
 /**
- * options: object containing:
+ * Seçenekler: İçeren nesne:
  *
- *  letter: 'a' or 'b'
- *  title: name of the axis (ie 'Colorbar') to go in default title
- *  name: axis object name (ie 'xaxis') if one should be stored
- *  font: the default font to inherit
- *  outerTicks: boolean, should ticks default to outside?
- *  showGrid: boolean, should gridlines be shown by default?
- *  data: the plot data to use in choosing auto type
- *  bgColor: the plot background color, to calculate default gridline colors
+ *  letter: 'a' veya 'b'
+ *  title: Varsayılan başlığa gidecek eksen adı (örneğin 'Colorbar')
+ *  name: Eksen nesnesi adı (örneğin 'xaxis') eğer biri saklanacaksa
+ *  font: Varsayılan olarak miras alınacak yazı tipi
+ *  outerTicks: Boolean, tikler dışarıda mı olmalı?
+ *  showGrid: Boolean, ızgara çizgileri varsayılan olarak gösterilmeli mi?
+ *  data: Otomatik tür seçimi için kullanılacak grafik verisi
+ *  bgColor: Varsayılan ızgara çizgisi renklerini hesaplamak için grafik arka plan rengi
  */
 module.exports = function handleAxisDefaults(containerIn, containerOut, options) {
     var letter = options.letter;
@@ -37,25 +37,22 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
         return Lib.coerce2(containerIn, containerOut, attributes, attr, dflt);
     }
 
-    // set up some private properties
-    if(options.name) {
+    // Bazı özel özellikleri ayarla
+    if (options.name) {
         containerOut._name = options.name;
         containerOut._id = options.name;
     }
 
-    // now figure out type and do some more initialization
+    // Şimdi türü belirleyin ve biraz daha başlatma yapın
     coerce('autotypenumbers', options.autotypenumbersDflt);
     var axType = coerce('type');
-    if(axType === '-') {
-        if(options.data) setAutoType(containerOut, options.data);
+    if (axType === '-') {
+        if (options.data) setAutoType(containerOut, options.data);
 
-        if(containerOut.type === '-') {
+        if (containerOut.type === '-') {
             containerOut.type = 'linear';
         } else {
-            // copy autoType back to input axis
-            // note that if this object didn't exist
-            // in the input layout, we have to put it in
-            // this happens in the main supplyDefaults function
+            // autoType'ı giriş eksenine geri kopyala
             axType = containerIn.type = containerOut.type;
         }
     }
@@ -82,7 +79,7 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
     coerce('tick0');
     coerce('dtick');
 
-    if(containerOut.tickmode === 'array') {
+    if (containerOut.tickmode === 'array') {
         coerce('arraytick0');
         coerce('arraydtick');
     }
@@ -91,24 +88,23 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
 
     containerOut._hovertitle = letter;
 
-
-    if(axType === 'date') {
+    if (axType === 'date') {
         var handleCalendarDefaults = Registry.getComponentMethod('calendars', 'handleDefaults');
         handleCalendarDefaults(containerIn, containerOut, 'calendar', options.calendar);
     }
 
-    // we need some of the other functions setConvert attaches, but for
-    // path finding, override pixel scaling to simple passthrough (identity)
+    // setConvert'in eklediği bazı diğer işlevlere ihtiyacımız var, ancak
+    // yol bulma için, piksel ölçeklemeyi basit geçiş (kimlik) olarak geçersiz kılın
     setConvert(containerOut, options.fullLayout);
     containerOut.c2p = Lib.identity;
 
     var dfltColor = coerce('color', options.dfltColor);
-    // if axis.color was provided, use it for fonts too; otherwise,
-    // inherit from global font color in case that was provided.
+    // Eğer eksen rengi sağlanmışsa, yazı tipleri için de kullanın; aksi takdirde,
+    // sağlanmış olabilecek genel yazı tipi renginden miras alın.
     var dfltFontColor = (dfltColor === containerIn.color) ? dfltColor : font.color;
 
     var title = coerce('title.text');
-    if(title) {
+    if (title) {
         Lib.coerceFont(coerce, 'title.font', font, { overrideDflt: {
             size: Lib.bigFont(font.size),
             color: dfltFontColor
@@ -120,7 +116,7 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
 
     var autoRange = coerce('autorange', !containerOut.isValidRange(containerIn.range));
 
-    if(autoRange) coerce('rangemode');
+    if (autoRange) coerce('rangemode');
 
     coerce('range');
     containerOut.cleanRange();
@@ -140,7 +136,7 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
     var gridDash = coerce2('griddash');
     var showGrid = coerce('showgrid');
 
-    if(!showGrid) {
+    if (!showGrid) {
         delete containerOut.gridcolor;
         delete containerOut.gridwidth;
         delete containerOut.griddash;
@@ -150,7 +146,7 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
     var startLineWidth = coerce2('startlinewidth', gridWidth);
     var showStartLine = coerce('startline', containerOut.showgrid || !!startLineColor || !!startLineWidth);
 
-    if(!showStartLine) {
+    if (!showStartLine) {
         delete containerOut.startlinecolor;
         delete containerOut.startlinewidth;
     }
@@ -159,12 +155,12 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
     var endLineWidth = coerce2('endlinewidth', gridWidth);
     var showEndLine = coerce('endline', containerOut.showgrid || !!endLineColor || !!endLineWidth);
 
-    if(!showEndLine) {
+    if (!showEndLine) {
         delete containerOut.endlinecolor;
         delete containerOut.endlinewidth;
     }
 
-    if(!showGrid) {
+    if (!showGrid) {
         delete containerOut.gridcolor;
         delete containerOut.gridwidth;
         delete containerOut.griddash;
@@ -174,14 +170,14 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
         coerce('minorgriddash', gridDash);
         coerce('minorgridcolor', addOpacity(gridColor, 0.06));
 
-        if(!containerOut.minorgridcount) {
+        if (!containerOut.minorgridcount) {
             delete containerOut.minorgridwidth;
             delete containerOut.minorgriddash;
             delete containerOut.minorgridcolor;
         }
     }
 
-    if(containerOut.showticklabels === 'none') {
+    if (containerOut.showticklabels === 'none') {
         delete containerOut.tickfont;
         delete containerOut.tickangle;
         delete containerOut.showexponent;
@@ -192,25 +188,25 @@ module.exports = function handleAxisDefaults(containerIn, containerOut, options)
         delete containerOut.showtickprefix;
     }
 
-    if(!containerOut.showticksuffix) {
+    if (!containerOut.showticksuffix) {
         delete containerOut.ticksuffix;
     }
 
-    if(!containerOut.showtickprefix) {
+    if (!containerOut.showtickprefix) {
         delete containerOut.tickprefix;
     }
 
-    // It needs to be coerced, then something above overrides this deep in the axis code,
-    // but no, we *actually* want to coerce this.
+    // Bu zorlanmalı, sonra yukarıdaki bir şey eksen kodunun derinliklerinde bunu geçersiz kılıyor,
+    // ama hayır, *gerçekten* bunu zorlamak istiyoruz.
     coerce('tickmode');
 
     return containerOut;
 };
 
 function setAutoType(ax, data) {
-    // new logic: let people specify any type they want,
-    // only autotype if type is '-'
-    if(ax.type !== '-') return;
+    // yeni mantık: insanlar istedikleri herhangi bir türü belirtebilirler,
+    // yalnızca tür '-' ise otomatik tür belirleme
+    if (ax.type !== '-') return;
 
     var id = ax._id;
     var axLetter = id.charAt(0);

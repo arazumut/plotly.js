@@ -1,6 +1,6 @@
 'use strict';
 
-var Events = require('../../lib/events');
+var Olaylar = require('../../lib/events');
 var throttle = require('../../lib/throttle');
 var getGraphDiv = require('../../lib/dom').getGraphDiv;
 
@@ -8,10 +8,11 @@ var hoverConstants = require('../fx/constants');
 
 var unhover = module.exports = {};
 
+// Fare çıkışı sırasında hover efektlerini kaldır ve unhover olayını tetikle
 unhover.wrapped = function(gd, evt, subplot) {
     gd = getGraphDiv(gd);
 
-    // Important, clear any queued hovers
+    // Önemli, sıradaki hover işlemlerini temizle
     if(gd._fullLayout) {
         throttle.clear(gd._fullLayout._uid + hoverConstants.HOVERID);
     }
@@ -19,15 +20,13 @@ unhover.wrapped = function(gd, evt, subplot) {
     unhover.raw(gd, evt, subplot);
 };
 
-
-// remove hover effects on mouse out, and emit unhover event
 unhover.raw = function raw(gd, evt) {
     var fullLayout = gd._fullLayout;
-    var oldhoverdata = gd._hoverdata;
+    var eskiHoverVerisi = gd._hoverdata;
 
     if(!evt) evt = {};
     if(evt.target && !gd._dragged &&
-       Events.triggerHandler(gd, 'plotly_beforehover', evt) === false) {
+       Olaylar.triggerHandler(gd, 'plotly_beforehover', evt) === false) {
         return;
     }
 
@@ -36,10 +35,10 @@ unhover.raw = function raw(gd, evt) {
     fullLayout._hoverlayer.selectAll('circle').remove();
     gd._hoverdata = undefined;
 
-    if(evt.target && oldhoverdata) {
+    if(evt.target && eskiHoverVerisi) {
         gd.emit('plotly_unhover', {
             event: evt,
-            points: oldhoverdata
+            points: eskiHoverVerisi
         });
     }
 };
