@@ -48,7 +48,7 @@ function handleConstraintValueDefaults(coerce, contours) {
     var zvalue;
 
     if(COMPARISON_OPS2.indexOf(contours.operation) === -1) {
-        // Requires an array of two numbers:
+        // İki sayıdan oluşan bir dizi gerektirir:
         coerce('contours.value', [0, 1]);
 
         if(!isArrayOrTypedArray(contours.value)) {
@@ -70,7 +70,7 @@ function handleConstraintValueDefaults(coerce, contours) {
             ];
         }
     } else {
-        // Requires a single scalar:
+        // Tek bir skaler gerektirir:
         coerce('contours.value', 0);
 
         if(!isNumeric(contours.value)) {

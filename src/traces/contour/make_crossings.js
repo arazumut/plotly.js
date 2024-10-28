@@ -2,53 +2,53 @@
 
 var constants = require('./constants');
 
-// Calculate all the marching indices, for ALL levels at once.
-// since we want to be exhaustive we'll check for contour crossings
-// at every intersection, rather than just following a path
-// TODO: shorten the inner loop to only the relevant levels
+// Tüm seviyeler için tüm marching indekslerini hesapla.
+// Kapsamlı olmak istediğimiz için, sadece bir yolu takip etmek yerine
+// her kesişimde kontur geçişlerini kontrol edeceğiz.
+// TODO: İç döngüyü sadece ilgili seviyelerle kısalt
 module.exports = function makeCrossings(pathinfo) {
     var z = pathinfo[0].z;
     var m = z.length;
-    var n = z[0].length; // we already made sure z isn't ragged in interp2d
-    var twoWide = m === 2 || n === 2;
+    var n = z[0].length; // interp2d'de z'nin düzensiz olmadığından emin olduk
+    var ikiGeniş = m === 2 || n === 2;
     var xi;
     var yi;
-    var startIndices;
-    var ystartIndices;
-    var label;
-    var corners;
+    var başlangıçIndeksleri;
+    var yBaşlangıçIndeksleri;
+    var etiket;
+    var köşeler;
     var mi;
     var pi;
     var i;
 
     for(yi = 0; yi < m - 1; yi++) {
-        ystartIndices = [];
-        if(yi === 0) ystartIndices = ystartIndices.concat(constants.BOTTOMSTART);
-        if(yi === m - 2) ystartIndices = ystartIndices.concat(constants.TOPSTART);
+        yBaşlangıçIndeksleri = [];
+        if(yi === 0) yBaşlangıçIndeksleri = yBaşlangıçIndeksleri.concat(constants.BOTTOMSTART);
+        if(yi === m - 2) yBaşlangıçIndeksleri = yBaşlangıçIndeksleri.concat(constants.TOPSTART);
 
         for(xi = 0; xi < n - 1; xi++) {
-            startIndices = ystartIndices.slice();
-            if(xi === 0) startIndices = startIndices.concat(constants.LEFTSTART);
-            if(xi === n - 2) startIndices = startIndices.concat(constants.RIGHTSTART);
+            başlangıçIndeksleri = yBaşlangıçIndeksleri.slice();
+            if(xi === 0) başlangıçIndeksleri = başlangıçIndeksleri.concat(constants.LEFTSTART);
+            if(xi === n - 2) başlangıçIndeksleri = başlangıçIndeksleri.concat(constants.RIGHTSTART);
 
-            label = xi + ',' + yi;
-            corners = [[z[yi][xi], z[yi][xi + 1]],
+            etiket = xi + ',' + yi;
+            köşeler = [[z[yi][xi], z[yi][xi + 1]],
                        [z[yi + 1][xi], z[yi + 1][xi + 1]]];
             for(i = 0; i < pathinfo.length; i++) {
                 pi = pathinfo[i];
-                mi = getMarchingIndex(pi.level, corners);
+                mi = getMarchingIndex(pi.level, köşeler);
                 if(!mi) continue;
 
-                pi.crossings[label] = mi;
-                if(startIndices.indexOf(mi) !== -1) {
+                pi.crossings[etiket] = mi;
+                if(başlangıçIndeksleri.indexOf(mi) !== -1) {
                     pi.starts.push([xi, yi]);
-                    if(twoWide && startIndices.indexOf(mi,
-                            startIndices.indexOf(mi) + 1) !== -1) {
-                        // the same square has starts from opposite sides
-                        // it's not possible to have starts on opposite edges
-                        // of a corner, only a start and an end...
-                        // but if the array is only two points wide (either way)
-                        // you can have starts on opposite sides.
+                    if(ikiGeniş && başlangıçIndeksleri.indexOf(mi,
+                            başlangıçIndeksleri.indexOf(mi) + 1) !== -1) {
+                        // Aynı kare karşıt taraflardan başlangıçlara sahip
+                        // Bir köşenin karşıt kenarlarında başlangıçların olması mümkün değil,
+                        // sadece bir başlangıç ve bir bitiş olabilir...
+                        // Ancak dizi sadece iki nokta genişliğinde ise (her iki yönde de)
+                        // karşıt taraflarda başlangıçlar olabilir.
                         pi.starts.push([xi, yi]);
                     }
                 }
@@ -57,25 +57,24 @@ module.exports = function makeCrossings(pathinfo) {
     }
 };
 
-// modified marching squares algorithm,
-// so we disambiguate the saddle points from the start
-// and we ignore the cases with no crossings
-// the index I'm using is based on:
+// Değiştirilmiş marching squares algoritması,
+// böylece başlangıçtan itibaren saddle noktalarını ayırt ederiz
+// ve geçiş olmayan durumları görmezden geliriz
+// Kullandığım indeks şu temele dayanıyor:
 // http://en.wikipedia.org/wiki/Marching_squares
-// except that the saddles bifurcate and I represent them
-// as the decimal combination of the two appropriate
-// non-saddle indices
-function getMarchingIndex(val, corners) {
-    var mi = (corners[0][0] > val ? 0 : 1) +
-             (corners[0][1] > val ? 0 : 2) +
-             (corners[1][1] > val ? 0 : 4) +
-             (corners[1][0] > val ? 0 : 8);
+// Ancak saddle noktaları ikiye ayrılır ve onları
+// iki uygun saddle olmayan indeksin ondalık kombinasyonu olarak temsil ederim
+function getMarchingIndex(val, köşeler) {
+    var mi = (köşeler[0][0] > val ? 0 : 1) +
+             (köşeler[0][1] > val ? 0 : 2) +
+             (köşeler[1][1] > val ? 0 : 4) +
+             (köşeler[1][0] > val ? 0 : 8);
     if(mi === 5 || mi === 10) {
-        var avg = (corners[0][0] + corners[0][1] +
-                   corners[1][0] + corners[1][1]) / 4;
-        // two peaks with a big valley
-        if(val > avg) return (mi === 5) ? 713 : 1114;
-        // two valleys with a big ridge
+        var ortalama = (köşeler[0][0] + köşeler[0][1] +
+                        köşeler[1][0] + köşeler[1][1]) / 4;
+        // Büyük bir vadi ile iki zirve
+        if(val > ortalama) return (mi === 5) ? 713 : 1114;
+        // Büyük bir sırt ile iki vadi
         return (mi === 5) ? 104 : 208;
     }
     return (mi === 15) ? 0 : mi;

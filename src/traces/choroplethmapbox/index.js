@@ -1,33 +1,34 @@
 'use strict';
 
+// Uyarı mesajı
 var deprecationWarning = [
-    '*choroplethmapbox* trace is deprecated!',
-    'Please consider switching to the *choroplethmap* trace type and `map` subplots.',
-    'Learn more at: https://plotly.com/javascript/maplibre-migration/'
+    '*choroplethmapbox* izi kullanımdan kaldırıldı!',
+    '*choroplethmap* iz türüne ve `map` alt grafiklerine geçmeyi düşünün.',
+    'Daha fazla bilgi için: https://plotly.com/javascript/maplibre-migration/'
 ].join(' ');
 
 module.exports = {
-    attributes: require('./attributes'),
-    supplyDefaults: require('./defaults'),
-    colorbar: require('../heatmap/colorbar'),
-    calc: require('../choropleth/calc'),
-    plot: require('./plot'),
-    hoverPoints: require('../choropleth/hover'),
-    eventData: require('../choropleth/event_data'),
-    selectPoints: require('../choropleth/select'),
+    attributes: require('./attributes'), // Özellikler
+    supplyDefaults: require('./defaults'), // Varsayılanları sağla
+    colorbar: require('../heatmap/colorbar'), // Renk çubuğu
+    calc: require('../choropleth/calc'), // Hesaplama
+    plot: require('./plot'), // Grafik çizimi
+    hoverPoints: require('../choropleth/hover'), // Üzerine gelme noktaları
+    eventData: require('../choropleth/event_data'), // Olay verisi
+    selectPoints: require('../choropleth/select'), // Nokta seçimi
 
-    styleOnSelect: function(_, cd) {
+    styleOnSelect: function(_, cd) { // Seçim üzerine stil
         if(cd) {
             var trace = cd[0].trace;
             trace._glTrace.updateOnSelect(cd);
         }
     },
 
-    getBelow: function(trace, subplot) {
+    getBelow: function(trace, subplot) { // Altındaki katmanı al
         var mapLayers = subplot.getMapLayers();
 
-        // find layer just above top-most "water" layer
-        // that is not a plotly layer
+        // En üstteki "su" katmanının hemen üstünde olan
+        // ve plotly katmanı olmayan katmanı bul
         for(var i = mapLayers.length - 2; i >= 0; i--) {
             var layerId = mapLayers[i].id;
 
@@ -47,17 +48,17 @@ module.exports = {
         }
     },
 
-    moduleType: 'trace',
-    name: 'choroplethmapbox',
-    basePlotModule: require('../../plots/mapbox'),
-    categories: ['mapbox', 'gl', 'noOpacity', 'showLegend'],
+    moduleType: 'trace', // Modül türü
+    name: 'choroplethmapbox', // İsim
+    basePlotModule: require('../../plots/mapbox'), // Temel grafik modülü
+    categories: ['mapbox', 'gl', 'noOpacity', 'showLegend'], // Kategoriler
     meta: {
-        hr_name: 'choropleth_mapbox',
+        hr_name: 'choropleth_mapbox', // İnsan tarafından okunabilir isim
         description: [
             deprecationWarning,
-            'GeoJSON features to be filled are set in `geojson`',
-            'The data that describes the choropleth value-to-color mapping',
-            'is set in `locations` and `z`.'
+            'Doldurulacak GeoJSON özellikleri `geojson` içinde ayarlanır.',
+            'Choropleth değer-renk eşlemesini tanımlayan veri',
+            '`locations` ve `z` içinde ayarlanır.'
         ].join(' ')
     }
 };

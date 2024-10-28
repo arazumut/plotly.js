@@ -10,7 +10,7 @@ module.exports = function findAllPaths(pathinfo, xtol, ytol) {
         pi,
         j;
 
-    // Default just passes these values through as they were before:
+    // Varsayılan olarak bu değerler olduğu gibi geçer:
     xtol = xtol || 0.01;
     ytol = ytol || 0.01;
 
@@ -28,7 +28,7 @@ module.exports = function findAllPaths(pathinfo, xtol, ytol) {
             startLoc = Object.keys(pi.crossings)[0].split(',').map(Number);
             makePath(pi, startLoc, undefined, xtol, ytol);
         }
-        if(cnt === 10000) Lib.log('Infinite loop in contour?');
+        if(cnt === 10000) Lib.log('Konturda sonsuz döngü mü?');
     }
 };
 
@@ -37,7 +37,7 @@ function equalPts(pt1, pt2, xtol, ytol) {
            Math.abs(pt1[1] - pt2[1]) < ytol;
 }
 
-// distance in index units - uses the 3rd and 4th items in points
+// İndeks birimlerinde mesafe - noktaların 3. ve 4. öğelerini kullanır
 function ptDist(pt1, pt2) {
     var dx = pt1[2] - pt2[2];
     var dy = pt1[3] - pt2[3];
@@ -48,7 +48,7 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
     var locStr = loc.join(',');
     var mi = pi.crossings[locStr];
     var marchStep = getStartStep(mi, edgeflag, loc);
-    // start by going backward a half step and finding the crossing point
+    // Geriye doğru yarım adım atarak ve kesişme noktasını bularak başla
     var pts = [getInterpPx(pi, loc, [-marchStep[0], -marchStep[1]])];
     var m = pi.z.length;
     var n = pi.z[0].length;
@@ -56,8 +56,8 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
     var startStep = marchStep.slice();
     var cnt;
 
-    // now follow the path
-    for(cnt = 0; cnt < 10000; cnt++) { // just to avoid infinite loops
+    // Şimdi yolu takip et
+    for(cnt = 0; cnt < 10000; cnt++) { // sonsuz döngülerden kaçınmak için
         if(mi > 20) {
             mi = constants.CHOOSESADDLE[mi][(marchStep[0] || marchStep[1]) < 0 ? 0 : 1];
             pi.crossings[locStr] = constants.SADDLEREMAINDER[mi];
@@ -67,17 +67,17 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
 
         marchStep = constants.NEWDELTA[mi];
         if(!marchStep) {
-            Lib.log('Found bad marching index:', mi, loc, pi.level);
+            Lib.log('Kötü bir yürüyüş indeksi bulundu:', mi, loc, pi.level);
             break;
         }
 
-        // find the crossing a half step forward, and then take the full step
+        // İleriye doğru yarım adım atarak kesişme noktasını bul ve ardından tam adımı at
         pts.push(getInterpPx(pi, loc, marchStep));
         loc[0] += marchStep[0];
         loc[1] += marchStep[1];
         locStr = loc.join(',');
 
-        // don't include the same point multiple times
+        // Aynı noktayı birden fazla kez dahil etme
         if(equalPts(pts[pts.length - 1], pts[pts.length - 2], xtol, ytol)) pts.pop();
 
         var atEdge = (marchStep[0] && (loc[0] < 0 || loc[0] > n - 2)) ||
@@ -86,14 +86,14 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
         var closedLoop = loc[0] === startLoc[0] && loc[1] === startLoc[1] &&
                 marchStep[0] === startStep[0] && marchStep[1] === startStep[1];
 
-        // have we completed a loop, or reached an edge?
+        // Bir döngüyü tamamladık mı yoksa bir kenara mı ulaştık?
         if((closedLoop) || (edgeflag && atEdge)) break;
 
         mi = pi.crossings[locStr];
     }
 
     if(cnt === 10000) {
-        Lib.log('Infinite loop in contour?');
+        Lib.log('Konturda sonsuz döngü mü?');
     }
     var closedpath = equalPts(pts[0], pts[pts.length - 1], xtol, ytol);
     var totaldist = 0;
@@ -104,11 +104,10 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
         i, j, edgepathi, edgepathj;
 
     /*
-     * Check for points that are too close together (<1/5 the average dist
-     * *in grid index units* (important for log axes and nonuniform grids),
-     * less if less smoothed) and just take the center (or avg of center 2).
-     * This cuts down on funny behavior when a point is very close to a
-     * contour level.
+     * Birbirine çok yakın olan noktaları kontrol et (<1/5 ortalama mesafe
+     * *grid indeks birimlerinde* (log eksenleri ve düzensiz ızgaralar için önemli),
+     * daha az pürüzsüzleştirilmişse daha az) ve sadece merkezi (veya merkez 2'nin ortalamasını) al.
+     * Bu, bir nokta bir kontur seviyesine çok yakın olduğunda tuhaf davranışları azaltır.
      */
     for(cnt = 1; cnt < pts.length; cnt++) {
         thisdist = ptDist(pts[cnt], pts[cnt - 1]);
@@ -130,7 +129,7 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
                 } else break;
             }
 
-            // closed path with close points wrapping around the boundary?
+            // Yakın noktalar sınır boyunca dolanarak kapalı yol?
             if(closedpath && cnt === pts.length - 2) {
                 for(cnt3 = 0; cnt3 < cnt2; cnt3++) {
                     if(distgroup + alldists[cnt3] < distThreshold) {
@@ -141,14 +140,14 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
             ptcnt = cnt - cnt2 + cnt3 + 1;
             ptavg = Math.floor((cnt + cnt2 + cnt3 + 2) / 2);
 
-            // either endpoint included: keep the endpoint
+            // Her iki uç nokta dahil: uç noktayı koru
             if(!closedpath && cnt === pts.length - 2) newpt = pts[pts.length - 1];
             else if(!closedpath && cnt2 === -1) newpt = pts[0];
 
-            // odd # of points - just take the central one
+            // Tek sayıda nokta - sadece merkezi al
             else if(ptcnt % 2) newpt = getpt(ptavg);
 
-            // even # of pts - average central two
+            // Çift sayıda nokta - merkezi iki noktanın ortalamasını al
             else {
                 newpt = [(getpt(ptavg)[0] + getpt(ptavg + 1)[0]) / 2,
                     (getpt(ptavg)[1] + getpt(ptavg + 1)[1]) / 2];
@@ -165,23 +164,23 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
     }
     pts.splice(0, cropstart);
 
-    // done with the index parts - remove them so path generation works right
-    // because it depends on only having [xpx, ypx]
+    // İndeks parçalarıyla işimiz bitti - bunları kaldır ki yol oluşturma doğru çalışsın
+    // çünkü sadece [xpx, ypx] içeren noktalara bağlı
     for(cnt = 0; cnt < pts.length; cnt++) pts[cnt].length = 2;
 
-    // don't return single-point paths (ie all points were the same
-    // so they got deleted?)
+    // Tek noktalı yolları döndürme (yani tüm noktalar aynıydı
+    // bu yüzden silindiler mi?)
     if(pts.length < 2) return;
     else if(closedpath) {
         pts.pop();
         pi.paths.push(pts);
     } else {
         if(!edgeflag) {
-            Lib.log('Unclosed interior contour?',
+            Lib.log('Kapalı olmayan iç kontur?',
                 pi.level, startLoc.join(','), pts.join('L'));
         }
 
-        // edge path - does it start where an existing edge path ends, or vice versa?
+        // Kenar yolu - mevcut bir kenar yolunun başladığı yerde mi başlıyor veya bitiyor mu?
         var merged = false;
         for(i = 0; i < pi.edgepaths.length; i++) {
             edgepathi = pi.edgepaths[i];
@@ -189,7 +188,7 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
                 pts.pop();
                 merged = true;
 
-                // now does it ALSO meet the end of another (or the same) path?
+                // Şimdi başka bir yolun (veya aynı yolun) sonuna da mı ulaşıyor?
                 var doublemerged = false;
                 for(j = 0; j < pi.edgepaths.length; j++) {
                     edgepathj = pi.edgepaths[j];
@@ -198,7 +197,7 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
                         pts.shift();
                         pi.edgepaths.splice(i, 1);
                         if(j === i) {
-                            // the path is now closed
+                            // Yol şimdi kapalı
                             pi.paths.push(pts.concat(edgepathj));
                         } else {
                             if(j > i) j--;
@@ -226,18 +225,17 @@ function makePath(pi, loc, edgeflag, xtol, ytol) {
     }
 }
 
-// special function to get the marching step of the
-// first point in the path (leading to loc)
+// Yolun ilk noktasının yürüyüş adımını almak için özel fonksiyon (loc'a götüren)
 function getStartStep(mi, edgeflag, loc) {
     var dx = 0;
     var dy = 0;
     if(mi > 20 && edgeflag) {
-        // these saddles start at +/- x
+        // Bu eyerler +/- x'te başlar
         if(mi === 208 || mi === 1114) {
-            // if we're starting at the left side, we must be going right
+            // Sol tarafta başlıyorsak, sağa gidiyoruz demektir
             dx = loc[0] === 0 ? 1 : -1;
         } else {
-            // if we're starting at the bottom, we must be going up
+            // Altta başlıyorsak, yukarı gidiyoruz demektir
             dy = loc[1] === 0 ? 1 : -1;
         }
     } else if(constants.BOTTOMSTART.indexOf(mi) !== -1) dy = 1;
@@ -248,19 +246,18 @@ function getStartStep(mi, edgeflag, loc) {
 }
 
 /*
- * Find the pixel coordinates of a particular crossing
+ * Belirli bir kesişmenin piksel koordinatlarını bulun
  *
- * @param {object} pi: the pathinfo object at this level
- * @param {array} loc: the grid index [x, y] of the crossing
- * @param {array} step: the direction [dx, dy] we're moving on the grid
+ * @param {object} pi: bu seviyedeki pathinfo nesnesi
+ * @param {array} loc: kesişmenin grid indeksi [x, y]
+ * @param {array} step: grid üzerinde hareket ettiğimiz yön [dx, dy]
  *
- * @return {array} [xpx, ypx, xi, yi]: the first two are the pixel location,
- *   the next two are the interpolated grid indices, which we use for
- *   distance calculations to delete points that are too close together.
- *   This is important when the grid is nonuniform (and most dramatically when
- *   we're on log axes and include invalid (0 or negative) values.
- *   It's crucial to delete these extra two before turning an array of these
- *   points into a path, because those routines require length-2 points.
+ * @return {array} [xpx, ypx, xi, yi]: ilk ikisi piksel konumu,
+ *   sonraki ikisi mesafe hesaplamaları için kullanılan interpolasyonlu grid indeksleridir,
+ *   birbirine çok yakın olan noktaları silmek için kullanılır.
+ *   Bu, grid düzensiz olduğunda (ve en dramatik olarak log eksenlerinde ve geçersiz (0 veya negatif) değerler içerdiğinde) önemlidir.
+ *   Bu ekstra iki öğeyi bir dizi bu noktalardan bir yola dönüştürmeden önce silmek çok önemlidir,
+ *   çünkü bu rutinler uzunluk-2 noktalar gerektirir.
  */
 function getInterpPx(pi, loc, step) {
     var locx = loc[0] + Math.max(step[0], 0);
@@ -269,10 +266,10 @@ function getInterpPx(pi, loc, step) {
     var xa = pi.xaxis;
     var ya = pi.yaxis;
 
-    // Interpolate in linear space, then convert to pixel
+    // Doğrusal alanda interpolasyon yap, ardından piksele dönüştür
     if(step[1]) {
         var dx = (pi.level - zxy) / (pi.z[locy][locx + 1] - zxy);
-        // Interpolate, but protect against NaN linear values for log axis (dx will equal 1 or 0)
+        // Interpolasyon yap, ancak log ekseni için NaN doğrusal değerlerine karşı koruma (dx 1 veya 0 olacaktır)
         var dxl =
             (dx !== 1 ? (1 - dx) * xa.c2l(pi.x[locx]) : 0) +
             (dx !== 0 ? dx * xa.c2l(pi.x[locx + 1]) : 0);

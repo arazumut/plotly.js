@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri içe aktarma
 var hovertemplateAttrs = require('../../plots/template_attributes').hovertemplateAttrs;
 var scatterGeoAttrs = require('../scattergeo/attributes');
 var colorScaleAttrs = require('../../components/colorscale/attributes');
@@ -10,41 +11,43 @@ var extendFlat = require('../../lib/extend').extendFlat;
 
 var scatterGeoMarkerLineAttrs = scatterGeoAttrs.marker.line;
 
+// Modülü dışa aktarma
 module.exports = extendFlat({
+    // Konumları ayarlama
     locations: {
         valType: 'data_array',
         editType: 'calc',
         description: [
-            'Sets the coordinates via location IDs or names.',
-            'See `locationmode` for more info.'
+            'Konum kimlikleri veya isimleri aracılığıyla koordinatları ayarlar.',
+            '`locationmode` için daha fazla bilgiye bakın.'
         ].join(' ')
     },
     locationmode: scatterGeoAttrs.locationmode,
     z: {
         valType: 'data_array',
         editType: 'calc',
-        description: 'Sets the color values.'
+        description: 'Renk değerlerini ayarlar.'
     },
     geojson: extendFlat({}, scatterGeoAttrs.geojson, {
         description: [
-            'Sets optional GeoJSON data associated with this trace.',
-            'If not given, the features on the base map are used.',
+            'Bu iz ile ilişkili isteğe bağlı GeoJSON verilerini ayarlar.',
+            'Verilmezse, temel haritadaki özellikler kullanılır.',
 
-            'It can be set as a valid GeoJSON object or as a URL string.',
-            'Note that we only accept GeoJSONs of type *FeatureCollection* or *Feature*',
-            'with geometries of type *Polygon* or *MultiPolygon*.'
+            'Geçerli bir GeoJSON nesnesi veya bir URL dizesi olarak ayarlanabilir.',
+            'Yalnızca *FeatureCollection* veya *Feature* türündeki GeoJSON\'ları kabul ettiğimizi unutmayın',
+            '*Polygon* veya *MultiPolygon* türündeki geometrilerle.'
 
-            // TODO add topojson support with additional 'topojsonobject' attr?
+            // TODO topojson desteği ekle, ek 'topojsonobject' özelliği ile?
             // https://github.com/topojson/topojson-specification/blob/master/README.md
         ].join(' ')
     }),
     featureidkey: scatterGeoAttrs.featureidkey,
 
     text: extendFlat({}, scatterGeoAttrs.text, {
-        description: 'Sets the text elements associated with each location.'
+        description: 'Her konumla ilişkili metin öğelerini ayarlar.'
     }),
     hovertext: extendFlat({}, scatterGeoAttrs.hovertext, {
-        description: 'Same as `text`.'
+        description: 'Aynı `text` gibi.'
     }),
     marker: {
         line: {
@@ -59,7 +62,7 @@ module.exports = extendFlat({
             max: 1,
             dflt: 1,
             editType: 'style',
-            description: 'Sets the opacity of the locations.'
+            description: 'Konumların opaklığını ayarlar.'
         },
         editType: 'calc'
     },

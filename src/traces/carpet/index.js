@@ -1,26 +1,24 @@
 'use strict';
 
 module.exports = {
-    attributes: require('./attributes'),
-    supplyDefaults: require('./defaults'),
-    plot: require('./plot'),
-    calc: require('./calc'),
-    animatable: true,
-    isContainer: true, // so carpet traces get `calc` before other traces
+    özellikler: require('./attributes'), // attributes -> özellikler
+    varsayılanlarıSağla: require('./defaults'), // supplyDefaults -> varsayılanlarıSağla
+    çiz: require('./plot'), // plot -> çiz
+    hesapla: require('./calc'), // calc -> hesapla
+    animasyonlu: true, // animatable -> animasyonlu
+    konteynerMi: true, // isContainer -> konteynerMi // böylece carpet izleri diğer izlerden önce `hesapla` alır
 
-    moduleType: 'trace',
-    name: 'carpet',
-    basePlotModule: require('../../plots/cartesian'),
-    categories: ['cartesian', 'svg', 'carpet', 'carpetAxis', 'notLegendIsolatable', 'noMultiCategory', 'noHover', 'noSortingByValue'],
+    modülTürü: 'iz', // moduleType -> modülTürü
+    isim: 'carpet', // name -> isim
+    temelÇizimModülü: require('../../plots/cartesian'), // basePlotModule -> temelÇizimModülü
+    kategoriler: ['cartesian', 'svg', 'carpet', 'carpetAxis', 'notLegendIsolatable', 'noMultiCategory', 'noHover', 'noSortingByValue'], // categories -> kategoriler
     meta: {
-        description: [
-            'The data describing carpet axis layout is set in `y` and (optionally)',
-            'also `x`. If only `y` is present, `x` the plot is interpreted as a',
-            'cheater plot and is filled in using the `y` values.',
+        açıklama: [
+            'Halı eksen düzenini tanımlayan veriler `y` ve (isteğe bağlı olarak) `x` içinde ayarlanır.',
+            'Eğer sadece `y` varsa, `x` grafik bir hile grafiği olarak yorumlanır ve `y` değerleri kullanılarak doldurulur.',
 
-            '`x` and `y` may either be 2D arrays matching with each dimension matching',
-            'that of `a` and `b`, or they may be 1D arrays with total length equal to',
-            'that of `a` and `b`.'
+            '`x` ve `y` ya her boyutu `a` ve `b` ile eşleşen 2D diziler olabilir,',
+            'ya da `a` ve `b` ile toplam uzunluğu eşit olan 1D diziler olabilir.'
         ].join(' ')
     }
 };

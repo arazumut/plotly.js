@@ -1,41 +1,44 @@
 'use strict';
 
-var Colorscale = require('../../components/colorscale');
-var makeColorMap = require('./make_color_map');
-var endPlus = require('./end_plus');
+// Gerekli modülleri dahil et
+var RenkSkalası = require('../../components/colorscale');
+var renkHaritasıOluştur = require('./make_color_map');
+var sonArtı = require('./end_plus');
 
-function calc(gd, trace, opts) {
-    var contours = trace.contours;
-    var line = trace.line;
-    var cs = contours.size || 1;
-    var coloring = contours.coloring;
-    var colorMap = makeColorMap(trace, {isColorbar: true});
+// Hesaplama fonksiyonu
+function hesapla(gd, iz, seçenekler) {
+    var konturlar = iz.konturlar;
+    var çizgi = iz.çizgi;
+    var boyut = konturlar.boyut || 1;
+    var renklendirme = konturlar.renklendirme;
+    var renkHaritası = renkHaritasıOluştur(iz, {renkÇubuğu: true});
 
-    if(coloring === 'heatmap') {
-        var cOpts = Colorscale.extractOpts(trace);
-        opts._fillgradient = cOpts.reversescale ?
-            Colorscale.flipScale(cOpts.colorscale) :
-            cOpts.colorscale;
-        opts._zrange = [cOpts.min, cOpts.max];
-    } else if(coloring === 'fill') {
-        opts._fillcolor = colorMap;
+    if(renklendirme === 'ısı haritası') {
+        var renkSeçenekleri = RenkSkalası.seçenekleriÇıkar(iz);
+        seçenekler._doldurmaGradyanı = renkSeçenekleri.tersSkala ? 
+            RenkSkalası.skalaTersÇevir(renkSeçenekleri.renkSkalası) : 
+            renkSeçenekleri.renkSkalası;
+        seçenekler._zAralığı = [renkSeçenekleri.min, renkSeçenekleri.max];
+    } else if(renklendirme === 'doldur') {
+        seçenekler._doldurmaRengi = renkHaritası;
     }
 
-    opts._line = {
-        color: coloring === 'lines' ? colorMap : line.color,
-        width: contours.showlines !== false ? line.width : 0,
-        dash: line.dash
+    seçenekler._çizgi = {
+        renk: renklendirme === 'çizgiler' ? renkHaritası : çizgi.renk,
+        genişlik: konturlar.çizgileriGöster !== false ? çizgi.genişlik : 0,
+        çizgiTipi: çizgi.çizgiTipi
     };
 
-    opts._levels = {
-        start: contours.start,
-        end: endPlus(contours),
-        size: cs
+    seçenekler._seviyeler = {
+        başlangıç: konturlar.başlangıç,
+        bitiş: sonArtı(konturlar),
+        boyut: boyut
     };
 }
 
+// Modülü dışa aktar
 module.exports = {
     min: 'zmin',
     max: 'zmax',
-    calc: calc
+    hesapla: hesapla
 };

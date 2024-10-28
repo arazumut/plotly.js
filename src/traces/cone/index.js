@@ -21,13 +21,13 @@ module.exports = {
 
     meta: {
         description: [
-            'Use cone traces to visualize vector fields.',
+            'Konik izleri vektör alanlarını görselleştirmek için kullanın.',
             '',
-            'Specify a vector field using 6 1D arrays,',
-            '3 position arrays `x`, `y` and `z`',
-            'and 3 vector component arrays `u`, `v`, `w`.',
-            'The cones are drawn exactly at the positions given',
-            'by `x`, `y` and `z`.'
+            '6 adet 1D dizi kullanarak bir vektör alanı belirtin,',
+            '3 konum dizisi `x`, `y` ve `z`',
+            've 3 vektör bileşen dizisi `u`, `v`, `w`.',
+            'Koniler tam olarak verilen konumlarda çizilir',
+            '`x`, `y` ve `z` tarafından.'
         ].join(' ')
     }
 };

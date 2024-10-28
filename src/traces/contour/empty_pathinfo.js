@@ -1,10 +1,13 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var constraintMapping = require('./constraint_mapping');
 var endPlus = require('./end_plus');
 
+// Boş yol bilgisi fonksiyonunu dışa aktar
 module.exports = function emptyPathinfo(contours, plotinfo, cd0) {
+    // Kontur türüne göre son konturları belirle
     var contoursFinal = (contours.type === 'constraint') ?
         constraintMapping[contours._operation](contours.value) :
         contours;
@@ -15,11 +18,12 @@ module.exports = function emptyPathinfo(contours, plotinfo, cd0) {
 
     var carpet = cd0.trace._carpetTrace;
 
+    // Temel yol bilgisi oluştur
     var basePathinfo = carpet ? {
-        // store axes so we can convert to px
+        // Piksel dönüşümü için eksenleri sakla
         xaxis: carpet.aaxis,
         yaxis: carpet.baxis,
-        // full data arrays to use for interpolation
+        // Enterpolasyon için tam veri dizileri
         x: cd0.a,
         y: cd0.b
     } : {
@@ -29,24 +33,25 @@ module.exports = function emptyPathinfo(contours, plotinfo, cd0) {
         y: cd0.y
     };
 
+    // Kontur seviyeleri için yol bilgisi oluştur
     for(var ci = contoursFinal.start; ci < end; ci += cs) {
         pathinfo.push(Lib.extendFlat({
             level: ci,
-            // all the cells with nontrivial marching index
+            // Anlamlı marching index'e sahip tüm hücreler
             crossings: {},
-            // starting points on the edges of the lattice for each contour
+            // Her kontur için kafesin kenarlarında başlangıç noktaları
             starts: [],
-            // all unclosed paths (may have less items than starts,
-            // if a path is closed by rounding)
+            // Tüm kapanmamış yollar (bir yol yuvarlama ile kapanırsa, başlangıçlardan daha az öğe olabilir)
             edgepaths: [],
-            // all closed paths
+            // Tüm kapalı yollar
             paths: [],
             z: cd0.z,
             smoothing: cd0.trace.line.smoothing
         }, basePathinfo));
 
+        // Çok fazla kontur varsa uyarı ver ve kırp
         if(pathinfo.length > 1000) {
-            Lib.warn('Too many contours, clipping at 1000', contours);
+            Lib.warn('Çok fazla kontur var, 1000 ile sınırlandırılıyor', contours);
             break;
         }
     }

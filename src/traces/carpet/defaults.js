@@ -1,49 +1,58 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var Lib = require('../../lib');
 var handleXYDefaults = require('./xy_defaults');
 var handleABDefaults = require('./ab_defaults');
 var attributes = require('./attributes');
 var colorAttrs = require('../../components/color/attributes');
 
-module.exports = function supplyDefaults(traceIn, traceOut, dfltColor, fullLayout) {
-    function coerce(attr, dflt) {
+// Varsayılan değerleri sağlayan fonksiyon
+module.exports = function varsayilanDegerleriSagla(traceIn, traceOut, dfltColor, fullLayout) {
+    // Koerce fonksiyonu, bir özelliği varsayılan değeriyle birlikte zorlar
+    function koerce(attr, dflt) {
         return Lib.coerce(traceIn, traceOut, attributes, attr, dflt);
     }
 
+    // Klip yolu kimliğini ayarla
     traceOut._clipPathId = 'clip' + traceOut.uid + 'carpet';
 
-    var defaultColor = coerce('color', colorAttrs.defaultLine);
-    Lib.coerceFont(coerce, 'font', fullLayout.font);
+    // Varsayılan rengi ayarla
+    var varsayilanRenk = koerce('color', colorAttrs.defaultLine);
+    Lib.coerceFont(koerce, 'font', fullLayout.font);
 
-    coerce('carpet');
+    // Halı özelliğini zorla
+    koerce('carpet');
 
-    handleABDefaults(traceIn, traceOut, fullLayout, coerce, defaultColor);
+    // AB varsayılanlarını işle
+    handleABDefaults(traceIn, traceOut, fullLayout, koerce, varsayilanRenk);
 
+    // A veya B ekseni yoksa görünürlüğü false yap
     if(!traceOut.a || !traceOut.b) {
         traceOut.visible = false;
         return;
     }
 
+    // A ekseni uzunluğu 3'ten küçükse yumuşatma değerini sıfırla
     if(traceOut.a.length < 3) {
         traceOut.aaxis.smoothing = 0;
     }
 
+    // B ekseni uzunluğu 3'ten küçükse yumuşatma değerini sıfırla
     if(traceOut.b.length < 3) {
         traceOut.baxis.smoothing = 0;
     }
 
-    // NB: the input is x/y arrays. You should know that the *first* dimension of x and y
-    // corresponds to b and the second to a. This sounds backwards but ends up making sense
-    // the important part to know is that when you write y[j][i], j goes from 0 to b.length - 1
-    // and i goes from 0 to a.length - 1.
-    var validData = handleXYDefaults(traceIn, traceOut, coerce);
-    if(!validData) {
+    // X/Y varsayılanlarını işle
+    var gecerliVeri = handleXYDefaults(traceIn, traceOut, koerce);
+    if(!gecerliVeri) {
         traceOut.visible = false;
     }
 
+    // Hileli eğim varsa zorla
     if(traceOut._cheater) {
-        coerce('cheaterslope');
+        koerce('cheaterslope');
     }
-    coerce('zorder');
+    // Z sırasını zorla
+    koerce('zorder');
 };

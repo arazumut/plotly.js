@@ -11,232 +11,228 @@ var strRotate = Lib.strRotate;
 var strTranslate = Lib.strTranslate;
 var alignmentConstants = require('../../constants/alignment');
 
-module.exports = function plot(gd, plotinfo, cdcarpet, carpetLayer) {
-    var isStatic = gd._context.staticPlot;
+module.exports = function çiz(gd, plotinfo, cdcarpet, carpetLayer) {
+    var statikMi = gd._context.staticPlot;
     var xa = plotinfo.xaxis;
     var ya = plotinfo.yaxis;
-    var fullLayout = gd._fullLayout;
-    var clipLayer = fullLayout._clips;
+    var tamYerleşim = gd._fullLayout;
+    var klipKatmanı = tamYerleşim._clips;
 
     Lib.makeTraceGroups(carpetLayer, cdcarpet, 'trace').each(function(cd) {
-        var axisLayer = d3.select(this);
+        var eksenKatmanı = d3.select(this);
         var cd0 = cd[0];
-        var trace = cd0.trace;
-        var aax = trace.aaxis;
-        var bax = trace.baxis;
+        var iz = cd0.trace;
+        var aEkseni = iz.aaxis;
+        var bEkseni = iz.baxis;
 
-        var minorLayer = Lib.ensureSingle(axisLayer, 'g', 'minorlayer');
-        var majorLayer = Lib.ensureSingle(axisLayer, 'g', 'majorlayer');
-        var boundaryLayer = Lib.ensureSingle(axisLayer, 'g', 'boundarylayer');
-        var labelLayer = Lib.ensureSingle(axisLayer, 'g', 'labellayer');
+        var küçükKatman = Lib.ensureSingle(eksenKatmanı, 'g', 'küçükKatman');
+        var büyükKatman = Lib.ensureSingle(eksenKatmanı, 'g', 'büyükKatman');
+        var sınırKatmanı = Lib.ensureSingle(eksenKatmanı, 'g', 'sınırKatmanı');
+        var etiketKatmanı = Lib.ensureSingle(eksenKatmanı, 'g', 'etiketKatmanı');
 
-        axisLayer.style('opacity', trace.opacity);
+        eksenKatmanı.style('opacity', iz.opacity);
 
-        drawGridLines(xa, ya, majorLayer, aax, 'a', aax._gridlines, true, isStatic);
-        drawGridLines(xa, ya, majorLayer, bax, 'b', bax._gridlines, true, isStatic);
-        drawGridLines(xa, ya, minorLayer, aax, 'a', aax._minorgridlines, true, isStatic);
-        drawGridLines(xa, ya, minorLayer, bax, 'b', bax._minorgridlines, true, isStatic);
+        ızgaraÇizgileriniÇiz(xa, ya, büyükKatman, aEkseni, 'a', aEkseni._gridlines, true, statikMi);
+        ızgaraÇizgileriniÇiz(xa, ya, büyükKatman, bEkseni, 'b', bEkseni._gridlines, true, statikMi);
+        ızgaraÇizgileriniÇiz(xa, ya, küçükKatman, aEkseni, 'a', aEkseni._minorgridlines, true, statikMi);
+        ızgaraÇizgileriniÇiz(xa, ya, küçükKatman, bEkseni, 'b', bEkseni._minorgridlines, true, statikMi);
 
-        // NB: These are not omitted if the lines are not active. The joins must be executed
-        // in order for them to get cleaned up without a full redraw
-        drawGridLines(xa, ya, boundaryLayer, aax, 'a-boundary', aax._boundarylines, isStatic);
-        drawGridLines(xa, ya, boundaryLayer, bax, 'b-boundary', bax._boundarylines, isStatic);
+        // Çizgiler aktif değilse bile bunlar atlanmaz. Tam bir yeniden çizim olmadan temizlenmeleri için bağlantılar yürütülmelidir.
+        ızgaraÇizgileriniÇiz(xa, ya, sınırKatmanı, aEkseni, 'a-sınır', aEkseni._boundarylines, statikMi);
+        ızgaraÇizgileriniÇiz(xa, ya, sınırKatmanı, bEkseni, 'b-sınır', bEkseni._boundarylines, statikMi);
 
-        var labelOrientationA = drawAxisLabels(gd, xa, ya, trace, cd0, labelLayer, aax._labels, 'a-label');
-        var labelOrientationB = drawAxisLabels(gd, xa, ya, trace, cd0, labelLayer, bax._labels, 'b-label');
+        var etiketYönelimiA = eksenEtiketleriniÇiz(gd, xa, ya, iz, cd0, etiketKatmanı, aEkseni._labels, 'a-etiket');
+        var etiketYönelimiB = eksenEtiketleriniÇiz(gd, xa, ya, iz, cd0, etiketKatmanı, bEkseni._labels, 'b-etiket');
 
-        drawAxisTitles(gd, labelLayer, trace, cd0, xa, ya, labelOrientationA, labelOrientationB);
+        eksenBaşlıklarınıÇiz(gd, etiketKatmanı, iz, cd0, xa, ya, etiketYönelimiA, etiketYönelimiB);
 
-        drawClipPath(trace, cd0, clipLayer, xa, ya);
+        klipYoluÇiz(iz, cd0, klipKatmanı, xa, ya);
     });
 };
 
-function drawClipPath(trace, t, layer, xaxis, yaxis) {
+function klipYoluÇiz(iz, t, katman, xEkseni, yEkseni) {
     var seg, xp, yp, i;
 
-    var clip = layer.select('#' + trace._clipPathId);
+    var klip = katman.select('#' + iz._clipPathId);
 
-    if(!clip.size()) {
-        clip = layer.append('clipPath')
+    if (!klip.size()) {
+        klip = katman.append('clipPath')
             .classed('carpetclip', true);
     }
 
-    var path = Lib.ensureSingle(clip, 'path', 'carpetboundary');
-    var segments = t.clipsegments;
+    var yol = Lib.ensureSingle(klip, 'path', 'carpetboundary');
+    var segmentler = t.clipsegments;
     var segs = [];
 
-    for(i = 0; i < segments.length; i++) {
-        seg = segments[i];
-        xp = map1dArray([], seg.x, xaxis.c2p);
-        yp = map1dArray([], seg.y, yaxis.c2p);
+    for (i = 0; i < segmentler.length; i++) {
+        seg = segmentler[i];
+        xp = map1dArray([], seg.x, xEkseni.c2p);
+        yp = map1dArray([], seg.y, yEkseni.c2p);
         segs.push(makepath(xp, yp, seg.bicubic));
     }
 
-    // This could be optimized ever so slightly to avoid no-op L segments
-    // at the corners, but it's so negligible that I don't think it's worth
-    // the extra complexity
-    var clipPathData = 'M' + segs.join('L') + 'Z';
-    clip.attr('id', trace._clipPathId);
-    path.attr('d', clipPathData);
+    // Bu, köşelerdeki no-op L segmentlerinden kaçınmak için biraz optimize edilebilir, ancak bu kadar önemsiz ki ekstra karmaşıklığa değmez.
+    var klipYoluVerisi = 'M' + segs.join('L') + 'Z';
+    klip.attr('id', iz._clipPathId);
+    yol.attr('d', klipYoluVerisi);
 }
 
-function drawGridLines(xaxis, yaxis, layer, axis, axisLetter, gridlines, isStatic) {
-    var lineClass = 'const-' + axisLetter + '-lines';
-    var gridJoin = layer.selectAll('.' + lineClass).data(gridlines);
+function ızgaraÇizgileriniÇiz(xEkseni, yEkseni, katman, eksen, eksenHarf, ızgaraÇizgileri, statikMi) {
+    var çizgiSınıfı = 'const-' + eksenHarf + '-çizgiler';
+    var ızgaraBağlantısı = katman.selectAll('.' + çizgiSınıfı).data(ızgaraÇizgileri);
 
-    gridJoin.enter().append('path')
-        .classed(lineClass, true)
-        .style('vector-effect', isStatic ? 'none' : 'non-scaling-stroke');
+    ızgaraBağlantısı.enter().append('path')
+        .classed(çizgiSınıfı, true)
+        .style('vector-effect', statikMi ? 'none' : 'non-scaling-stroke');
 
-    gridJoin.each(function(d) {
-        var gridline = d;
-        var x = gridline.x;
-        var y = gridline.y;
+    ızgaraBağlantısı.each(function(d) {
+        var ızgaraÇizgisi = d;
+        var x = ızgaraÇizgisi.x;
+        var y = ızgaraÇizgisi.y;
 
-        var xp = map1dArray([], x, xaxis.c2p);
-        var yp = map1dArray([], y, yaxis.c2p);
+        var xp = map1dArray([], x, xEkseni.c2p);
+        var yp = map1dArray([], y, yEkseni.c2p);
 
-        var path = 'M' + makepath(xp, yp, gridline.smoothing);
+        var yol = 'M' + makepath(xp, yp, ızgaraÇizgisi.smoothing);
 
         var el = d3.select(this);
 
-        el.attr('d', path)
-            .style('stroke-width', gridline.width)
-            .style('stroke', gridline.color)
-            .style('stroke-dasharray', Drawing.dashStyle(gridline.dash, gridline.width))
+        el.attr('d', yol)
+            .style('stroke-width', ızgaraÇizgisi.width)
+            .style('stroke', ızgaraÇizgisi.color)
+            .style('stroke-dasharray', Drawing.dashStyle(ızgaraÇizgisi.dash, ızgaraÇizgisi.width))
             .style('fill', 'none');
     });
 
-    gridJoin.exit().remove();
+    ızgaraBağlantısı.exit().remove();
 }
 
-function drawAxisLabels(gd, xaxis, yaxis, trace, t, layer, labels, labelClass) {
-    var labelJoin = layer.selectAll('text.' + labelClass).data(labels);
+function eksenEtiketleriniÇiz(gd, xEkseni, yEkseni, iz, t, katman, etiketler, etiketSınıfı) {
+    var etiketBağlantısı = katman.selectAll('text.' + etiketSınıfı).data(etiketler);
 
-    labelJoin.enter().append('text')
-        .classed(labelClass, true);
+    etiketBağlantısı.enter().append('text')
+        .classed(etiketSınıfı, true);
 
     var maxExtent = 0;
-    var labelOrientation = {};
+    var etiketYönelimi = {};
 
-    labelJoin.each(function(label, i) {
-        // Most of the positioning is done in calc_labels. Only the parts that depend upon
-        // the screen space representation of the x and y axes are here:
-        var orientation;
-        if(label.axis.tickangle === 'auto') {
-            orientation = orientText(trace, xaxis, yaxis, label.xy, label.dxy);
+    etiketBağlantısı.each(function(etiket, i) {
+        // Çoğu konumlandırma calc_labels içinde yapılır. Sadece x ve y eksenlerinin ekran alanı temsiline bağlı olan kısımlar burada:
+        var yönelim;
+        if (etiket.eksen.tickangle === 'auto') {
+            yönelim = orientText(iz, xEkseni, yEkseni, etiket.xy, etiket.dxy);
         } else {
-            var angle = (label.axis.tickangle + 180.0) * Math.PI / 180.0;
-            orientation = orientText(trace, xaxis, yaxis, label.xy, [Math.cos(angle), Math.sin(angle)]);
+            var açı = (etiket.eksen.tickangle + 180.0) * Math.PI / 180.0;
+            yönelim = orientText(iz, xEkseni, yEkseni, etiket.xy, [Math.cos(açı), Math.sin(açı)]);
         }
 
-        if(!i) {
-            // TODO: offsetMultiplier? Not currently used anywhere...
-            labelOrientation = {angle: orientation.angle, flip: orientation.flip};
+        if (!i) {
+            // TODO: offsetMultiplier? Şu anda hiçbir yerde kullanılmıyor...
+            etiketYönelimi = { angle: yönelim.angle, flip: yönelim.flip };
         }
-        var direction = (label.endAnchor ? -1 : 1) * orientation.flip;
+        var yön = (etiket.endAnchor ? -1 : 1) * yönelim.flip;
 
-        var labelEl = d3.select(this)
+        var etiketEl = d3.select(this)
             .attr({
-                'text-anchor': direction > 0 ? 'start' : 'end',
+                'text-anchor': yön > 0 ? 'start' : 'end',
                 'data-notex': 1
             })
-            .call(Drawing.font, label.font)
-            .text(label.text)
+            .call(Drawing.font, etiket.font)
+            .text(etiket.text)
             .call(svgTextUtils.convertToTspans, gd);
 
         var bbox = Drawing.bBox(this);
 
-        labelEl.attr('transform',
-                // Translate to the correct point:
-                strTranslate(orientation.p[0], orientation.p[1]) +
-                // Rotate to line up with grid line tangent:
-                strRotate(orientation.angle) +
-                // Adjust the baseline and indentation:
-                strTranslate(label.axis.labelpadding * direction, bbox.height * 0.3)
-            );
+        etiketEl.attr('transform',
+            // Doğru noktaya çevir:
+            strTranslate(yönelim.p[0], yönelim.p[1]) +
+            // Izgara çizgisi tanjantı ile hizalanacak şekilde döndür:
+            strRotate(yönelim.angle) +
+            // Temel çizgiyi ve girintiyi ayarla:
+            strTranslate(etiket.eksen.labelpadding * yön, bbox.height * 0.3)
+        );
 
-        maxExtent = Math.max(maxExtent, bbox.width + label.axis.labelpadding);
+        maxExtent = Math.max(maxExtent, bbox.width + etiket.eksen.labelpadding);
     });
 
-    labelJoin.exit().remove();
+    etiketBağlantısı.exit().remove();
 
-    labelOrientation.maxExtent = maxExtent;
-    return labelOrientation;
+    etiketYönelimi.maxExtent = maxExtent;
+    return etiketYönelimi;
 }
 
-function drawAxisTitles(gd, layer, trace, t, xa, ya, labelOrientationA, labelOrientationB) {
+function eksenBaşlıklarınıÇiz(gd, katman, iz, t, xa, ya, etiketYönelimiA, etiketYönelimiB) {
     var a, b, xy, dxy;
 
-    var aMin = Lib.aggNums(Math.min, null, trace.a);
-    var aMax = Lib.aggNums(Math.max, null, trace.a);
-    var bMin = Lib.aggNums(Math.min, null, trace.b);
-    var bMax = Lib.aggNums(Math.max, null, trace.b);
+    var aMin = Lib.aggNums(Math.min, null, iz.a);
+    var aMax = Lib.aggNums(Math.max, null, iz.a);
+    var bMin = Lib.aggNums(Math.min, null, iz.b);
+    var bMax = Lib.aggNums(Math.max, null, iz.b);
 
     a = 0.5 * (aMin + aMax);
     b = bMin;
-    xy = trace.ab2xy(a, b, true);
-    dxy = trace.dxyda_rough(a, b);
-    if(labelOrientationA.angle === undefined) {
-        Lib.extendFlat(labelOrientationA, orientText(trace, xa, ya, xy, trace.dxydb_rough(a, b)));
+    xy = iz.ab2xy(a, b, true);
+    dxy = iz.dxyda_rough(a, b);
+    if (etiketYönelimiA.angle === undefined) {
+        Lib.extendFlat(etiketYönelimiA, orientText(iz, xa, ya, xy, iz.dxydb_rough(a, b)));
     }
-    drawAxisTitle(gd, layer, trace, t, xy, dxy, trace.aaxis, xa, ya, labelOrientationA, 'a-title');
+    eksenBaşlığınıÇiz(gd, katman, iz, t, xy, dxy, iz.aaxis, xa, ya, etiketYönelimiA, 'a-title');
 
     a = aMin;
     b = 0.5 * (bMin + bMax);
-    xy = trace.ab2xy(a, b, true);
-    dxy = trace.dxydb_rough(a, b);
-    if(labelOrientationB.angle === undefined) {
-        Lib.extendFlat(labelOrientationB, orientText(trace, xa, ya, xy, trace.dxyda_rough(a, b)));
+    xy = iz.ab2xy(a, b, true);
+    dxy = iz.dxydb_rough(a, b);
+    if (etiketYönelimiB.angle === undefined) {
+        Lib.extendFlat(etiketYönelimiB, orientText(iz, xa, ya, xy, iz.dxyda_rough(a, b)));
     }
-    drawAxisTitle(gd, layer, trace, t, xy, dxy, trace.baxis, xa, ya, labelOrientationB, 'b-title');
+    eksenBaşlığınıÇiz(gd, katman, iz, t, xy, dxy, iz.baxis, xa, ya, etiketYönelimiB, 'b-title');
 }
 
-var lineSpacing = alignmentConstants.LINE_SPACING;
-var midShift = ((1 - alignmentConstants.MID_SHIFT) / lineSpacing) + 1;
+var çizgiAralığı = alignmentConstants.LINE_SPACING;
+var ortaKayma = ((1 - alignmentConstants.MID_SHIFT) / çizgiAralığı) + 1;
 
-function drawAxisTitle(gd, layer, trace, t, xy, dxy, axis, xa, ya, labelOrientation, labelClass) {
-    var data = [];
-    if(axis.title.text) data.push(axis.title.text);
-    var titleJoin = layer.selectAll('text.' + labelClass).data(data);
-    var offset = labelOrientation.maxExtent;
+function eksenBaşlığınıÇiz(gd, katman, iz, t, xy, dxy, eksen, xa, ya, etiketYönelimi, etiketSınıfı) {
+    var veri = [];
+    if (eksen.title.text) veri.push(eksen.title.text);
+    var başlıkBağlantısı = katman.selectAll('text.' + etiketSınıfı).data(veri);
+    var ofset = etiketYönelimi.maxExtent;
 
-    titleJoin.enter().append('text')
-        .classed(labelClass, true);
+    başlıkBağlantısı.enter().append('text')
+        .classed(etiketSınıfı, true);
 
-    // There's only one, but we'll do it as a join so it's updated nicely:
-    titleJoin.each(function() {
-        var orientation = orientText(trace, xa, ya, xy, dxy);
+    // Sadece bir tane var, ama güzelce güncellenmesi için bir bağlantı olarak yapacağız:
+    başlıkBağlantısı.each(function() {
+        var yönelim = orientText(iz, xa, ya, xy, dxy);
 
-        if(['start', 'both'].indexOf(axis.showticklabels) === -1) {
-            offset = 0;
+        if (['start', 'both'].indexOf(eksen.showticklabels) === -1) {
+            ofset = 0;
         }
 
-        // In addition to the size of the labels, add on some extra padding:
-        var titleSize = axis.title.font.size;
-        offset += titleSize + axis.title.offset;
+        // Etiketlerin boyutuna ek olarak, biraz ekstra dolgu ekleyin:
+        var başlıkBoyutu = eksen.title.font.size;
+        ofset += başlıkBoyutu + eksen.title.offset;
 
-        var labelNorm = labelOrientation.angle + (labelOrientation.flip < 0 ? 180 : 0);
-        var angleDiff = (labelNorm - orientation.angle + 450) % 360;
-        var reverseTitle = angleDiff > 90 && angleDiff < 270;
+        var etiketNorm = etiketYönelimi.angle + (etiketYönelimi.flip < 0 ? 180 : 0);
+        var açıFarkı = (etiketNorm - yönelim.angle + 450) % 360;
+        var başlığıTersÇevir = açıFarkı > 90 && açıFarkı < 270;
 
         var el = d3.select(this);
 
-        el.text(axis.title.text)
+        el.text(eksen.title.text)
             .call(svgTextUtils.convertToTspans, gd);
 
-        if(reverseTitle) {
-            offset = (-svgTextUtils.lineCount(el) + midShift) * lineSpacing * titleSize - offset;
+        if (başlığıTersÇevir) {
+            ofset = (-svgTextUtils.lineCount(el) + ortaKayma) * çizgiAralığı * başlıkBoyutu - ofset;
         }
 
         el.attr('transform',
-                strTranslate(orientation.p[0], orientation.p[1]) +
-                strRotate(orientation.angle) +
-                strTranslate(0, offset)
-            )
+            strTranslate(yönelim.p[0], yönelim.p[1]) +
+            strRotate(yönelim.angle) +
+            strTranslate(0, ofset)
+        )
             .attr('text-anchor', 'middle')
-            .call(Drawing.font, axis.title.font);
+            .call(Drawing.font, eksen.title.font);
     });
 
-    titleJoin.exit().remove();
+    başlıkBağlantısı.exit().remove();
 }

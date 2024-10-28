@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var isNumeric = require('fast-isnumeric');
 
 var Lib = require('../../lib');
@@ -9,6 +10,7 @@ var Colorscale = require('../../components/colorscale');
 var BADNUM = require('../../constants/numerical').BADNUM;
 var makeBlank = require('../../lib/geojson_utils').makeBlank;
 
+// convert fonksiyonunu dışa aktar
 module.exports = function convert(calcTrace) {
     var trace = calcTrace[0].trace;
     var isVisible = (trace.visible === true && trace._length !== 0);
@@ -23,7 +25,7 @@ module.exports = function convert(calcTrace) {
         geojson: makeBlank()
     };
 
-    // early return if not visible or placeholder
+    // Görünür değilse veya yer tutucuysa erken dönüş yap
     if(!isVisible) return opts;
 
     var features = [];
@@ -62,9 +64,9 @@ module.exports = function convert(calcTrace) {
         Colorscale.flipScale(cOpts.colorscale) :
         cOpts.colorscale;
 
-    // Add alpha channel to first colorscale step.
-    // If not, we would essentially color the entire map.
-    // See https://maplibre.org/maplibre-gl-js/docs/examples/heatmap-layer/
+    // İlk renk skalası adımına alfa kanalı ekle.
+    // Eğer eklemezsek, tüm haritayı renklendirmiş oluruz.
+    // Bkz: https://maplibre.org/maplibre-gl-js/docs/examples/heatmap-layer/
     var scl01 = scl[0][1];
     var color0 = Color.opacity(scl01) < 1 ? scl01 : Color.addOpacity(scl01, 0);
 
@@ -77,9 +79,9 @@ module.exports = function convert(calcTrace) {
         heatmapColor.push(scl[i][0], scl[i][1]);
     }
 
-    // Those "weights" have to be in [0, 1], we can do this either:
-    // - as here using a map-gl expression
-    // - or, scale the 'z' property in the feature loop
+    // Bu "ağırlıklar" [0, 1] aralığında olmalı, bunu şu şekilde yapabiliriz:
+    // - burada olduğu gibi bir map-gl ifadesi kullanarak
+    // - veya, özellik döngüsünde 'z' özelliğini ölçekleyerek
     var zExp = [
         'interpolate', ['linear'],
         ['get', 'z'],

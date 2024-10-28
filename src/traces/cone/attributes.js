@@ -12,87 +12,34 @@ var attrs = {
     x: {
         valType: 'data_array',
         editType: 'calc+clearAxisTypes',
-        description: [
-            'Sets the x coordinates of the vector field',
-            'and of the displayed cones.'
-        ].join(' ')
+        description: 'Vektör alanının ve görüntülenen konilerin x koordinatlarını ayarlar.'
     },
     y: {
         valType: 'data_array',
         editType: 'calc+clearAxisTypes',
-        description: [
-            'Sets the y coordinates of the vector field',
-            'and of the displayed cones.'
-        ].join(' ')
+        description: 'Vektör alanının ve görüntülenen konilerin y koordinatlarını ayarlar.'
     },
     z: {
         valType: 'data_array',
         editType: 'calc+clearAxisTypes',
-        description: [
-            'Sets the z coordinates of the vector field',
-            'and of the displayed cones.'
-        ].join(' ')
+        description: 'Vektör alanının ve görüntülenen konilerin z koordinatlarını ayarlar.'
     },
 
     u: {
         valType: 'data_array',
         editType: 'calc',
-        description: 'Sets the x components of the vector field.'
+        description: 'Vektör alanının x bileşenlerini ayarlar.'
     },
     v: {
         valType: 'data_array',
         editType: 'calc',
-        description: 'Sets the y components of the vector field.'
+        description: 'Vektör alanının y bileşenlerini ayarlar.'
     },
     w: {
         valType: 'data_array',
         editType: 'calc',
-        description: 'Sets the z components of the vector field.'
+        description: 'Vektör alanının z bileşenlerini ayarlar.'
     },
-
-    // TODO add way to specify cone positions independently of the vector field
-    // provided, similar to MATLAB's coneplot Cx/Cy/Cz meshgrids,
-    // see https://www.mathworks.com/help/matlab/ref/coneplot.html
-    //
-    // Alternatively, if our goal is only to 'fill in gaps' in the vector data,
-    // we could try to extend the heatmap 'connectgaps' algorithm to 3D.
-    // From AJ: this particular algorithm which amounts to a Poisson equation,
-    // both for interpolation and extrapolation - is the right one to use for
-    // cones too.  It makes a field with zero divergence, which is a good
-    // baseline assumption for vector fields.
-    //
-    // cones: {
-    //     // potential attributes to add:
-    //     //
-    //     // - meshmode: 'cartesian-product', 'pts', 'grid'
-    //     //
-    //     // under `meshmode: 'grid'`
-    //     // - (x|y|z)grid.start
-    //     // - (x|y|z)grid.end
-    //     // - (x|y|z)grid.size
-    //
-    //     x: {
-    //         valType: 'data_array',
-    //         editType: 'calc',
-    //         description: 'Sets the x coordinates of the cones to be displayed.'
-    //     },
-    //     y: {
-    //         valType: 'data_array',
-    //         editType: 'calc',
-    //         description: 'Sets the y coordinates of the cones to be displayed.'
-    //     },
-    //     z: {
-    //         valType: 'data_array',
-    //         editType: 'calc',
-    //         description: 'Sets the z coordinates of the cones to be displayed.'
-    //     },
-    //
-    //     editType: 'calc',
-    //     description: [
-    //         'By setting `cones.x`, `cones.y` and `cones.z` to 1D arrays,',
-    //         'plotly creates a mesh using the cartesian product of those 3 arrays.'
-    //     ].join(' ')
-    // },
 
     sizemode: {
         valType: 'enumerated',
@@ -100,10 +47,10 @@ var attrs = {
         editType: 'calc',
         dflt: 'scaled',
         description: [
-            'Determines whether `sizeref` is set as a *scaled* (i.e unitless) scalar',
-            '(normalized by the max u/v/w norm in the vector field) or as',
-            '*absolute* value (in the same units as the vector field).',
-            'To display sizes in actual vector length use *raw*.'
+            '`sizeref`in *scaled* (ölçeklenmiş) bir skaler olarak mı',
+            '(vektör alanındaki maksimum u/v/w normuna göre normalize edilmiş) yoksa',
+            '*absolute* (mutlak) bir değer olarak mı ayarlandığını belirler.',
+            'Gerçek vektör uzunluğunda boyutları görüntülemek için *raw* kullanın.'
         ].join(' ')
     },
     sizeref: {
@@ -111,15 +58,15 @@ var attrs = {
         editType: 'calc',
         min: 0,
         description: [
-            'Adjusts the cone size scaling.',
-            'The size of the cones is determined by their u/v/w norm multiplied a factor and `sizeref`.',
-            'This factor (computed internally) corresponds to the minimum "time" to travel across',
-            'two successive x/y/z positions at the average velocity of those two successive positions.',
-            'All cones in a given trace use the same factor.',
-            'With `sizemode` set to *raw*, its default value is *1*.',
-            'With `sizemode` set to *scaled*, `sizeref` is unitless, its default value is *0.5*.',
-            'With `sizemode` set to *absolute*, `sizeref` has the same units as the u/v/w vector field,',
-            'its the default value is half the sample\'s maximum vector norm.'
+            'Koni boyutu ölçeklendirmesini ayarlar.',
+            'Konilerin boyutu, u/v/w normları ile bir faktör ve `sizeref` çarpılarak belirlenir.',
+            'Bu faktör (içsel olarak hesaplanır),',
+            'iki ardışık x/y/z pozisyonları arasında ortalama hızda seyahat etmek için gereken minimum "zaman"a karşılık gelir.',
+            'Belirli bir izdeki tüm koniler aynı faktörü kullanır.',
+            '`sizemode` *raw* olarak ayarlandığında, varsayılan değeri *1*dir.',
+            '`sizemode` *scaled* olarak ayarlandığında, `sizeref` birimsizdir, varsayılan değeri *0.5*dir.',
+            '`sizemode` *absolute* olarak ayarlandığında, `sizeref` u/v/w vektör alanı ile aynı birimlere sahiptir,',
+            'varsayılan değeri örneğin maksimum vektör normunun yarısıdır.'
         ].join(' ')
     },
 
@@ -129,9 +76,9 @@ var attrs = {
         values: ['tip', 'tail', 'cm', 'center'],
         dflt: 'cm',
         description: [
-            'Sets the cones\' anchor with respect to their x/y/z positions.',
-            'Note that *cm* denote the cone\'s center of mass which corresponds to',
-            '1/4 from the tail to tip.'
+            'Konilerin x/y/z pozisyonlarına göre ankrajını ayarlar.',
+            '*cm* koninin kütle merkezi anlamına gelir ve',
+            'uçtan uca 1/4 oranında yer alır.'
         ].join(' ')
     },
 
@@ -141,9 +88,9 @@ var attrs = {
         arrayOk: true,
         editType: 'calc',
         description: [
-            'Sets the text elements associated with the cones.',
-            'If trace `hoverinfo` contains a *text* flag and *hovertext* is not set,',
-            'these elements will be seen in the hover labels.'
+            'Konilerle ilişkili metin öğelerini ayarlar.',
+            'İz `hoverinfo` bir *text* bayrağı içeriyorsa ve *hovertext* ayarlanmamışsa,',
+            'bu öğeler hover etiketlerinde görülecektir.'
         ].join(' ')
     },
     hovertext: {
@@ -151,7 +98,7 @@ var attrs = {
         dflt: '',
         arrayOk: true,
         editType: 'calc',
-        description: 'Same as `text`.'
+        description: 'Aynı `text` gibi.'
     },
 
     hovertemplate: hovertemplateAttrs({editType: 'calc'}, {keys: ['norm']}),

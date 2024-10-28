@@ -1,69 +1,66 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var filterOps = require('../../constants/filter_ops');
 var isNumeric = require('fast-isnumeric');
 
-// This syntax conforms to the existing filter transform syntax, but we don't care
-// about open vs. closed intervals for simply drawing contours constraints:
+// Bu sözdizimi mevcut filtre dönüştürme sözdizimine uygundur, ancak sadece kontur kısıtlamalarını çizmek için açık veya kapalı aralıklarla ilgilenmiyoruz:
 module.exports = {
-    '[]': makeRangeSettings('[]'),
-    '][': makeRangeSettings(']['),
-    '>': makeInequalitySettings('>'),
-    '<': makeInequalitySettings('<'),
-    '=': makeInequalitySettings('=')
+    '[]': aralıkAyarlarıYap('[]'),
+    '][': aralıkAyarlarıYap(']['),
+    '>': eşitsizlikAyarlarıYap('>'),
+    '<': eşitsizlikAyarlarıYap('<'),
+    '=': eşitsizlikAyarlarıYap('=')
 };
 
-// This does not in any way shape or form support calendars. It's adapted from
-// transforms/filter.js.
-function coerceValue(operation, value) {
-    var hasArrayValue = Array.isArray(value);
+// Bu hiçbir şekilde takvimleri desteklemez. transforms/filter.js'den uyarlanmıştır.
+function değeriZorla(işlem, değer) {
+    var diziDeğeriVar = Array.isArray(değer);
 
-    var coercedValue;
+    var zorlanmışDeğer;
 
-    function coerce(value) {
-        return isNumeric(value) ? (+value) : null;
+    function zorla(değer) {
+        return isNumeric(değer) ? (+değer) : null;
     }
 
-    if(filterOps.COMPARISON_OPS2.indexOf(operation) !== -1) {
-        coercedValue = hasArrayValue ? coerce(value[0]) : coerce(value);
-    } else if(filterOps.INTERVAL_OPS.indexOf(operation) !== -1) {
-        coercedValue = hasArrayValue ?
-            [coerce(value[0]), coerce(value[1])] :
-            [coerce(value), coerce(value)];
-    } else if(filterOps.SET_OPS.indexOf(operation) !== -1) {
-        coercedValue = hasArrayValue ? value.map(coerce) : [coerce(value)];
+    if(filterOps.KARŞILAŞTIRMA_OPLARI2.indexOf(işlem) !== -1) {
+        zorlanmışDeğer = diziDeğeriVar ? zorla(değer[0]) : zorla(değer);
+    } else if(filterOps.ARALIK_OPLARI.indexOf(işlem) !== -1) {
+        zorlanmışDeğer = diziDeğeriVar ?
+            [zorla(değer[0]), zorla(değer[1])] :
+            [zorla(değer), zorla(değer)];
+    } else if(filterOps.KÜME_OPLARI.indexOf(işlem) !== -1) {
+        zorlanmışDeğer = diziDeğeriVar ? değer.map(zorla) : [zorla(değer)];
     }
 
-    return coercedValue;
+    return zorlanmışDeğer;
 }
 
-// Returns a parabola scaled so that the min/max is either +/- 1 and zero at the two values
-// provided. The data is mapped by this function when constructing intervals so that it's
-// very easy to construct contours as normal.
-function makeRangeSettings(operation) {
-    return function(value) {
-        value = coerceValue(operation, value);
+// Sağlanan iki değerde minimum/maksimum +/- 1 ve sıfır olacak şekilde ölçeklendirilmiş bir parabol döndürür. Veriler bu fonksiyon tarafından aralıklar oluşturulurken eşlenir, böylece konturları normal olarak oluşturmak çok kolaydır.
+function aralıkAyarlarıYap(işlem) {
+    return function(değer) {
+        değer = değeriZorla(işlem, değer);
 
-        // Ensure proper ordering:
-        var min = Math.min(value[0], value[1]);
-        var max = Math.max(value[0], value[1]);
+        // Doğru sıralamayı sağla:
+        var min = Math.min(değer[0], değer[1]);
+        var max = Math.max(değer[0], değer[1]);
 
         return {
-            start: min,
-            end: max,
-            size: max - min
+            başlangıç: min,
+            bitiş: max,
+            boyut: max - min
         };
     };
 }
 
-function makeInequalitySettings(operation) {
-    return function(value) {
-        value = coerceValue(operation, value);
+function eşitsizlikAyarlarıYap(işlem) {
+    return function(değer) {
+        değer = değeriZorla(işlem, değer);
 
         return {
-            start: value,
-            end: Infinity,
-            size: Infinity
+            başlangıç: değer,
+            bitiş: Infinity,
+            boyut: Infinity
         };
     };
 }

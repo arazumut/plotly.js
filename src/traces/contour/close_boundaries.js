@@ -1,5 +1,6 @@
 'use strict';
 
+// Bu fonksiyon, verilen pathinfo ve contours (konturlar) bilgilerine göre sınırları kapatır.
 module.exports = function(pathinfo, contours) {
     var pi0 = pathinfo[0];
     var z = pi0.z;
@@ -7,10 +8,10 @@ module.exports = function(pathinfo, contours) {
 
     switch(contours.type) {
         case 'levels':
-            // Why (just) use z[0][0] and z[0][1]?
+            // Neden sadece z[0][0] ve z[0][1] kullanılıyor?
             //
-            // N.B. using boundaryMin instead of edgeVal2 here makes the
-            //      `contour_scatter` mock fail
+            // Not: Burada edgeVal2 yerine boundaryMin kullanmak
+            //      `contour_scatter` testinin başarısız olmasına neden olur
             var edgeVal2 = Math.min(z[0][0], z[0][1]);
 
             for(i = 0; i < pathinfo.length; i++) {
@@ -20,10 +21,10 @@ module.exports = function(pathinfo, contours) {
             }
             break;
         case 'constraint':
-            // after convertToConstraints, pathinfo has length=0
+            // convertToConstraints işleminden sonra, pathinfo uzunluğu 0 olur
             pi0.prefixBoundary = false;
 
-            // joinAllPaths does enough already when edgepaths are present
+            // edgepaths mevcut olduğunda joinAllPaths yeterince iş yapar
             if(pi0.edgepaths.length) return;
 
             var na = pi0.x.length;

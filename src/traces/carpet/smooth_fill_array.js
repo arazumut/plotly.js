@@ -1,15 +1,15 @@
 'use strict';
 
 /*
- * Fill in a 1D array via linear interpolation. This *is* the basis, so we
- * don't have to scale this by some basis as we do for the 2D version. That
- * makes this much simpler. Just loop over it and do the best we can to fill
- * the array.
+ * Bir 1D diziyi doğrusal enterpolasyon ile doldur. Bu, 2D versiyonu için bazı temellerle
+ * ölçeklendirmemiz gereken temeldir. Bu, bunu çok daha basit hale getirir. Sadece
+ * döngü yap ve diziyi doldurmak için en iyisini yap.
  */
 module.exports = function smoothFillArray(data) {
     var i, i0, i1;
     var n = data.length;
 
+    // İlk tanımlı değeri bul
     for(i = 0; i < n; i++) {
         if(data[i] !== undefined) {
             i0 = i;
@@ -17,6 +17,7 @@ module.exports = function smoothFillArray(data) {
         }
     }
 
+    // Son tanımlı değeri bul
     for(i = n - 1; i >= 0; i--) {
         if(data[i] !== undefined) {
             i1 = i;
@@ -25,14 +26,14 @@ module.exports = function smoothFillArray(data) {
     }
 
     if(i0 === undefined) {
-        // Fill with zeros and return early;
+        // Tüm diziyi sıfırlarla doldur ve erken dön;
         for(i = 0; i < n; i++) {
             data[i] = 0;
         }
 
         return data;
     } else if(i0 === i1) {
-        // Only one data point so can't extrapolate. Fill with it and return early:
+        // Sadece bir veri noktası var, bu yüzden ekstrapolasyon yapamayız. Onunla doldur ve erken dön:
         for(i = 0; i < n; i++) {
             data[i] = data[i0];
         }
@@ -44,8 +45,8 @@ module.exports = function smoothFillArray(data) {
     var iB;
     var m, b, dA, dB;
 
-    // Fill in interior data. When we land on an undefined point,
-    // look ahead until the next defined point and then fill in linearly:
+    // İç verileri doldur. Tanımsız bir noktaya geldiğimizde,
+    // bir sonraki tanımlı noktaya kadar bak ve doğrusal olarak doldur:
     for(i = i0; i < i1; i++) {
         if(data[i] === undefined) {
             iA = iB = i;
@@ -54,12 +55,11 @@ module.exports = function smoothFillArray(data) {
             dA = data[iA - 1];
             dB = data[iB];
 
-            // Lots of variables, but it's just mx + b:
+            // Birçok değişken var, ama bu sadece mx + b:
             m = (dB - dA) / (iB - iA + 1);
             b = dA + (1 - iA) * m;
 
-            // Note that this *does* increment the outer loop counter. Worried a linter
-            // might complain, but it's the whole point in this case:
+            // Bu dış döngü sayacını artırır. Bir linter şikayet edebilir, ama bu durumda amaç budur:
             for(i = iA; i < iB; i++) {
                 data[i] = m * i + b;
             }
@@ -68,7 +68,7 @@ module.exports = function smoothFillArray(data) {
         }
     }
 
-    // Fill in up to the first data point:
+    // İlk veri noktasına kadar doldur:
     if(i0 > 0) {
         m = data[i0 + 1] - data[i0];
         b = data[i0];
@@ -77,7 +77,7 @@ module.exports = function smoothFillArray(data) {
         }
     }
 
-    // Fill in after the last data point:
+    // Son veri noktasından sonra doldur:
     if(i1 < n - 1) {
         m = data[i1] - data[i1 - 1];
         b = data[i1];

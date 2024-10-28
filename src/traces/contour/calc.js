@@ -1,43 +1,43 @@
 'use strict';
 
-var Colorscale = require('../../components/colorscale');
+var RenkSkalası = require('../../components/colorscale');
 
-var heatmapCalc = require('../heatmap/calc');
-var setContours = require('./set_contours');
-var endPlus = require('./end_plus');
+var ısıHaritasıHesapla = require('../heatmap/calc');
+var konturlarıAyarla = require('./set_contours');
+var sonArtı = require('./end_plus');
 
-// most is the same as heatmap calc, then adjust it
-// though a few things inside heatmap calc still look for
-// contour maps, because the makeBoundArray calls are too entangled
-module.exports = function calc(gd, trace) {
-    var cd = heatmapCalc(gd, trace);
+// çoğu ısı haritası hesaplaması ile aynı, sonra ayarla
+// yine de ısı haritası hesaplaması içinde birkaç şey
+// kontur haritalarını arıyor, çünkü makeBoundArray çağrıları çok iç içe
+module.exports = function hesapla(gd, iz) {
+    var cd = ısıHaritasıHesapla(gd, iz);
 
     var zOut = cd[0].z;
-    setContours(trace, zOut);
+    konturlarıAyarla(iz, zOut);
 
-    var contours = trace.contours;
-    var cOpts = Colorscale.extractOpts(trace);
-    var cVals;
+    var konturlar = iz.konturlar;
+    var renkSeçenekleri = RenkSkalası.extractOpts(iz);
+    var renkDeğerleri;
 
-    if(contours.coloring === 'heatmap' && cOpts.auto && trace.autocontour === false) {
-        var start = contours.start;
-        var end = endPlus(contours);
-        var cs = contours.size || 1;
-        var nc = Math.floor((end - start) / cs) + 1;
+    if(konturlar.renklendirme === 'ısı haritası' && renkSeçenekleri.oto && iz.otoKontur === false) {
+        var başlangıç = konturlar.başlangıç;
+        var son = sonArtı(konturlar);
+        var konturBoyutu = konturlar.boyut || 1;
+        var konturSayısı = Math.floor((son - başlangıç) / konturBoyutu) + 1;
 
-        if(!isFinite(cs)) {
-            cs = 1;
-            nc = 1;
+        if(!isFinite(konturBoyutu)) {
+            konturBoyutu = 1;
+            konturSayısı = 1;
         }
 
-        var min0 = start - cs / 2;
-        var max0 = min0 + nc * cs;
-        cVals = [min0, max0];
+        var min0 = başlangıç - konturBoyutu / 2;
+        var max0 = min0 + konturSayısı * konturBoyutu;
+        renkDeğerleri = [min0, max0];
     } else {
-        cVals = zOut;
+        renkDeğerleri = zOut;
     }
 
-    Colorscale.calc(gd, trace, {vals: cVals, cLetter: 'z'});
+    RenkSkalası.hesapla(gd, iz, {değerler: renkDeğerleri, harf: 'z'});
 
     return cd;
 };

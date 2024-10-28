@@ -6,10 +6,10 @@ var Lib = require('../../lib');
 module.exports = function setContours(trace, vals) {
     var contours = trace.contours;
 
-    // check if we need to auto-choose contour levels
+    // Kontur seviyelerini otomatik seçmemiz gerekip gerekmediğini kontrol et
     if(trace.autocontour) {
-        // N.B. do not try to use coloraxis cmin/cmax,
-        // these values here are meant to remain "per-trace" for now
+        // Not: coloraxis cmin/cmax kullanmaya çalışmayın,
+        // bu değerler şimdilik "her iz" için kalmalıdır
         var zmin = trace.zmin;
         var zmax = trace.zmax;
         if(trace.zauto || zmin === undefined) {
@@ -28,16 +28,16 @@ module.exports = function setContours(trace, vals) {
         if(contours.start === zmin) contours.start += contours.size;
         if(contours.end === zmax) contours.end -= contours.size;
 
-        // if you set a small ncontours, *and* the ends are exactly on zmin/zmax
-        // there's an edge case where start > end now. Make sure there's at least
-        // one meaningful contour, put it midway between the crossed values
+        // Küçük bir ncontours ayarlarsanız *ve* uçlar tam olarak zmin/zmax üzerinde olursa
+        // start > end olduğu bir kenar durumu vardır. En az bir anlamlı kontur olduğundan emin olun,
+        // kesişen değerlerin ortasına yerleştirin
         if(contours.start > contours.end) {
             contours.start = contours.end = (contours.start + contours.end) / 2;
         }
 
-        // copy auto-contour info back to the source data.
-        // previously we copied the whole contours object back, but that had
-        // other info (coloring, showlines) that should be left to supplyDefaults
+        // Otomatik kontur bilgilerini kaynak veriye geri kopyalayın.
+        // Daha önce tüm konturlar nesnesini geri kopyalıyorduk, ancak bu,
+        // supplyDefaults'a bırakılması gereken diğer bilgileri (renklendirme, çizgileri gösterme) içeriyordu
         if(!trace._input.contours) trace._input.contours = {};
         Lib.extendFlat(trace._input.contours, {
             start: contours.start,
@@ -46,7 +46,7 @@ module.exports = function setContours(trace, vals) {
         });
         trace._input.autocontour = true;
     } else if(contours.type !== 'constraint') {
-        // sanity checks on manually-supplied start/end/size
+        // Manuel olarak sağlanan başlangıç/bitiş/boyut üzerinde mantık kontrolleri
         var start = contours.start;
         var end = contours.end;
         var inputContours = trace._input.contours;
@@ -67,17 +67,16 @@ module.exports = function setContours(trace, vals) {
     }
 };
 
-
 /*
- * autoContours: make a dummy axis object with dtick we can use
- * as contours.size, and if needed we can use Axes.tickFirst
- * with this axis object to calculate the start and end too
+ * autoContours: dtick ile kullanabileceğimiz sahte bir eksen nesnesi oluşturur
+ * contours.size olarak kullanabiliriz ve gerekirse Axes.tickFirst ile
+ * bu eksen nesnesini kullanarak başlangıç ve bitişi de hesaplayabiliriz
  *
- * start: the value to start the contours at
- * end: the value to end at (must be > start)
- * ncontours: max number of contours to make, like roughDTick
+ * start: konturları başlatmak için değer
+ * end: bitiş değeri (başlangıçtan büyük olmalıdır)
+ * ncontours: yapılacak maksimum kontur sayısı, roughDTick gibi
  *
- * returns: an axis object
+ * döner: bir eksen nesnesi
  */
 function autoContours(start, end, ncontours) {
     var dummyAx = {

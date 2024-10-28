@@ -1,10 +1,11 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var d3 = require('@plotly/d3');
-
 var Colorscale = require('../../components/colorscale');
 var endPlus = require('./end_plus');
 
+// makeColorMap fonksiyonunu dışa aktar
 module.exports = function makeColorMap(trace) {
     var contours = trace.contours;
     var start = contours.start;
@@ -39,8 +40,8 @@ module.exports = function makeColorMap(trace) {
             range[i] = si[1];
         }
 
-        // do the contours extend beyond the colorscale?
-        // if so, extend the colorscale with constants
+        // Konturlar renk skalasının ötesine mi uzanıyor?
+        // Eğer öyleyse, renk skalasını sabitlerle genişlet
         var zRange = d3.extent([
             zmin0,
             zmax0,
@@ -64,8 +65,7 @@ module.exports = function makeColorMap(trace) {
             typeof trace._input.zmin === 'number' && typeof trace._input.zmax === 'number'
         );
 
-        // If zmin/zmax are explicitly set, consider case where user specifies a
-        // narrower z range than that of the contours start/end.
+        // Eğer zmin/zmax açıkça belirtilmişse, kullanıcının kontur başlangıç/bitiş aralığından daha dar bir z aralığı belirttiği durumu göz önünde bulundur.
         if(zRangeInput && (start <= zmin0 || end >= zmax0)) {
             if(start <= zmin0) start = zmin0;
             if(end >= zmax0) end = zmax0;
@@ -79,8 +79,7 @@ module.exports = function makeColorMap(trace) {
             range[i] = si[1];
         }
 
-        // Make the colorscale fit the z range except if contours are explicitly
-        // set BUT NOT zmin/zmax.
+        // Renk skalasını z aralığına uydur, ancak konturlar açıkça belirtilmişse ve zmin/zmax belirtilmemişse.
         if(zRangeInput || trace.autocontour) {
             if(domain[0] > zmin0) {
                 domain.unshift(zmin0);

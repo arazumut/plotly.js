@@ -1,32 +1,35 @@
 'use strict';
 
-var conePlot = require('../../../stackgl_modules').gl_cone3d;
-var createConeMesh = require('../../../stackgl_modules').gl_cone3d.createConeMesh;
+// Gerekli modülleri içe aktar
+var koniGrafik = require('../../../stackgl_modules').gl_cone3d;
+var koniMeshOlustur = require('../../../stackgl_modules').gl_cone3d.createConeMesh;
 
-var simpleMap = require('../../lib').simpleMap;
-var parseColorScale = require('../../lib/gl_format_color').parseColorScale;
-var extractOpts = require('../../components/colorscale').extractOpts;
-var isArrayOrTypedArray = require('../../lib').isArrayOrTypedArray;
+var basitHarita = require('../../lib').simpleMap;
+var renkSkalasiCoz = require('../../lib/gl_format_color').parseColorScale;
+var renkSkalasiSecenekleri = require('../../components/colorscale').extractOpts;
+var diziVeyaTypedArrayMi = require('../../lib').isArrayOrTypedArray;
 var zip3 = require('../../plots/gl3d/zip3');
 
-function Cone(scene, uid) {
+// Koni sınıfı tanımla
+function Koni(scene, uid) {
     this.scene = scene;
     this.uid = uid;
     this.mesh = null;
     this.data = null;
 }
 
-var proto = Cone.prototype;
+var proto = Koni.prototype;
 
-proto.handlePick = function(selection) {
+// Seçimi işle fonksiyonu
+proto.secimiIsle = function(selection) {
     if(selection.object === this.mesh) {
-        var selectIndex = selection.index = selection.data.index;
-        var xx = this.data.x[selectIndex];
-        var yy = this.data.y[selectIndex];
-        var zz = this.data.z[selectIndex];
-        var uu = this.data.u[selectIndex];
-        var vv = this.data.v[selectIndex];
-        var ww = this.data.w[selectIndex];
+        var secimIndeksi = selection.index = selection.data.index;
+        var xx = this.data.x[secimIndeksi];
+        var yy = this.data.y[secimIndeksi];
+        var zz = this.data.z[secimIndeksi];
+        var uu = this.data.u[secimIndeksi];
+        var vv = this.data.v[secimIndeksi];
+        var ww = this.data.w[secimIndeksi];
 
         selection.traceCoordinate = [
             xx, yy, zz,
@@ -35,8 +38,8 @@ proto.handlePick = function(selection) {
         ];
 
         var text = this.data.hovertext || this.data.text;
-        if(isArrayOrTypedArray(text) && text[selectIndex] !== undefined) {
-            selection.textLabel = text[selectIndex];
+        if(diziVeyaTypedArrayMi(text) && text[secimIndeksi] !== undefined) {
+            selection.textLabel = text[secimIndeksi];
         } else if(text) {
             selection.textLabel = text;
         }
@@ -45,58 +48,56 @@ proto.handlePick = function(selection) {
     }
 };
 
-var axisName2scaleIndex = {xaxis: 0, yaxis: 1, zaxis: 2};
-var anchor2coneOffset = {tip: 1, tail: 0, cm: 0.25, center: 0.5};
-var anchor2coneSpan = {tip: 1, tail: 1, cm: 0.75, center: 0.5};
+// Eksen adı ve ölçek indeksi eşleştirmeleri
+var eksenAdi2olcekIndeksi = {xaxis: 0, yaxis: 1, zaxis: 2};
+var anchor2konikOffset = {tip: 1, tail: 0, cm: 0.25, center: 0.5};
+var anchor2konikSpan = {tip: 1, tail: 1, cm: 0.75, center: 0.5};
 
-function convert(scene, trace) {
+// Dönüştür fonksiyonu
+function donustur(scene, trace) {
     var sceneLayout = scene.fullSceneLayout;
     var dataScale = scene.dataScale;
-    var coneOpts = {};
+    var konikOpts = {};
 
-    function toDataCoords(arr, axisName) {
-        var ax = sceneLayout[axisName];
-        var scale = dataScale[axisName2scaleIndex[axisName]];
-        return simpleMap(arr, function(v) { return ax.d2l(v) * scale; });
+    function veriKoordinatlarinaCevir(arr, eksenAdi) {
+        var ax = sceneLayout[eksenAdi];
+        var scale = dataScale[eksenAdi2olcekIndeksi[eksenAdi]];
+        return basitHarita(arr, function(v) { return ax.d2l(v) * scale; });
     }
 
-    coneOpts.vectors = zip3(
-        toDataCoords(trace.u, 'xaxis'),
-        toDataCoords(trace.v, 'yaxis'),
-        toDataCoords(trace.w, 'zaxis'),
+    konikOpts.vectors = zip3(
+        veriKoordinatlarinaCevir(trace.u, 'xaxis'),
+        veriKoordinatlarinaCevir(trace.v, 'yaxis'),
+        veriKoordinatlarinaCevir(trace.w, 'zaxis'),
         trace._len
     );
 
-    coneOpts.positions = zip3(
-        toDataCoords(trace.x, 'xaxis'),
-        toDataCoords(trace.y, 'yaxis'),
-        toDataCoords(trace.z, 'zaxis'),
+    konikOpts.positions = zip3(
+        veriKoordinatlarinaCevir(trace.x, 'xaxis'),
+        veriKoordinatlarinaCevir(trace.y, 'yaxis'),
+        veriKoordinatlarinaCevir(trace.z, 'zaxis'),
         trace._len
     );
 
-    var cOpts = extractOpts(trace);
-    coneOpts.colormap = parseColorScale(trace);
-    coneOpts.vertexIntensityBounds = [cOpts.min / trace._normMax, cOpts.max / trace._normMax];
-    coneOpts.coneOffset = anchor2coneOffset[trace.anchor];
-
+    var cOpts = renkSkalasiSecenekleri(trace);
+    konikOpts.colormap = renkSkalasiCoz(trace);
+    konikOpts.vertexIntensityBounds = [cOpts.min / trace._normMax, cOpts.max / trace._normMax];
+    konikOpts.coneOffset = anchor2konikOffset[trace.anchor];
 
     var sizemode = trace.sizemode;
     if(sizemode === 'scaled') {
-        // unitless sizeref
-        coneOpts.coneSize = trace.sizeref || 0.5;
+        konikOpts.coneSize = trace.sizeref || 0.5;
     } else if(sizemode === 'absolute') {
-        // sizeref here has unit of velocity
-        coneOpts.coneSize = trace.sizeref && trace._normMax ?
+        konikOpts.coneSize = trace.sizeref && trace._normMax ?
             trace.sizeref / trace._normMax :
             0.5;
     } else if(sizemode === 'raw') {
-        coneOpts.coneSize = trace.sizeref;
+        konikOpts.coneSize = trace.sizeref;
     }
-    coneOpts.coneSizemode = sizemode;
+    konikOpts.coneSizemode = sizemode;
 
-    var meshData = conePlot(coneOpts);
+    var meshData = koniGrafik(konikOpts);
 
-    // pass gl-mesh3d lighting attributes
     var lp = trace.lightposition;
     meshData.lightPosition = [lp.x, lp.y, lp.z];
     meshData.ambient = trace.lighting.ambient;
@@ -106,38 +107,40 @@ function convert(scene, trace) {
     meshData.fresnel = trace.lighting.fresnel;
     meshData.opacity = trace.opacity;
 
-    // stash autorange pad value
-    trace._pad = anchor2coneSpan[trace.anchor] * meshData.vectorScale * meshData.coneScale * trace._normMax;
+    trace._pad = anchor2konikSpan[trace.anchor] * meshData.vectorScale * meshData.coneScale * trace._normMax;
 
     return meshData;
 }
 
+// Güncelle fonksiyonu
 proto.update = function(data) {
     this.data = data;
 
-    var meshData = convert(this.scene, data);
+    var meshData = donustur(this.scene, data);
     this.mesh.update(meshData);
 };
 
+// Temizle fonksiyonu
 proto.dispose = function() {
     this.scene.glplot.remove(this.mesh);
     this.mesh.dispose();
 };
 
-function createConeTrace(scene, data) {
+// Koni iz oluştur fonksiyonu
+function konikIzOlustur(scene, data) {
     var gl = scene.glplot.gl;
 
-    var meshData = convert(scene, data);
-    var mesh = createConeMesh(gl, meshData);
+    var meshData = donustur(scene, data);
+    var mesh = koniMeshOlustur(gl, meshData);
 
-    var cone = new Cone(scene, data.uid);
-    cone.mesh = mesh;
-    cone.data = data;
-    mesh._trace = cone;
+    var konik = new Koni(scene, data.uid);
+    konik.mesh = mesh;
+    konik.data = data;
+    mesh._trace = konik;
 
     scene.glplot.add(mesh);
 
-    return cone;
+    return konik;
 }
 
-module.exports = createConeTrace;
+module.exports = konikIzOlustur;

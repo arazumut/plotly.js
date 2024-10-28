@@ -1,26 +1,26 @@
 'use strict';
 
 /*
- * Given a trace, look up the carpet axis by carpet.
+ * Bir iz (trace) verildiğinde, halı eksenini (carpet axis) halıya göre bulur.
  */
 module.exports = function(gd, trace) {
     var n = gd._fullData.length;
-    var firstAxis;
+    var ilkEksen;
     for(var i = 0; i < n; i++) {
-        var maybeCarpet = gd._fullData[i];
+        var muhtemelHali = gd._fullData[i];
 
-        if(maybeCarpet.index === trace.index) continue;
+        if(muhtemelHali.index === trace.index) continue;
 
-        if(maybeCarpet.type === 'carpet') {
-            if(!firstAxis) {
-                firstAxis = maybeCarpet;
+        if(muhtemelHali.type === 'carpet') {
+            if(!ilkEksen) {
+                ilkEksen = muhtemelHali;
             }
 
-            if(maybeCarpet.carpet === trace.carpet) {
-                return maybeCarpet;
+            if(muhtemelHali.carpet === trace.carpet) {
+                return muhtemelHali;
             }
         }
     }
 
-    return firstAxis;
+    return ilkEksen;
 };

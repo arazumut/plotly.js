@@ -1,46 +1,51 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var d3 = require('@plotly/d3');
 var Color = require('../../components/color');
 var Drawing = require('../../components/drawing');
 var Colorscale = require('../../components/colorscale');
 
-function style(gd, calcTrace) {
-    if(calcTrace) styleTrace(gd, calcTrace);
+// Stil fonksiyonu
+function stil(gd, hesaplananIz) {
+    if(hesaplananIz) stilIz(gd, hesaplananIz);
 }
 
-function styleTrace(gd, calcTrace) {
-    var trace = calcTrace[0].trace;
-    var s = calcTrace[0].node3;
-    var locs = s.selectAll('.choroplethlocation');
-    var marker = trace.marker || {};
-    var markerLine = marker.line || {};
+// İz stil fonksiyonu
+function stilIz(gd, hesaplananIz) {
+    var iz = hesaplananIz[0].iz;
+    var s = hesaplananIz[0].node3;
+    var konumlar = s.selectAll('.choroplethlocation');
+    var marker = iz.marker || {};
+    var markerCizgi = marker.line || {};
 
-    var sclFunc = Colorscale.makeColorScaleFuncFromTrace(trace);
+    var renkOlcegiFonksiyonu = Colorscale.makeColorScaleFuncFromTrace(iz);
 
-    locs.each(function(d) {
+    konumlar.each(function(d) {
         d3.select(this)
-            .attr('fill', sclFunc(d.z))
-            .call(Color.stroke, d.mlc || markerLine.color)
-            .call(Drawing.dashLine, '', d.mlw || markerLine.width || 0)
+            .attr('fill', renkOlcegiFonksiyonu(d.z))
+            .call(Color.stroke, d.mlc || markerCizgi.color)
+            .call(Drawing.dashLine, '', d.mlw || markerCizgi.width || 0)
             .style('opacity', marker.opacity);
     });
 
-    Drawing.selectedPointStyle(locs, trace);
+    Drawing.selectedPointStyle(konumlar, iz);
 }
 
-function styleOnSelect(gd, calcTrace) {
-    var s = calcTrace[0].node3;
-    var trace = calcTrace[0].trace;
+// Seçim üzerine stil fonksiyonu
+function secimUzerineStil(gd, hesaplananIz) {
+    var s = hesaplananIz[0].node3;
+    var iz = hesaplananIz[0].iz;
 
-    if(trace.selectedpoints) {
-        Drawing.selectedPointStyle(s.selectAll('.choroplethlocation'), trace);
+    if(iz.selectedpoints) {
+        Drawing.selectedPointStyle(s.selectAll('.choroplethlocation'), iz);
     } else {
-        styleTrace(gd, calcTrace);
+        stilIz(gd, hesaplananIz);
     }
 }
 
+// Modülleri dışa aktar
 module.exports = {
-    style: style,
-    styleOnSelect: styleOnSelect
+    stil: stil,
+    secimUzerineStil: secimUzerineStil
 };

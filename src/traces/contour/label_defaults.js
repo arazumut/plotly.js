@@ -1,17 +1,28 @@
 'use strict';
 
+// Gerekli kütüphaneyi dahil et
 var Lib = require('../../lib');
 
-module.exports = function handleLabelDefaults(coerce, layout, lineColor, opts) {
-    if(!opts) opts = {};
-    var showLabels = coerce('contours.showlabels');
-    if(showLabels) {
-        var globalFont = layout.font;
-        Lib.coerceFont(coerce, 'contours.labelfont', globalFont, { overrideDflt: {
-            color: lineColor
+// Etiket varsayılanlarını işlemek için fonksiyon
+module.exports = function etiketVarsayilanlariniIsle(coerce, layout, cizgiRengi, secenekler) {
+    // Eğer seçenekler yoksa boş bir obje olarak ayarla
+    if(!secenekler) secenekler = {};
+    
+    // Etiketlerin gösterilip gösterilmeyeceğini belirle
+    var etiketleriGoster = coerce('contours.showlabels');
+    if(etiketleriGoster) {
+        // Genel yazı tipini al
+        var genelYaziTipi = layout.font;
+        
+        // Yazı tipi ayarlarını zorla
+        Lib.coerceFont(coerce, 'contours.labelfont', genelYaziTipi, { overrideDflt: {
+            color: cizgiRengi
         }});
+        
+        // Etiket formatını zorla
         coerce('contours.labelformat');
     }
 
-    if(opts.hasHover !== false) coerce('zhoverformat');
+    // Eğer hover özelliği kapalı değilse zhoverformat'ı zorla
+    if(secenekler.hasHover !== false) coerce('zhoverformat');
 };

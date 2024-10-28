@@ -1,24 +1,23 @@
-'use strict';
+'use strict'; // 'use strict' modu, daha sıkı bir JavaScript yazım kuralları sağlar.
 
 module.exports = {
-    attributes: require('./attributes'),
-    supplyDefaults: require('./defaults'),
-    colorbar: require('../contour/colorbar'),
-    calc: require('./calc'),
-    plot: require('./plot'),
-    style: require('../contour/style'),
+    attributes: require('./attributes'), // Özellikleri içe aktarır.
+    supplyDefaults: require('./defaults'), // Varsayılan değerleri sağlar.
+    colorbar: require('../contour/colorbar'), // Renk çubuğunu içe aktarır.
+    calc: require('./calc'), // Hesaplama fonksiyonlarını içe aktarır.
+    plot: require('./plot'), // Çizim fonksiyonlarını içe aktarır.
+    style: require('../contour/style'), // Stil fonksiyonlarını içe aktarır.
 
-    moduleType: 'trace',
-    name: 'contourcarpet',
-    basePlotModule: require('../../plots/cartesian'),
-    categories: ['cartesian', 'svg', 'carpet', 'contour', 'symbols', 'showLegend', 'hasLines', 'carpetDependent', 'noHover', 'noSortingByValue'],
+    moduleType: 'trace', // Modül tipi 'trace' olarak belirlenir.
+    name: 'contourcarpet', // Modül adı 'contourcarpet' olarak belirlenir.
+    basePlotModule: require('../../plots/cartesian'), // Temel çizim modülü içe aktarılır.
+    categories: ['cartesian', 'svg', 'carpet', 'contour', 'symbols', 'showLegend', 'hasLines', 'carpetDependent', 'noHover', 'noSortingByValue'], // Kategoriler belirlenir.
     meta: {
-        hrName: 'contour_carpet',
+        hrName: 'contour_carpet', // İnsan tarafından okunabilir adı belirlenir.
         description: [
-            'Plots contours on either the first carpet axis or the',
-            'carpet axis with a matching `carpet` attribute. Data `z`',
-            'is interpreted as matching that of the corresponding carpet',
-            'axis.'
-        ].join(' ')
+            'İlk halı ekseninde veya',
+            'eşleşen `carpet` özelliğine sahip halı ekseninde konturlar çizer. Veri `z`',
+            'ilgili halı eksenine karşılık gelen veri olarak yorumlanır.'
+        ].join(' ') // Açıklama metni birleştirilir.
     }
 };

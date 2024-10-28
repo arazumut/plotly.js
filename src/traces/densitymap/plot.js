@@ -1,8 +1,10 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var convert = require('./convert');
 var LAYER_PREFIX = require('../../plots/map/constants').traceLayerPrefix;
 
+// DensityMap sınıfı tanımla
 function DensityMap(subplot, uid) {
     this.type = 'densitymap';
     this.subplot = subplot;
@@ -14,13 +16,14 @@ function DensityMap(subplot, uid) {
         ['heatmap', LAYER_PREFIX + uid + '-heatmap']
     ];
 
-    // previous 'below' value,
-    // need this to update it properly
+    // Önceki 'below' değeri,
+    // bunu düzgün güncellemek için gerekli
     this.below = null;
 }
 
 var proto = DensityMap.prototype;
 
+// DensityMap güncelleme fonksiyonu
 proto.update = function(calcTrace) {
     var subplot = this.subplot;
     var layerList = this.layerList;
@@ -51,6 +54,7 @@ proto.update = function(calcTrace) {
     }
 };
 
+// Katmanları ekleme fonksiyonu
 proto._addLayers = function(optsAll, below) {
     var subplot = this.subplot;
     var layerList = this.layerList;
@@ -71,6 +75,7 @@ proto._addLayers = function(optsAll, below) {
     }
 };
 
+// Katmanları kaldırma fonksiyonu
 proto._removeLayers = function() {
     var map = this.subplot.map;
     var layerList = this.layerList;
@@ -80,12 +85,14 @@ proto._removeLayers = function() {
     }
 };
 
+// DensityMap'i temizleme fonksiyonu
 proto.dispose = function() {
     var map = this.subplot.map;
     this._removeLayers();
     map.removeSource(this.sourceId);
 };
 
+// DensityMap oluşturma fonksiyonu
 module.exports = function createDensityMap(subplot, calcTrace) {
     var trace = calcTrace[0].trace;
     var densityMap = new DensityMap(subplot, trace.uid);

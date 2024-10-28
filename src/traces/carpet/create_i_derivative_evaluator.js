@@ -1,46 +1,42 @@
 'use strict';
 
 /*
- * Evaluates the derivative of a list of control point arrays. That is, it expects an array or arrays
- * that are expanded relative to the raw data to include the bicubic control points, if applicable. If
- * only linear interpolation is desired, then the data points correspond 1-1 along that axis to the
- * data itself. Since it's catmull-rom splines in either direction note in particular that the
- * derivatives are discontinuous across cell boundaries. That's the reason you need both the *cell*
- * and the *point within the cell*.
+ * Kontrol noktası dizilerinin türevini hesaplar. Yani, bicubic kontrol noktalarını içerecek şekilde
+ * ham verilere göre genişletilmiş diziler bekler. Eğer sadece lineer interpolasyon isteniyorsa, o
+ * eksendeki veri noktaları verinin kendisiyle birebir eşleşir. Catmull-rom splineleri her iki yönde
+ * olduğundan, özellikle türevlerin hücre sınırları boyunca süreksiz olduğunu unutmayın. Bu nedenle
+ * hem *hücre* hem de *hücre içindeki nokta* gereklidir.
  *
- * Also note that the discontinuity of the derivative is in magnitude only. The direction *is*
- * continuous across cell boundaries.
+ * Ayrıca türevin süreksizliği sadece büyüklükte olur. Yön hücre sınırları boyunca süreklidir.
  *
- * For example, to compute the derivative of the xcoordinate halfway between the 7 and 8th i-gridpoints
- * and the 10th and 11th j-gridpoints given bicubic smoothing in both dimensions, you'd write:
+ * Örneğin, hem x hem de y ekseninde bicubic yumuşatma verilmişken, 7. ve 8. i-ızgara noktaları ile
+ * 10. ve 11. j-ızgara noktaları arasında x koordinatının türevini hesaplamak için:
  *
- *     var deriv = createIDerivativeEvaluator([x], 1, 1);
+ *     var türev = iTürevDeğerlendiriciOluştur([x], 1, 1);
  *
- *     var dxdi = deriv([], 7, 10, 0.5, 0.5);
+ *     var dxdi = türev([], 7, 10, 0.5, 0.5);
  *     // => [0.12345]
  *
- * Since there'd be a bunch of duplicate computation to compute multiple derivatives, you can double
- * this up by providing more arrays:
+ * Birden fazla türev hesaplamak için, daha fazla dizi sağlayarak bu işlemi çoğaltabilirsiniz:
  *
- *     var deriv = createIDerivativeEvaluator([x, y], 1, 1);
+ *     var türev = iTürevDeğerlendiriciOluştur([x, y], 1, 1);
  *
- *     var dxdi = deriv([], 7, 10, 0.5, 0.5);
+ *     var dxdi = türev([], 7, 10, 0.5, 0.5);
  *     // => [0.12345, 0.78910]
  *
- * NB: It's presumed that at this point all data has been sanitized and is valid numerical data arrays
- * of the correct dimension.
+ * NB: Bu noktada tüm verilerin temizlendiği ve doğru boyutta sayısal veri dizileri olduğu varsayılır.
  */
-module.exports = function(arrays, asmoothing, bsmoothing) {
-    if(asmoothing && bsmoothing) {
-        return function(out, i0, j0, u, v) {
-            if(!out) out = [];
+module.exports = function(diziler, aYumuşatma, bYumuşatma) {
+    if(aYumuşatma && bYumuşatma) {
+        return function(çıkış, i0, j0, u, v) {
+            if(!çıkış) çıkış = [];
             var f0, f1, f2, f3, ak, k;
 
-            // Since it's a grid of control points, the actual indices are * 3:
+            // Kontrol noktaları ızgarası olduğundan, gerçek indeksler * 3:
             i0 *= 3;
             j0 *= 3;
 
-            // Precompute some numbers:
+            // Bazı sayıları önceden hesaplayın:
             var u2 = u * u;
             var ou = 1 - u;
             var ou2 = ou * ou;
@@ -56,25 +52,24 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
             var ov2 = ov * ov;
             var ov3 = ov2 * ov;
 
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
-                // Compute the derivatives in the u-direction:
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
+                // u yönünde türevleri hesaplayın:
                 f0 = a * ak[j0 ][i0] + b * ak[j0 ][i0 + 1] + c * ak[j0 ][i0 + 2] + d * ak[j0 ][i0 + 3];
                 f1 = a * ak[j0 + 1][i0] + b * ak[j0 + 1][i0 + 1] + c * ak[j0 + 1][i0 + 2] + d * ak[j0 + 1][i0 + 3];
                 f2 = a * ak[j0 + 2][i0] + b * ak[j0 + 2][i0 + 1] + c * ak[j0 + 2][i0 + 2] + d * ak[j0 + 2][i0 + 3];
                 f3 = a * ak[j0 + 3][i0] + b * ak[j0 + 3][i0 + 1] + c * ak[j0 + 3][i0 + 2] + d * ak[j0 + 3][i0 + 3];
 
-                // Now just interpolate in the v-direction since it's all separable:
-                out[k] = ov3 * f0 + 3 * (ov2 * v * f1 + ov * v2 * f2) + v3 * f3;
+                // Şimdi v yönünde interpolasyon yapın çünkü hepsi ayrılabilir:
+                çıkış[k] = ov3 * f0 + 3 * (ov2 * v * f1 + ov * v2 * f2) + v3 * f3;
             }
 
-            return out;
+            return çıkış;
         };
-    } else if(asmoothing) {
-        // Handle smooth in the a-direction but linear in the b-direction by performing four
-        // linear interpolations followed by one cubic interpolation of the result
-        return function(out, i0, j0, u, v) {
-            if(!out) out = [];
+    } else if(aYumuşatma) {
+        // a yönünde yumuşak ama b yönünde lineer olan durumu dört lineer interpolasyon ve bir kübik interpolasyon ile ele alın
+        return function(çıkış, i0, j0, u, v) {
+            if(!çıkış) çıkış = [];
             var f0, f1, k, ak;
             i0 *= 3;
             var u2 = u * u;
@@ -86,23 +81,21 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
             var c = 3 * (ouu2 - u2);
             var d = 3 * u2;
             var ov = 1 - v;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = a * ak[j0 ][i0] + b * ak[j0 ][i0 + 1] + c * ak[j0 ][i0 + 2] + d * ak[j0 ][i0 + 3];
                 f1 = a * ak[j0 + 1][i0] + b * ak[j0 + 1][i0 + 1] + c * ak[j0 + 1][i0 + 2] + d * ak[j0 + 1][i0 + 3];
 
-                out[k] = ov * f0 + v * f1;
+                çıkış[k] = ov * f0 + v * f1;
             }
-            return out;
+            return çıkış;
         };
-    } else if(bsmoothing) {
-        // Same as the above case, except reversed. I've disabled the no-unused vars rule
-        // so that this function is fully interpolation-agnostic. Otherwise it would need
-        // to be called differently in different cases. Which wouldn't be the worst, but
+    } else if(bYumuşatma) {
+        // Yukarıdaki durumun tersi. Bu fonksiyonun tamamen interpolasyon-agnostik olması için no-unused-vars kuralını devre dışı bıraktım.
         /* eslint-disable no-unused-vars */
-        return function(out, i0, j0, u, v) {
+        return function(çıkış, i0, j0, u, v) {
         /* eslint-enable no-unused-vars */
-            if(!out) out = [];
+            if(!çıkış) çıkış = [];
             var f0, f1, f2, f3, k, ak;
             j0 *= 3;
             var v2 = v * v;
@@ -110,33 +103,33 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
             var ov = 1 - v;
             var ov2 = ov * ov;
             var ov3 = ov2 * ov;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = ak[j0][i0 + 1] - ak[j0][i0];
                 f1 = ak[j0 + 1][i0 + 1] - ak[j0 + 1][i0];
                 f2 = ak[j0 + 2][i0 + 1] - ak[j0 + 2][i0];
                 f3 = ak[j0 + 3][i0 + 1] - ak[j0 + 3][i0];
 
-                out[k] = ov3 * f0 + 3 * (ov2 * v * f1 + ov * v2 * f2) + v3 * f3;
+                çıkış[k] = ov3 * f0 + 3 * (ov2 * v * f1 + ov * v2 * f2) + v3 * f3;
             }
-            return out;
+            return çıkış;
         };
     } else {
-        // Finally, both directions are linear:
+        // Son olarak, her iki yönde de lineer:
         /* eslint-disable no-unused-vars */
-        return function(out, i0, j0, u, v) {
+        return function(çıkış, i0, j0, u, v) {
         /* eslint-enable no-unused-vars */
-            if(!out) out = [];
+            if(!çıkış) çıkış = [];
             var f0, f1, k, ak;
             var ov = 1 - v;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = ak[j0][i0 + 1] - ak[j0][i0];
                 f1 = ak[j0 + 1][i0 + 1] - ak[j0 + 1][i0];
 
-                out[k] = ov * f0 + v * f1;
+                çıkış[k] = ov * f0 + v * f1;
             }
-            return out;
+            return çıkış;
         };
     }
 };

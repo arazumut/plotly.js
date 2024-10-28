@@ -1,9 +1,9 @@
 'use strict';
 
 /*
- * tiny helper to move the end of the contours a little to prevent
- * losing the last contour to rounding errors
+ * Konturların sonunu biraz hareket ettirmek için küçük yardımcı fonksiyon,
+ * son konturun yuvarlama hatalarına kaybolmasını önlemek için
  */
-module.exports = function endPlus(contours) {
+module.exports = function sonArtı(contours) {
     return contours.end + contours.size / 1e6;
 };

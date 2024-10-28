@@ -1,8 +1,9 @@
 'use strict';
 
-module.exports = function eventData(out, pt) {
-    out.lon = pt.lon;
-    out.lat = pt.lat;
-    out.z = pt.z;
-    return out;
+// Bu fonksiyon, verilen 'pt' nesnesindeki verileri 'out' nesnesine ekler ve 'out' nesnesini geri döner.
+module.exports = function olayVerisi(out, pt) {
+    out.lon = pt.lon; // Boylam bilgisini ekler
+    out.lat = pt.lat; // Enlem bilgisini ekler
+    out.z = pt.z;     // Z değerini ekler
+    return out;       // Güncellenmiş 'out' nesnesini geri döner
 };

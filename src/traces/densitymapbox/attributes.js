@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri dahil etme
 var colorScaleAttrs = require('../../components/colorscale/attributes');
 var hovertemplateAttrs = require('../../plots/template_attributes').hovertemplateAttrs;
 var baseAttrs = require('../../plots/attributes');
@@ -13,19 +14,18 @@ var extendFlat = require('../../lib/extend').extendFlat;
  * - https://docs.mapbox.com/mapbox-gl-js/style-spec/#layers-heatmap
  * - https://blog.mapbox.com/introducing-heatmaps-in-mapbox-gl-js-71355ada9e6c
  *
- * Gotchas:
+ * Dikkat Edilmesi Gerekenler:
  * - https://github.com/mapbox/mapbox-gl-js/issues/6463
  * - https://github.com/mapbox/mapbox-gl-js/issues/6112
  */
 
 /*
  *
- * In mathematical terms, Mapbox GL heatmaps are a bivariate (2D) kernel density
- * estimation with a Gaussian kernel. It means that each data point has an area
- * of “influence” around it (called a kernel) where the numerical value of
- * influence (which we call density) decreases as you go further from the point.
- * If we sum density values of all points in every pixel of the screen, we get a
- * combined density value which we then map to a heatmap color.
+ * Matematiksel terimlerle, Mapbox GL ısı haritaları, Gauss çekirdeği ile iki değişkenli (2D) bir çekirdek yoğunluk
+ * tahminidir. Bu, her veri noktasının etrafında bir "etki" alanına sahip olduğu anlamına gelir (çekirdek olarak adlandırılır)
+ * ve etki (yoğunluk olarak adlandırdığımız) sayısal değeri noktadan uzaklaştıkça azalır.
+ * Tüm noktaların yoğunluk değerlerini ekranın her pikselinde toplarsak, birleştirilmiş bir yoğunluk değeri elde ederiz
+ * ve bunu bir ısı haritası rengine eşleriz.
  *
  */
 
@@ -37,9 +37,8 @@ module.exports = extendFlat({
         valType: 'data_array',
         editType: 'calc',
         description: [
-            'Sets the points\' weight.',
-            'For example, a value of 10 would be equivalent to having 10 points of weight 1',
-            'in the same spot'
+            'Noktaların ağırlığını ayarlar.',
+            'Örneğin, 10 değeri, aynı noktada ağırlığı 1 olan 10 noktaya eşdeğer olur.'
         ].join(' ')
     },
 
@@ -50,8 +49,8 @@ module.exports = extendFlat({
         min: 1,
         dflt: 30,
         description: [
-            'Sets the radius of influence of one `lon` / `lat` point in pixels.',
-            'Increasing the value makes the densitymapbox trace smoother, but less detailed.'
+            'Bir `lon` / `lat` noktasının etki yarıçapını pikseller cinsinden ayarlar.',
+            'Değeri artırmak densitymapbox izini daha pürüzsüz hale getirir, ancak daha az ayrıntılı olur.'
         ].join(' ')
     },
 
@@ -59,12 +58,9 @@ module.exports = extendFlat({
         valType: 'string',
         editType: 'plot',
         description: [
-            'Determines if the densitymapbox trace will be inserted',
-            'before the layer with the specified ID.',
-            'By default, densitymapbox traces are placed below the first',
-            'layer of type symbol',
-            'If set to \'\',',
-            'the layer will be inserted above every existing layer.'
+            'Densitymapbox izinin, belirtilen ID\'ye sahip katmanın önüne mi yerleştirileceğini belirler.',
+            'Varsayılan olarak, densitymapbox izleri ilk sembol türündeki katmanın altına yerleştirilir.',
+            'Eğer boş bırakılırsa, katman mevcut tüm katmanların üstüne yerleştirilir.'
         ].join(' ')
     },
 

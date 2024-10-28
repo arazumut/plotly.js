@@ -1,27 +1,31 @@
 'use strict';
 
-var Color = require('../../components/color');
+// Renk bileşenini içe aktar
+var Renk = require('../../components/color');
 
-var heatmapHoverPoints = require('../heatmap/hover');
+// Isı haritası hover noktalarını içe aktar
+var isiharitasiHoverNoktalari = require('../heatmap/hover');
 
-module.exports = function hoverPoints(pointData, xval, yval, hovermode, opts) {
-    if(!opts) opts = {};
-    opts.isContour = true;
+// hoverNoktalari fonksiyonunu dışa aktar
+module.exports = function hoverNoktalari(noktaVerisi, xDegeri, yDegeri, hoverModu, secenekler) {
+    if(!secenekler) secenekler = {};
+    secenekler.konturMu = true;
 
-    var hoverData = heatmapHoverPoints(pointData, xval, yval, hovermode, opts);
+    // Isı haritası hover verilerini al
+    var hoverVerisi = isiharitasiHoverNoktalari(noktaVerisi, xDegeri, yDegeri, hoverModu, secenekler);
 
-    if(hoverData) {
-        hoverData.forEach(function(hoverPt) {
-            var trace = hoverPt.trace;
-            if(trace.contours.type === 'constraint') {
-                if(trace.fillcolor && Color.opacity(trace.fillcolor)) {
-                    hoverPt.color = Color.addOpacity(trace.fillcolor, 1);
-                } else if(trace.contours.showlines && Color.opacity(trace.line.color)) {
-                    hoverPt.color = Color.addOpacity(trace.line.color, 1);
+    if(hoverVerisi) {
+        hoverVerisi.forEach(function(hoverNoktasi) {
+            var iz = hoverNoktasi.iz;
+            if(iz.konturlar.tipi === 'kisitlama') {
+                if(iz.dolguRengi && Renk.seffaflik(iz.dolguRengi)) {
+                    hoverNoktasi.renk = Renk.seffaflikEkle(iz.dolguRengi, 1);
+                } else if(iz.konturlar.cizgileriGoster && Renk.seffaflik(iz.cizgi.renk)) {
+                    hoverNoktasi.renk = Renk.seffaflikEkle(iz.cizgi.renk, 1);
                 }
             }
         });
     }
 
-    return hoverData;
+    return hoverVerisi;
 };

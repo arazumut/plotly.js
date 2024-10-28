@@ -1,23 +1,21 @@
 'use strict';
 
 /*
- * Return a function that evaluates a set of linear or bicubic control points.
- * This will get evaluated a lot, so we'll at least do a bit of extra work to
- * flatten some of the choices. In particular, we'll unroll the linear/bicubic
- * combinations and we'll allow computing results in parallel to cut down
- * on repeated arithmetic.
+ * Bir dizi doğrusal veya bikübik kontrol noktasını değerlendiren bir fonksiyon döndürür.
+ * Bu fonksiyon çok sık değerlendirilecektir, bu yüzden bazı seçimleri düzleştirmek için
+ * biraz ekstra iş yapacağız. Özellikle, doğrusal/bikübik kombinasyonları açacağız ve
+ * tekrarlanan aritmetiği azaltmak için sonuçları paralel olarak hesaplamaya izin vereceğiz.
  *
- * Take note that we don't search for the correct range in this function. The
- * reason is for consistency due to the corrresponding derivative function. In
- * particular, the derivatives aren't continuous across cells, so it's important
- * to be able control whether the derivative at a cell boundary is approached
- * from one side or the other.
+ * Bu fonksiyonda doğru aralığı aramadığımıza dikkat edin. Bunun nedeni, karşılık gelen
+ * türev fonksiyonu nedeniyle tutarlılıktır. Özellikle, türevler hücreler arasında sürekli
+ * değildir, bu yüzden türevin bir hücre sınırında bir taraftan veya diğer taraftan
+ * yaklaşılmasını kontrol edebilmek önemlidir.
  */
-module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
+module.exports = function(diziler, na, nb, aDuzeltme, bDuzeltme) {
     var imax = na - 2;
     var jmax = nb - 2;
 
-    if(asmoothing && bsmoothing) {
+    if(aDuzeltme && bDuzeltme) {
         return function(out, i, j) {
             if(!out) out = [];
             var f0, f1, f2, f3, ak, k;
@@ -27,11 +25,11 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
             var u = Math.max(0, Math.min(1, i - i0));
             var v = Math.max(0, Math.min(1, j - j0));
 
-            // Since it's a grid of control points, the actual indices are * 3:
+            // Kontrol noktalarının bir ızgarası olduğundan, gerçek indeksler * 3'tür:
             i0 *= 3;
             j0 *= 3;
 
-            // Precompute some numbers:
+            // Bazı sayıları önceden hesaplayın:
             var u2 = u * u;
             var u3 = u2 * u;
             var ou = 1 - u;
@@ -44,8 +42,8 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
             var ov2 = ov * ov;
             var ov3 = ov2 * ov;
 
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = ou3 * ak[j0][i0] + 3 * (ou2 * u * ak[j0][i0 + 1] + ou * u2 * ak[j0][i0 + 2]) + u3 * ak[j0][i0 + 3];
                 f1 = ou3 * ak[j0 + 1][i0] + 3 * (ou2 * u * ak[j0 + 1][i0 + 1] + ou * u2 * ak[j0 + 1][i0 + 2]) + u3 * ak[j0 + 1][i0 + 3];
                 f2 = ou3 * ak[j0 + 2][i0] + 3 * (ou2 * u * ak[j0 + 2][i0 + 1] + ou * u2 * ak[j0 + 2][i0 + 2]) + u3 * ak[j0 + 2][i0 + 3];
@@ -55,9 +53,9 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
 
             return out;
         };
-    } else if(asmoothing) {
-        // Handle smooth in the a-direction but linear in the b-direction by performing four
-        // linear interpolations followed by one cubic interpolation of the result
+    } else if(aDuzeltme) {
+        // a yönünde düzgün ama b yönünde doğrusal olan durumu dört doğrusal interpolasyon
+        // ve ardından bir kübik interpolasyon ile ele alın:
         return function(out, i, j) {
             if(!out) out = [];
 
@@ -74,8 +72,8 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
             var ou2 = ou * ou;
             var ou3 = ou2 * ou;
             var ov = 1 - v;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = ov * ak[j0][i0] + v * ak[j0 + 1][i0];
                 f1 = ov * ak[j0][i0 + 1] + v * ak[j0 + 1][i0 + 1];
                 f2 = ov * ak[j0][i0 + 2] + v * ak[j0 + 1][i0 + 1];
@@ -85,8 +83,8 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
             }
             return out;
         };
-    } else if(bsmoothing) {
-        // Same as the above case, except reversed:
+    } else if(bDuzeltme) {
+        // Yukarıdaki durumun tersine:
         return function(out, i, j) {
             if(!out) out = [];
 
@@ -103,8 +101,8 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
             var ov2 = ov * ov;
             var ov3 = ov2 * ov;
             var ou = 1 - u;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = ou * ak[j0][i0] + u * ak[j0][i0 + 1];
                 f1 = ou * ak[j0 + 1][i0] + u * ak[j0 + 1][i0 + 1];
                 f2 = ou * ak[j0 + 2][i0] + u * ak[j0 + 2][i0 + 1];
@@ -115,7 +113,7 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
             return out;
         };
     } else {
-        // Finally, both directions are linear:
+        // Son olarak, her iki yönde de doğrusal:
         return function(out, i, j) {
             if(!out) out = [];
 
@@ -127,8 +125,8 @@ module.exports = function(arrays, na, nb, asmoothing, bsmoothing) {
             var f0, f1, k, ak;
             var ov = 1 - v;
             var ou = 1 - u;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = ou * ak[j0][i0] + u * ak[j0][i0 + 1];
                 f1 = ou * ak[j0 + 1][i0] + u * ak[j0 + 1][i0 + 1];
 

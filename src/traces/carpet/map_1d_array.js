@@ -3,19 +3,17 @@
 var isArrayOrTypedArray = require('../../lib').isArrayOrTypedArray;
 
 /*
- * Map an array of x or y coordinates (c) to screen-space pixel coordinates (p).
- * The output array is optional, but if provided, it will be reused without
- * reallocation to the extent possible.
+ * Bir x veya y koordinatları dizisini (c) ekran alanı piksel koordinatlarına (p) eşleyin.
+ * Çıktı dizisi isteğe bağlıdır, ancak sağlanırsa, mümkün olduğunca yeniden tahsis edilmeden yeniden kullanılacaktır.
  */
-module.exports = function mapArray(out, data, func) {
+module.exports = function diziEşle(out, data, func) {
     var i;
 
     if(!isArrayOrTypedArray(out)) {
-        // If not an array, make it an array:
+        // Eğer bir dizi değilse, bir dizi yap:
         out = [];
     } else if(out.length > data.length) {
-        // If too long, truncate. (If too short, it will grow
-        // automatically so we don't care about that case)
+        // Eğer çok uzunsa, kısalt. (Eğer çok kısa ise, otomatik olarak büyüyeceği için bu durumu önemsemiyoruz)
         out = out.slice(0, data.length);
     }
 

@@ -1,88 +1,79 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var choroplethAttrs = require('../choropleth/attributes');
 var colorScaleAttrs = require('../../components/colorscale/attributes');
 var hovertemplateAttrs = require('../../plots/template_attributes').hovertemplateAttrs;
 var baseAttrs = require('../../plots/attributes');
 var extendFlat = require('../../lib/extend').extendFlat;
 
+// Modülü dışa aktar
 module.exports = extendFlat({
+    // Konumları ayarla
     locations: {
         valType: 'data_array',
         editType: 'calc',
         description: [
-            'Sets which features found in *geojson* to plot using',
-            'their feature `id` field.'
+            '*geojson* içinde bulunan özelliklerin',
+            'özellik `id` alanını kullanarak çizileceğini ayarlar.'
         ].join(' ')
     },
 
-    // TODO
-    // Maybe start with only one value (that we could name e.g. 'geojson-id'),
-    // but eventually:
-    // - we could also support for our own dist/topojson/*
-    //   .. and locationmode: choroplethAttrs.locationmode,
-
+    // Renk değerlerini ayarla
     z: {
         valType: 'data_array',
         editType: 'calc',
-        description: 'Sets the color values.'
+        description: 'Renk değerlerini ayarlar.'
     },
 
-    // TODO maybe we could also set a "key" to dig out values out of the
-    // GeoJSON feature `properties` fields?
-
+    // GeoJSON verilerini ayarla
     geojson: {
         valType: 'any',
         editType: 'calc',
         description: [
-            'Sets the GeoJSON data associated with this trace.',
-
-            'It can be set as a valid GeoJSON object or as a URL string.',
-            'Note that we only accept GeoJSONs of type *FeatureCollection* or *Feature*',
-            'with geometries of type *Polygon* or *MultiPolygon*.'
+            'Bu iz ile ilişkili GeoJSON verilerini ayarlar.',
+            'Geçerli bir GeoJSON nesnesi veya bir URL dizesi olarak ayarlanabilir.',
+            'Yalnızca *FeatureCollection* veya *Feature* türünde GeoJSON\'ları kabul ederiz',
+            've geometrileri *Polygon* veya *MultiPolygon* türünde olmalıdır.'
         ].join(' ')
     },
     featureidkey: extendFlat({}, choroplethAttrs.featureidkey, {
         description: [
-            'Sets the key in GeoJSON features which is used as id to match the items',
-            'included in the `locations` array.',
-            'Support nested property, for example *properties.name*.'
+            'GeoJSON özelliklerinde, `locations` dizisindeki öğelerle eşleşmek için',
+            'kullanılan anahtarı ayarlar.',
+            'Örneğin *properties.name* gibi iç içe geçmiş özellikleri destekler.'
         ].join(' ')
     }),
 
-    // TODO agree on name / behaviour
-    //
-    // 'below' is used currently for layout.mapbox.layers,
-    // even though it's not very plotly-esque.
-    //
-    // Note also, that the mapbox-gl style don't all have the same layers,
-    // see https://codepen.io/etpinard/pen/ydVMwM for full list
+    // Katmanların yerleştirilme sırasını ayarla
     below: {
         valType: 'string',
         editType: 'plot',
         description: [
-            'Determines if the choropleth polygons will be inserted',
-            'before the layer with the specified ID.',
-            'By default, choroplethmapbox traces are placed above the water layers.',
-            'If set to \'\',',
-            'the layer will be inserted above every existing layer.'
+            'Choropleth poligonlarının, belirtilen ID\'ye sahip katmanın',
+            'öncesine yerleştirilip yerleştirilmeyeceğini belirler.',
+            'Varsayılan olarak, choroplethmapbox izleri su katmanlarının üzerine yerleştirilir.',
+            'Eğer boş bırakılırsa,',
+            'katman mevcut tüm katmanların üzerine yerleştirilir.'
         ].join(' ')
     },
 
+    // Metin ve hover metin özelliklerini ayarla
     text: choroplethAttrs.text,
     hovertext: choroplethAttrs.hovertext,
 
+    // Marker özelliklerini ayarla
     marker: {
         line: {
             color: extendFlat({}, choroplethAttrs.marker.line.color, {editType: 'plot'}),
             width: extendFlat({}, choroplethAttrs.marker.line.width, {editType: 'plot'}),
             editType: 'calc'
         },
-        // TODO maybe having a dflt less than 1, together with `below:''` would be better?
         opacity: extendFlat({}, choroplethAttrs.marker.opacity, {editType: 'plot'}),
         editType: 'calc'
     },
 
+    // Seçili ve seçilmemiş marker özelliklerini ayarla
     selected: {
         marker: {
             opacity: extendFlat({}, choroplethAttrs.selected.marker.opacity, {editType: 'plot'}),
@@ -98,11 +89,15 @@ module.exports = extendFlat({
         editType: 'plot'
     },
 
+    // Hover bilgi ve hover şablon özelliklerini ayarla
     hoverinfo: choroplethAttrs.hoverinfo,
     hovertemplate: hovertemplateAttrs({}, {keys: ['properties']}),
+
+    // Legend gösterimini ayarla
     showlegend: extendFlat({}, baseAttrs.showlegend, {dflt: false})
 },
 
+    // Renk skalası özelliklerini ayarla
     colorScaleAttrs('', {
         cLetter: 'z',
         editTypeOverride: 'calc'

@@ -1,5 +1,6 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var heatmapAttrs = require('../heatmap/attributes');
 var contourAttrs = require('../contour/attributes');
 var colorScaleAttrs = require('../../components/colorscale/attributes');
@@ -8,12 +9,13 @@ var extendFlat = require('../../lib/extend').extendFlat;
 
 var contourContourAttrs = contourAttrs.contours;
 
+// Modülü dışa aktar
 module.exports = extendFlat({
     carpet: {
         valType: 'string',
         editType: 'calc',
         description: [
-            'The `carpet` of the carpet axes on which this contour trace lies'
+            'Bu kontur izinin bulunduğu halı eksenlerinin `carpet` değeri'
         ].join(' ')
     },
     z: heatmapAttrs.z,
@@ -40,16 +42,16 @@ module.exports = extendFlat({
         end: contourContourAttrs.end,
         size: contourContourAttrs.size,
         coloring: {
-            // from contourAttrs.contours.coloring but no 'heatmap' option
+            // contourAttrs.contours.coloring'den ama 'heatmap' seçeneği yok
             valType: 'enumerated',
             values: ['fill', 'lines', 'none'],
             dflt: 'fill',
             editType: 'calc',
             description: [
-                'Determines the coloring method showing the contour values.',
-                'If *fill*, coloring is done evenly between each contour level',
-                'If *lines*, coloring is done on the contour lines.',
-                'If *none*, no coloring is applied on this trace.'
+                'Kontur değerlerini gösteren renklendirme yöntemini belirler.',
+                '*fill* ise, her kontur seviyesi arasında eşit renklendirme yapılır.',
+                '*lines* ise, renklendirme kontur çizgilerinde yapılır.',
+                '*none* ise, bu izde renklendirme uygulanmaz.'
             ].join(' ')
         },
         showlines: contourContourAttrs.showlines,

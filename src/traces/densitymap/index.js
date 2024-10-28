@@ -1,20 +1,29 @@
 'use strict';
 
+// Modül dışa aktarımı
 module.exports = {
+    // Özellikler
     attributes: require('./attributes'),
+    // Varsayılan değerleri sağlama
     supplyDefaults: require('./defaults'),
+    // Renk çubuğu
     colorbar: require('../heatmap/colorbar'),
+    // Etiket formatlama
     formatLabels: require('../scattermap/format_labels'),
+    // Hesaplama
     calc: require('./calc'),
+    // Çizim
     plot: require('./plot'),
+    // Hover noktaları
     hoverPoints: require('./hover'),
+    // Olay verisi
     eventData: require('./event_data'),
 
+    // Altında bulunacak katmanı getirme fonksiyonu
     getBelow: function(trace, subplot) {
         var mapLayers = subplot.getMapLayers();
 
-        // find first layer with `type: 'symbol'`,
-        // that is not a plotly layer
+        // `type: 'symbol'` olan ve plotly katmanı olmayan ilk katmanı bul
         for(var i = 0; i < mapLayers.length; i++) {
             var layer = mapLayers[i];
             var layerId = layer.id;
@@ -26,15 +35,20 @@ module.exports = {
         }
     },
 
+    // Modül tipi
     moduleType: 'trace',
+    // Modül adı
     name: 'densitymap',
+    // Temel çizim modülü
     basePlotModule: require('../../plots/map'),
+    // Kategoriler
     categories: ['map', 'gl', 'showLegend'],
+    // Meta veriler
     meta: {
         hr_name: 'density_map',
         description: [
-            'Draws a bivariate kernel density estimation with a Gaussian kernel',
-            'from `lon` and `lat` coordinates and optional `z` values using a colorscale.'
+            'Gauss çekirdeği ile iki değişkenli bir yoğunluk tahmini çizer',
+            '`lon` ve `lat` koordinatlarından ve isteğe bağlı `z` değerlerinden bir renk skalası kullanarak.'
         ].join(' ')
     }
 };

@@ -1,28 +1,29 @@
 'use strict';
 
+// Gerekli modülleri içe aktarıyoruz
 module.exports = {
-    attributes: require('./attributes'),
-    supplyDefaults: require('./defaults'),
-    calc: require('./calc'),
-    plot: require('./plot').plot,
-    style: require('./style'),
-    colorbar: require('./colorbar'),
-    hoverPoints: require('./hover'),
+    attributes: require('./attributes'), // Özellikler
+    supplyDefaults: require('./defaults'), // Varsayılan değerleri sağla
+    calc: require('./calc'), // Hesaplama fonksiyonu
+    plot: require('./plot').plot, // Çizim fonksiyonu
+    style: require('./style'), // Stil fonksiyonu
+    colorbar: require('./colorbar'), // Renk çubuğu
+    hoverPoints: require('./hover'), // Üzerine gelindiğinde gösterilecek noktalar
 
-    moduleType: 'trace',
-    name: 'contour',
-    basePlotModule: require('../../plots/cartesian'),
-    categories: ['cartesian', 'svg', '2dMap', 'contour', 'showLegend'],
+    moduleType: 'trace', // Modül tipi
+    name: 'contour', // Modül adı
+    basePlotModule: require('../../plots/cartesian'), // Temel çizim modülü
+    categories: ['cartesian', 'svg', '2dMap', 'contour', 'showLegend'], // Kategoriler
     meta: {
         description: [
-            'The data from which contour lines are computed is set in `z`.',
-            'Data in `z` must be a {2D array} of numbers.',
+            'Kontur çizgilerinin hesaplandığı veri `z` içinde ayarlanır.',
+            '`z` içindeki veri {2D array} (2 boyutlu dizi) olmalıdır.',
 
-            'Say that `z` has N rows and M columns, then by default,',
-            'these N rows correspond to N y coordinates',
-            '(set in `y` or auto-generated) and the M columns',
-            'correspond to M x coordinates (set in `x` or auto-generated).',
-            'By setting `transpose` to *true*, the above behavior is flipped.'
+            '`z` N satır ve M sütun içeriyorsa, varsayılan olarak,',
+            'bu N satır N y koordinatına karşılık gelir',
+            '(`y` içinde ayarlanır veya otomatik olarak oluşturulur) ve M sütun',
+            'M x koordinatına karşılık gelir (`x` içinde ayarlanır veya otomatik olarak oluşturulur).',
+            '`transpose` *true* olarak ayarlandığında, yukarıdaki davranış tersine çevrilir.'
         ].join(' ')
     }
 };

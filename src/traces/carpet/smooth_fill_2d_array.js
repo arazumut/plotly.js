@@ -3,16 +3,17 @@
 var Lib = require('../../lib');
 
 /*
- * Given a 2D array as well as a basis in either direction, this function fills in the
- * 2D array using a combination of smoothing and extrapolation. This is rather important
- * for carpet plots since it's used for layout so that we can't simply omit or blank out
- * points. We need a reasonable guess so that the interpolation puts points somewhere
- * even if we were to somehow represent that the data was missing later on.
+ * Verilen bir 2D dizi ve her iki yönde bir temel ile, bu fonksiyon 2D diziyi
+ * yumuşatma ve ekstrapolasyon kombinasyonu kullanarak doldurur. Bu, halı grafikleri
+ * için oldukça önemlidir çünkü düzenleme için kullanılır, bu yüzden noktaları
+ * basitçe atlayamayız veya boş bırakamayız. Verilerin eksik olduğunu daha sonra
+ * bir şekilde temsil etsek bile, interpolasyonun noktaları bir yere koyması için
+ * makul bir tahmine ihtiyacımız var.
  *
- * input:
- *  - data: 2D array of arrays
- *  - a: array such that a.length === data[0].length
- *  - b: array such that b.length === data.length
+ * giriş:
+ *  - data: 2D dizi
+ *  - a: a.length === data[0].length olacak şekilde bir dizi
+ *  - b: b.length === data.length olacak şekilde bir dizi
  */
 module.exports = function smoothFill2dArray(data, a, b) {
     var i, j, k;
@@ -24,8 +25,8 @@ module.exports = function smoothFill2dArray(data, a, b) {
     var nj = data.length;
 
     function avgSurrounding(i, j) {
-        // As a low-quality start, we can simply average surrounding points (in a not
-        // non-uniform grid aware manner):
+        // Düşük kaliteli bir başlangıç olarak, çevredeki noktaları basitçe ortalayabiliriz
+        // (uniform olmayan bir ızgara farkındalığı olmadan):
         var sum = 0.0;
         var val;
         var cnt = 0;
@@ -48,11 +49,10 @@ module.exports = function smoothFill2dArray(data, a, b) {
         return sum / Math.max(1, cnt);
     }
 
-    // This loop iterates over all cells. Any cells that are null will be noted and those
-    // are the only points we will loop over and update via laplace's equation. Points with
-    // any neighbors will receive the average. If there are no neighboring points, then they
-    // will be set to zero. Also as we go, track the maximum magnitude so that we can scale
-    // our tolerance accordingly.
+    // Bu döngü tüm hücreler üzerinde iterasyon yapar. Null olan hücreler not edilir ve
+    // sadece bu noktalar Laplace denklemi ile güncellenir. Komşuları olan noktalar ortalama
+    // alır. Hiç komşusu olmayan noktalar sıfıra ayarlanır. Ayrıca maksimum büyüklüğü izleyerek
+    // toleransımızı buna göre ölçeklendirebiliriz.
     var dmax = 0.0;
     for(i = 0; i < ni; i++) {
         for(j = 0; j < nj; j++) {
@@ -69,7 +69,7 @@ module.exports = function smoothFill2dArray(data, a, b) {
 
     if(!ip.length) return data;
 
-    // The tolerance doesn't need to be excessive. It's just for display positioning
+    // Toleransın aşırı olması gerekmez. Bu sadece görüntüleme pozisyonlaması içindir.
     var dxp, dxm, dap, dam, dbp, dbm, c, d, diff, reldiff, overrelaxation;
     var tol = 1e-5;
     var resid = 0;
@@ -78,25 +78,25 @@ module.exports = function smoothFill2dArray(data, a, b) {
     var n = ip.length;
     do {
         resid = 0;
-        // Normally we'd loop in two dimensions, but not all points are blank and need
-        // an update, so we instead loop only over the points that were tabulated above
+        // Normalde iki boyutta döngü yapardık, ancak tüm noktalar boş değil ve güncellenmesi
+        // gerekmiyor, bu yüzden sadece yukarıda tablolanan noktalar üzerinde döngü yapıyoruz.
         for(k = 0; k < n; k++) {
             i = ip[k];
             j = jp[k];
             // neighborCnt = neighborCnts[k];
 
-            // Track a counter for how many contributions there are. We'll use this counter
-            // to average at the end, which reduces to laplace's equation with neumann boundary
-            // conditions on the first derivative (second derivative is zero so that we get
-            // a nice linear extrapolation at the boundaries).
+            // Kaç katkı olduğunu izlemek için bir sayaç izleyin. Bu sayacı sonunda ortalamak
+            // için kullanacağız, bu da Neumann sınır koşulları ile Laplace denklemi ile
+            // ikinci türev sıfır olacak şekilde sınırda güzel bir doğrusal ekstrapolasyon
+            // elde ederiz.
             var boundaryCnt = 0;
             var newVal = 0;
 
             var d0, d1, x0, x1, i0, j0;
             if(i === 0) {
-                // If this lies along the i = 0 boundary, extrapolate from the two points
-                // to the right of this point. Note that the finite differences take into
-                // account non-uniform grid spacing:
+                // Bu, i = 0 sınırı boyunca yatıyorsa, bu noktadan sağdaki iki noktadan
+                // ekstrapolasyon yapın. Sonlu farklar, uniform olmayan ızgara aralıklarını
+                // dikkate alır:
                 i0 = Math.min(ni - 1, 2);
                 x0 = a[i0];
                 x1 = a[1];
@@ -105,8 +105,7 @@ module.exports = function smoothFill2dArray(data, a, b) {
                 newVal += d1 + (d1 - d0) * (a[0] - x1) / (x1 - x0);
                 boundaryCnt++;
             } else if(i === ni - 1) {
-                // If along the high i boundary, extrapolate from the two points to the
-                // left of this point
+                // Yüksek i sınırı boyunca, bu noktadan solundaki iki noktadan ekstrapolasyon yapın.
                 i0 = Math.max(0, ni - 3);
                 x0 = a[i0];
                 x1 = a[ni - 2];
@@ -117,9 +116,9 @@ module.exports = function smoothFill2dArray(data, a, b) {
             }
 
             if((i === 0 || i === ni - 1) && (j > 0 && j < nj - 1)) {
-                // If along the min(i) or max(i) boundaries, also smooth vertically as long
-                // as we're not in a corner. Note that the finite differences used here
-                // are also aware of nonuniform grid spacing:
+                // Min(i) veya max(i) sınırları boyunca, köşede olmadığımız sürece dikey olarak
+                // da yumuşatın. Burada kullanılan sonlu farklar da uniform olmayan ızgara
+                // aralıklarını dikkate alır:
                 dxp = b[j + 1] - b[j];
                 dxm = b[j] - b[j - 1];
                 newVal += (dxm * data[j + 1][i] + dxp * data[j - 1][i]) / (dxm + dxp);
@@ -127,8 +126,7 @@ module.exports = function smoothFill2dArray(data, a, b) {
             }
 
             if(j === 0) {
-                // If along the j = 0 boundary, extrpolate this point from the two points
-                // above it
+                // j = 0 sınırı boyunca, bu noktayı yukarısındaki iki noktadan ekstrapolasyon yapın.
                 j0 = Math.min(nj - 1, 2);
                 x0 = b[j0];
                 x1 = b[1];
@@ -137,7 +135,7 @@ module.exports = function smoothFill2dArray(data, a, b) {
                 newVal += d1 + (d1 - d0) * (b[0] - x1) / (x1 - x0);
                 boundaryCnt++;
             } else if(j === nj - 1) {
-                // Same for the max j boundary from the cells below it:
+                // Aynı şekilde, max j sınırı için aşağıdaki hücrelerden:
                 j0 = Math.max(0, nj - 3);
                 x0 = b[j0];
                 x1 = b[nj - 2];
@@ -148,7 +146,7 @@ module.exports = function smoothFill2dArray(data, a, b) {
             }
 
             if((j === 0 || j === nj - 1) && (i > 0 && i < ni - 1)) {
-                // Now average points to the left/right as long as not in a corner:
+                // Şimdi köşede olmadığımız sürece sola/sağa noktaları ortalayın:
                 dxp = a[i + 1] - a[i];
                 dxm = a[i] - a[i - 1];
                 newVal += (dxm * data[j][i + 1] + dxp * data[j][i - 1]) / (dxm + dxp);
@@ -156,16 +154,16 @@ module.exports = function smoothFill2dArray(data, a, b) {
             }
 
             if(!boundaryCnt) {
-                // If none of the above conditions were triggered, then this is an interior
-                // point and we can just do a laplace equation update. As above, these differences
-                // are aware of nonuniform grid spacing:
+                // Yukarıdaki koşullardan hiçbiri tetiklenmediyse, bu bir iç noktadır ve
+                // sadece Laplace denklemi güncellemesi yapabiliriz. Yukarıda olduğu gibi,
+                // bu farklar uniform olmayan ızgara aralıklarını dikkate alır:
                 dap = a[i + 1] - a[i];
                 dam = a[i] - a[i - 1];
                 dbp = b[j + 1] - b[j];
                 dbm = b[j] - b[j - 1];
 
-                // These are just some useful constants for the iteration, which is perfectly
-                // straightforward but a little long to derive from f_xx + f_yy = 0.
+                // Bunlar iterasyon için kullanışlı sabitlerdir, bu oldukça basit ama
+                // f_xx + f_yy = 0'dan türetmek biraz uzun sürer.
                 c = dap * dam * (dap + dam);
                 d = dbp * dbm * (dbp + dbm);
 
@@ -173,31 +171,29 @@ module.exports = function smoothFill2dArray(data, a, b) {
                           d * (dam * data[j][i + 1] + dap * data[j][i - 1])) /
                           (d * (dam + dap) + c * (dbm + dbp));
             } else {
-                // If we did have contributions from the boundary conditions, then average
-                // the result from the various contributions:
+                // Sınır koşullarından katkılarımız varsa, çeşitli katkılardan sonucu ortalayın:
                 newVal /= boundaryCnt;
             }
 
-            // Jacobi updates are ridiculously slow to converge, so this approach uses a
-            // Gauss-seidel iteration which is dramatically faster.
+            // Jacobi güncellemeleri inanılmaz derecede yavaş bir şekilde yakınsar, bu yüzden
+            // bu yaklaşım çok daha hızlı olan Gauss-Seidel iterasyonunu kullanır.
             diff = newVal - data[j][i];
             reldiff = diff / dmax;
             resid += reldiff * reldiff;
 
-            // Gauss-Seidel-ish iteration, omega chosen based on heuristics and some
-            // quick tests.
+            // Gauss-Seidel benzeri iterasyon, omega bazı heuristikler ve hızlı testler
+            // temelinde seçilmiştir.
             //
-            // NB: Don't overrelax the boundarie. Otherwise set an overrelaxation factor
-            // which is a little low but safely optimal-ish:
+            // NB: Sınırları aşırı rahatlatmayın. Aksi takdirde, güvenli bir şekilde optimal
+            // olan düşük bir aşırı rahatlama faktörü ayarlayın:
             overrelaxation = boundaryCnt ? 0 : 0.85;
 
-            // If there are four non-null neighbors, then we want a simple average without
-            // overrelaxation. If all the surrounding points are null, then we want the full
-            // overrelaxation
+            // Eğer dört null olmayan komşu varsa, aşırı rahatlama olmadan basit bir ortalama
+            // isteriz. Tüm çevredeki noktalar null ise, tam aşırı rahatlama isteriz.
             //
-            // Based on experiments, this actually seems to slow down convergence just a bit.
-            // I'll leave it here for reference in case this needs to be revisited, but
-            // it seems to work just fine without this.
+            // Deneylere dayanarak, bu aslında yakınsama hızını biraz yavaşlatıyor gibi görünüyor.
+            // Referans için burada bırakacağım, eğer bu yeniden gözden geçirilmesi gerekirse,
+            // ancak bu şekilde gayet iyi çalışıyor gibi görünüyor.
             // if (overrelaxation) overrelaxation *= (4 - neighborCnt) / 4;
 
             data[j][i] += diff * (1 + overrelaxation);
@@ -206,7 +202,7 @@ module.exports = function smoothFill2dArray(data, a, b) {
         resid = Math.sqrt(resid);
     } while(iter++ < itermax && resid > tol);
 
-    Lib.log('Smoother converged to', resid, 'after', iter, 'iterations');
+    Lib.log('Yumuşatıcı', iter, 'iterasyondan sonra', resid, 'ile yakınsadı');
 
     return data;
 };

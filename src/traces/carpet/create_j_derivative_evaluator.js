@@ -1,16 +1,17 @@
 'use strict';
 
-module.exports = function(arrays, asmoothing, bsmoothing) {
-    if(asmoothing && bsmoothing) {
+// Bu modül, verilen bir dizi ve yumuşatma parametrelerine göre türev hesaplayıcı fonksiyon döndürür.
+module.exports = function(diziler, aYumusatma, bYumusatma) {
+    if(aYumusatma && bYumusatma) {
         return function(out, i0, j0, u, v) {
             if(!out) out = [];
             var f0, f1, f2, f3, ak, k;
 
-            // Since it's a grid of control points, the actual indices are * 3:
+            // Kontrol noktalarının bir ızgarası olduğu için, gerçek indeksler * 3 ile çarpılır:
             i0 *= 3;
             j0 *= 3;
 
-            // Precompute some numbers:
+            // Bazı sayıları önceden hesapla:
             var u2 = u * u;
             var u3 = u2 * u;
             var ou = 1 - u;
@@ -26,24 +27,23 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
             var c = 3 * (ovv2 - v2);
             var d = 3 * v2;
 
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
 
-                // Compute the derivatives in the v-direction:
+                // v yönünde türevleri hesapla:
                 f0 = a * ak[j0][i0] + b * ak[j0 + 1][i0] + c * ak[j0 + 2][i0] + d * ak[j0 + 3][i0];
                 f1 = a * ak[j0][i0 + 1] + b * ak[j0 + 1][i0 + 1] + c * ak[j0 + 2][i0 + 1] + d * ak[j0 + 3][i0 + 1];
                 f2 = a * ak[j0][i0 + 2] + b * ak[j0 + 1][i0 + 2] + c * ak[j0 + 2][i0 + 2] + d * ak[j0 + 3][i0 + 2];
                 f3 = a * ak[j0][i0 + 3] + b * ak[j0 + 1][i0 + 3] + c * ak[j0 + 2][i0 + 3] + d * ak[j0 + 3][i0 + 3];
 
-                // Now just interpolate in the v-direction since it's all separable:
+                // Şimdi v yönünde interpolasyon yap:
                 out[k] = ou3 * f0 + 3 * (ou2 * u * f1 + ou * u2 * f2) + u3 * f3;
             }
 
             return out;
         };
-    } else if(asmoothing) {
-        // Handle smooth in the a-direction but linear in the b-direction by performing four
-        // linear interpolations followed by one cubic interpolation of the result
+    } else if(aYumusatma) {
+        // a yönünde yumuşatma, b yönünde lineer interpolasyon yapar
         return function(out, i0, j0, v, u) {
             if(!out) out = [];
             var f0, f1, f2, f3, k, ak;
@@ -53,8 +53,8 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
             var ou = 1 - u;
             var ou2 = ou * ou;
             var ou3 = ou2 * ou;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
 
                 f0 = ak[j0 + 1][i0] - ak[j0][i0];
                 f1 = ak[j0 + 1][i0 + 1] - ak[j0][i0 + 1];
@@ -62,19 +62,12 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
                 f3 = ak[j0 + 1][i0 + 3] - ak[j0][i0 + 3];
 
                 out[k] = ou3 * f0 + 3 * (ou2 * u * f1 + ou * u2 * f2) + u3 * f3;
-
-                // mathematically equivalent:
-                // f0 = ou3 * ak[j0    ][i0] + 3 * (ou2 * u * ak[j0    ][i0 + 1] + ou * u2 * ak[j0    ][i0 + 2]) + u3 * ak[j0    ][i0 + 3];
-                // f1 = ou3 * ak[j0 + 1][i0] + 3 * (ou2 * u * ak[j0 + 1][i0 + 1] + ou * u2 * ak[j0 + 1][i0 + 2]) + u3 * ak[j0 + 1][i0 + 3];
-                // out[k] = f1 - f0;
             }
             return out;
         };
-    } else if(bsmoothing) {
-        // Same as the above case, except reversed:
-        /* eslint-disable no-unused-vars */
+    } else if(bYumusatma) {
+        // Yukarıdaki durumun tersini yapar:
         return function(out, i0, j0, u, v) {
-        /* eslint-enable no-unused-vars */
             if(!out) out = [];
             var f0, f1, k, ak;
             j0 *= 3;
@@ -87,8 +80,8 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
             var b = 3 * (ov2 - ovv2);
             var c = 3 * (ovv2 - v2);
             var d = 3 * v2;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = a * ak[j0][i0] + b * ak[j0 + 1][i0] + c * ak[j0 + 2][i0] + d * ak[j0 + 3][i0];
                 f1 = a * ak[j0][i0 + 1] + b * ak[j0 + 1][i0 + 1] + c * ak[j0 + 2][i0 + 1] + d * ak[j0 + 3][i0 + 1];
 
@@ -97,15 +90,13 @@ module.exports = function(arrays, asmoothing, bsmoothing) {
             return out;
         };
     } else {
-        // Finally, both directions are linear:
-        /* eslint-disable no-unused-vars */
+        // Son olarak, her iki yönde de lineer interpolasyon yapar:
         return function(out, i0, j0, v, u) {
-        /* eslint-enable no-unused-vars */
             if(!out) out = [];
             var f0, f1, k, ak;
             var ov = 1 - v;
-            for(k = 0; k < arrays.length; k++) {
-                ak = arrays[k];
+            for(k = 0; k < diziler.length; k++) {
+                ak = diziler[k];
                 f0 = ak[j0 + 1][i0] - ak[j0][i0];
                 f1 = ak[j0 + 1][i0 + 1] - ak[j0][i0 + 1];
 

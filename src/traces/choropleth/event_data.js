@@ -1,13 +1,14 @@
 'use strict';
 
-module.exports = function eventData(out, pt, trace, cd, pointNumber) {
-    out.location = pt.location;
+// Bu modül, olay verilerini işlemek için kullanılır
+module.exports = function olayVerisi(out, pt, iz, cd, noktaNumarası) {
+    out.konum = pt.konum;
     out.z = pt.z;
 
-    // include feature properties from input geojson
-    var cdi = cd[pointNumber];
-    if(cdi.fIn && cdi.fIn.properties) {
-        out.properties = cdi.fIn.properties;
+    // Girdi geojson'dan özellikleri dahil et
+    var cdi = cd[noktaNumarası];
+    if(cdi.fIn && cdi.fIn.özellikler) {
+        out.özellikler = cdi.fIn.özellikler;
     }
     out.ct = cdi.ct;
 
