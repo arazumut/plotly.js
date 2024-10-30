@@ -1,8 +1,10 @@
 'use strict';
 
+// Gerekli modülleri dahil et
 var convert = require('./convert');
 var LAYER_PREFIX = require('../../plots/mapbox/constants').traceLayerPrefix;
 
+// DensityMapbox sınıfını tanımla
 function DensityMapbox(subplot, uid) {
     this.type = 'densitymapbox';
     this.subplot = subplot;
@@ -14,13 +16,14 @@ function DensityMapbox(subplot, uid) {
         ['heatmap', LAYER_PREFIX + uid + '-heatmap']
     ];
 
-    // previous 'below' value,
-    // need this to update it properly
+    // Önceki 'below' değeri,
+    // bunu düzgün bir şekilde güncellemek için gerekli
     this.below = null;
 }
 
 var proto = DensityMapbox.prototype;
 
+// DensityMapbox güncelleme fonksiyonu
 proto.update = function(calcTrace) {
     var subplot = this.subplot;
     var layerList = this.layerList;
@@ -51,6 +54,7 @@ proto.update = function(calcTrace) {
     }
 };
 
+// Yeni katmanlar ekleme fonksiyonu
 proto._addLayers = function(optsAll, below) {
     var subplot = this.subplot;
     var layerList = this.layerList;
@@ -59,11 +63,12 @@ proto._addLayers = function(optsAll, below) {
     for(var i = 0; i < layerList.length; i++) {
         var item = layerList[i];
         var k = item[0];
+        var id = item[1];
         var opts = optsAll[k];
 
-        subplot.addLayer({
+        subplot.map.addLayer({
+            id: id,
             type: k,
-            id: item[1],
             source: sourceId,
             layout: opts.layout,
             paint: opts.paint
@@ -71,6 +76,7 @@ proto._addLayers = function(optsAll, below) {
     }
 };
 
+// Katmanları kaldırma fonksiyonu
 proto._removeLayers = function() {
     var map = this.subplot.map;
     var layerList = this.layerList;
@@ -80,12 +86,14 @@ proto._removeLayers = function() {
     }
 };
 
+// Kaynakları temizleme fonksiyonu
 proto.dispose = function() {
     var map = this.subplot.map;
     this._removeLayers();
     map.removeSource(this.sourceId);
 };
 
+// DensityMapbox oluşturma fonksiyonu
 module.exports = function createDensityMapbox(subplot, calcTrace) {
     var trace = calcTrace[0].trace;
     var densityMapbox = new DensityMapbox(subplot, trace.uid);

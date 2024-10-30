@@ -1,47 +1,47 @@
 'use strict';
 
+// Uyarı mesajı: densitymapbox izleme türü artık kullanılmıyor
 var deprecationWarning = [
-    '*densitymapbox* trace is deprecated!',
-    'Please consider switching to the *densitymap* trace type and `map` subplots.',
-    'Learn more at: https://plotly.com/javascript/maplibre-migration/'
+    '*densitymapbox* izleme türü artık kullanılmıyor!',
+    '*densitymap* izleme türüne ve `map` alt grafiklerine geçmeyi düşünün.',
+    'Daha fazla bilgi için: https://plotly.com/javascript/maplibre-migration/'
 ].join(' ');
 
 module.exports = {
-    attributes: require('./attributes'),
-    supplyDefaults: require('./defaults'),
-    colorbar: require('../heatmap/colorbar'),
-    formatLabels: require('../scattermapbox/format_labels'),
-    calc: require('./calc'),
-    plot: require('./plot'),
-    hoverPoints: require('./hover'),
-    eventData: require('./event_data'),
+    özellikler: require('./attributes'), // Özellikler
+    varsayılanlarıSağla: require('./defaults'), // Varsayılanları sağla
+    renkÇubuğu: require('../heatmap/colorbar'), // Renk çubuğu
+    etiketleriFormatla: require('../scattermapbox/format_labels'), // Etiketleri formatla
+    hesapla: require('./calc'), // Hesapla
+    çiz: require('./plot'), // Çiz
+    üzerineGelinenNoktalar: require('./hover'), // Üzerine gelinen noktalar
+    olayVerisi: require('./event_data'), // Olay verisi
 
-    getBelow: function(trace, subplot) {
-        var mapLayers = subplot.getMapLayers();
+    altKatmanAl: function(izleme, altGrafik) {
+        var haritaKatmanları = altGrafik.getMapLayers();
 
-        // find first layer with `type: 'symbol'`,
-        // that is not a plotly layer
-        for(var i = 0; i < mapLayers.length; i++) {
-            var layer = mapLayers[i];
-            var layerId = layer.id;
-            if(layer.type === 'symbol' &&
-                typeof layerId === 'string' && layerId.indexOf('plotly-') === -1
+        // `type: 'symbol'` olan ve plotly katmanı olmayan ilk katmanı bul
+        for(var i = 0; i < haritaKatmanları.length; i++) {
+            var katman = haritaKatmanları[i];
+            var katmanId = katman.id;
+            if(katman.type === 'symbol' &&
+                typeof katmanId === 'string' && katmanId.indexOf('plotly-') === -1
             ) {
-                return layerId;
+                return katmanId;
             }
         }
     },
 
-    moduleType: 'trace',
-    name: 'densitymapbox',
-    basePlotModule: require('../../plots/mapbox'),
-    categories: ['mapbox', 'gl', 'showLegend'],
+    modülTürü: 'izleme', // Modül türü: izleme
+    adı: 'densitymapbox', // Adı: densitymapbox
+    temelÇizimModülü: require('../../plots/mapbox'), // Temel çizim modülü
+    kategoriler: ['mapbox', 'gl', 'showLegend'], // Kategoriler
     meta: {
-        hr_name: 'density_mapbox',
-        description: [
+        insanOkunabilirAdı: 'density_mapbox', // İnsan tarafından okunabilir adı
+        açıklama: [
             deprecationWarning,
-            'Draws a bivariate kernel density estimation with a Gaussian kernel',
-            'from `lon` and `lat` coordinates and optional `z` values using a colorscale.'
+            '`lon` ve `lat` koordinatlarından ve isteğe bağlı `z` değerlerinden',
+            'bir renk ölçeği oluşturur.'
         ].join(' ')
     }
 };

@@ -9,98 +9,98 @@ var Colorscale = require('../../components/colorscale');
 var BADNUM = require('../../constants/numerical').BADNUM;
 var makeBlank = require('../../lib/geojson_utils').makeBlank;
 
-module.exports = function convert(calcTrace) {
-    var trace = calcTrace[0].trace;
-    var isVisible = (trace.visible === true && trace._length !== 0);
+module.exports = function dönüştür(calcTrace) {
+    var iz = calcTrace[0].trace;
+    var görünür = (iz.visible === true && iz._length !== 0);
 
-    var heatmap = {
+    var ısıHaritası = {
         layout: {visibility: 'none'},
         paint: {}
     };
 
-    var opts = trace._opts = {
-        heatmap: heatmap,
+    var seçenekler = iz._opts = {
+        heatmap: ısıHaritası,
         geojson: makeBlank()
     };
 
-    // early return if not visible or placeholder
-    if(!isVisible) return opts;
+    // erken dönüş, eğer görünür değilse veya yer tutucuysa
+    if(!görünür) return seçenekler;
 
-    var features = [];
+    var özellikler = [];
     var i;
 
-    var z = trace.z;
-    var radius = trace.radius;
-    var hasZ = Lib.isArrayOrTypedArray(z) && z.length;
-    var hasArrayRadius = Lib.isArrayOrTypedArray(radius);
+    var z = iz.z;
+    var yarıçap = iz.radius;
+    var zVar = Lib.isArrayOrTypedArray(z) && z.length;
+    var arrayYarıçapVar = Lib.isArrayOrTypedArray(yarıçap);
 
     for(i = 0; i < calcTrace.length; i++) {
         var cdi = calcTrace[i];
         var lonlat = cdi.lonlat;
 
         if(lonlat[0] !== BADNUM) {
-            var props = {};
+            var özellikler = {};
 
-            if(hasZ) {
+            if(zVar) {
                 var zi = cdi.z;
-                props.z = zi !== BADNUM ? zi : 0;
+                özellikler.z = zi !== BADNUM ? zi : 0;
             }
-            if(hasArrayRadius) {
-                props.r = (isNumeric(radius[i]) && radius[i] > 0) ? +radius[i] : 0;
+            if(arrayYarıçapVar) {
+                özellikler.r = (isNumeric(yarıçap[i]) && yarıçap[i] > 0) ? +yarıçap[i] : 0;
             }
 
-            features.push({
+            özellikler.push({
                 type: 'Feature',
                 geometry: {type: 'Point', coordinates: lonlat},
-                properties: props
+                properties: özellikler
             });
         }
     }
 
-    var cOpts = Colorscale.extractOpts(trace);
-    var scl = cOpts.reversescale ?
-        Colorscale.flipScale(cOpts.colorscale) :
-        cOpts.colorscale;
+    var cSeçenekler = Colorscale.extractOpts(iz);
+    var renkSkalası = cSeçenekler.reversescale ?
+        Colorscale.flipScale(cSeçenekler.colorscale) :
+        cSeçenekler.colorscale;
 
-    // Add alpha channel to first colorscale step.
-    // If not, we would essentially color the entire map.
-    // See https://docs.mapbox.com/mapbox-gl-js/example/heatmap-layer/
-    var scl01 = scl[0][1];
-    var color0 = Color.opacity(scl01) < 1 ? scl01 : Color.addOpacity(scl01, 0);
+    // İlk renk skalası adımına alfa kanalı ekleyin.
+    // Eğer eklemezsek, tüm haritayı renklendirmiş oluruz.
+    // Bkz: https://docs.mapbox.com/mapbox-gl-js/example/heatmap-layer/
+    var renkSkalası01 = renkSkalası[0][1];
+    var renk0 = Color.opacity(renkSkalası01) < 1 ? renkSkalası01 : Color.addOpacity(renkSkalası01, 0);
 
-    var heatmapColor = [
+    var ısıHaritasıRengi = [
         'interpolate', ['linear'],
         ['heatmap-density'],
-        0, color0
+        0, renk0
     ];
-    for(i = 1; i < scl.length; i++) {
-        heatmapColor.push(scl[i][0], scl[i][1]);
+    for(i = 1; i < renkSkalası.length; i++) {
+        ısıHaritasıRengi.push(renkSkalası[i][0], renkSkalası[i][1]);
     }
 
-    // Those "weights" have to be in [0, 1], we can do this either:
-    // - as here using a mapbox-gl expression
-    // - or, scale the 'z' property in the feature loop
+    // Bu "ağırlıklar" [0, 1] aralığında olmalı, bunu şu şekilde yapabiliriz:
+    // - burada olduğu gibi bir mapbox-gl ifadesi kullanarak
+    // - veya, özellik döngüsünde 'z' özelliğini ölçekleyerek
     var zExp = [
         'interpolate', ['linear'],
         ['get', 'z'],
-        cOpts.min, 0,
-        cOpts.max, 1
+        cSeçenekler.min, 0,
+        cSeçenekler.max, 1
     ];
 
-    Lib.extendFlat(opts.heatmap.paint, {
-        'heatmap-weight': hasZ ? zExp : 1 / (cOpts.max - cOpts.min),
+    Lib.extendFlat(seçenekler.heatmap.paint, {
+        'heatmap-weight': zVar ? zExp : 1 / (cSeçenekler.max - cSeçenekler.min),
 
-        'heatmap-color': heatmapColor,
+        'heatmap-color': ısıHaritasıRengi,
 
-        'heatmap-radius': hasArrayRadius ?
+        'heatmap-radius': arrayYarıçapVar ?
             {type: 'identity', property: 'r'} :
-            trace.radius,
+            iz.radius,
 
-        'heatmap-opacity': trace.opacity
+        'heatmap-opacity': iz.opacity
     });
 
-    opts.geojson = {type: 'FeatureCollection', features: features};
-    opts.heatmap.layout.visibility = 'visible';
+    seçenekler.geojson = {type: 'FeatureCollection', features: özellikler};
+    seçenekler.heatmap.layout.visibility = 'visible';
 
-    return opts;
+    return seçenekler;
 };
